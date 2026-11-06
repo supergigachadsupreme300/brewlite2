@@ -1,0 +1,17 @@
+@startuml
+start
+:Customer opens menu;
+:Select drinks and add to cart;
+:Review order summary;
+:Confirm checkout;
+:Submit payment;
+if (Payment successful?) then (yes)
+  :Create order;
+  :Notify customer and staff;
+  :Prepare order;
+else (no)
+  :Show payment error;
+  :Retry or cancel;
+endif
+stop
+@enduml

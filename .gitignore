@@ -1,0 +1,36 @@
+# Node / package manager
+node_modules/
+.npm/
+.pnpm-store/
+package-lock.json
+
+# Next.js
+apps/web/.next/
+out/
+
+# NestJS / build output
+apps/api/dist/
+apps/api/coverage/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Docker / local storage
+*.log
+*.pid
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Private keys
+*.pem
+
+# Prisma generated client
+apps/api/node_modules/.prisma
+
+# IDE and editor settings
+.vscode/
+.idea/
