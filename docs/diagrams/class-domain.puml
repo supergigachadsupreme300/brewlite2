@@ -1,37 +1,37 @@
 @startuml
-class Customer {
+class KhachHang {
   +id: string
-  +name: string
+  +ten: string
 }
 
-class Order {
+class DonDatHang {
   +id: string
-  +status: string
-  +total: decimal
-  +createdAt: datetime
+  +trangThai: string
+  +tongTien: decimal
+  +ngayTao: datetime
 }
 
-class OrderItem {
+class ChiTietDonHang {
   +id: string
-  +quantity: number
-  +unitPrice: decimal
+  +soLuong: number
+  +giaTien: decimal
 }
 
-class Product {
+class SanPham {
   +id: string
-  +name: string
-  +price: decimal
+  +ten: string
+  +gia: decimal
 }
 
-class Payment {
+class ThanhToan {
   +id: string
-  +amount: decimal
-  +method: string
-  +status: string
+  +soTien: decimal
+  +phuongThuc: string
+  +trangThai: string
 }
 
-Customer "1" --> "0..*" Order
-Order "1" --> "0..*" OrderItem
-Product "1" --> "0..*" OrderItem
-Order "1" --> "1" Payment
+KhachHang "1" --> "0..*" DonDatHang
+DonDatHang "1" --> "0..*" ChiTietDonHang
+SanPham "1" --> "0..*" ChiTietDonHang
+DonDatHang "1" --> "1" ThanhToan
 @enduml

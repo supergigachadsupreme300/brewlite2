@@ -1,59 +1,63 @@
-# BrewLite Deployment Plan
+# Kế hoạch triển khai BrewLite
 
-## Objective
+## Mục tiêu
 
-This document describes the AWS EC2 deployment preparation approach for BrewLite. It is intentionally implementation-oriented but does not create or commit live AWS credentials or private keys.
+Tài liệu này mô tả phương án triển khai mục tiêu của BrewLite trên AWS EC2. Đây là kế hoạch thiết kế và chuẩn bị triển khai, không phải hiện trạng đã được deploy thực tế trên môi trường AWS.
 
-## Target Architecture
+## Trạng thái triển khai
 
-- Amazon EC2 Linux instance as the application host
-- SSH key pair for secure administrative access
-- Docker and Docker Compose to run the application stack
-- Amazon ECR to store the application container images
-- Amazon EBS for PostgreSQL data persistence
-- Nginx as reverse proxy
-- CloudWatch Agent / CloudWatch Logs for log collection when enabled
+- Chưa có tài nguyên AWS được provision thực tế trong bài tập này.
+- Không có private key, credential, secret hay file `.env` production nào được commit lên repository.
+- Mọi thông tin về EC2, ECR, EBS, SSH và CloudWatch được hiểu là kế hoạch triển khai dự kiến.
 
-## 1. Create the EC2 Instance
+## Kiến trúc mục tiêu
 
-1. Open the AWS Console and navigate to EC2.
-2. Choose an Amazon Linux 2023 or Ubuntu LTS AMI.
-3. Select an instance type suitable for a small production deployment, such as `t3.small` or similar.
-4. Configure a VPC, subnet, and public IP assignment if the environment requires internet access.
-5. Create the instance and wait for it to be in the `running` state.
+- Amazon EC2 Linux làm máy chủ ứng dụng
+- SSH key pair để quản trị an toàn
+- Docker và Docker Compose để chạy stack ứng dụng
+- Amazon ECR để lưu trữ image
+- Amazon EBS để lưu dữ liệu PostgreSQL bền vững
+- Nginx làm reverse proxy
+- CloudWatch Agent / CloudWatch Logs để thu thập log khi cần
 
-## 2. Create or Select an SSH Key Pair
+## 1. Tạo EC2 instance
 
-1. In EC2, navigate to `Network & Security > Key Pairs`.
-2. Create a new key pair or reuse an existing one.
-3. Download the `.pem` file to the local workstation.
-4. Restrict local permissions:
+1. Mở AWS Console và vào EC2.
+2. Chọn AMI Amazon Linux 2023 hoặc Ubuntu LTS.
+3. Chọn instance type phù hợp với quy mô ứng dụng dự kiến.
+4. Thiết lập VPC và subnet phù hợp với môi trường chạy.
+5. Tạo instance và chờ trạng thái running.
+
+## 2. Tạo hoặc chọn SSH Key Pair
+
+1. Vào EC2 > Network & Security > Key Pairs.
+2. Tạo key pair mới hoặc dùng key pair hiện có.
+3. Tải file `.pem` xuống thiết bị local.
+4. Giới hạn quyền truy cập file local.
 
 ```bash
 chmod 400 my-brewlite-key.pem
 ```
 
-5. Store the private key only in a secure local location; do not commit it to Git.
+5. Lưu private key ở nơi an toàn, không commit vào Git.
 
-## 3. Configure Security Groups
+## 3. Cấu hình Security Group
 
-Add or update the EC2 security group to allow:
+Bật các port cần thiết cho môi trường triển khai mục tiêu:
 
-- `22/tcp` from the administrator IP only
-- `80/tcp` from `0.0.0.0/0` or a controlled source range
-- `443/tcp` from `0.0.0.0/0` or a controlled source range
+- `22/tcp`: chỉ cho phép IP quản trị
+- `80/tcp`: cho HTTP
+- `443/tcp`: cho HTTPS
 
-This reduces exposure while enabling HTTP/HTTPS entry and SSH administration.
-
-## 4. Connect to the EC2 Host
+## 4. Kết nối SSH
 
 ```bash
 ssh -i my-brewlite-key.pem ec2-user@<EC2_PUBLIC_IP>
 ```
 
-If using Ubuntu, the default user may be `ubuntu` instead of `ec2-user`.
+Nếu dùng Ubuntu, user có thể là `ubuntu` thay vì `ec2-user`.
 
-## 5. Install Docker and Docker Compose
+## 5. Cài Docker và Docker Compose
 
 ```bash
 sudo yum update -y
@@ -63,82 +67,65 @@ sudo systemctl start docker
 sudo usermod -aG docker ec2-user
 ```
 
-For Compose v2:
+Compose v2:
 
 ```bash
 sudo curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
 ```
 
-Then verify:
+Kiểm tra:
 
 ```bash
 docker --version
 docker compose version
 ```
 
-## 6. Authenticate to Amazon ECR
+## 6. Xác thực vào Amazon ECR
 
 ```bash
 aws ecr get-login-password --region <region> | docker login --username AWS --password-stdin <aws-account-id>.dkr.ecr.<region>.amazonaws.com
 ```
 
-Then pull the built image:
+Pull image:
 
 ```bash
 docker pull <aws-account-id>.dkr.ecr.<region>.amazonaws.com/brewlite:latest
 ```
 
-## 7. Start the Application with Docker Compose
-
-On the instance, place the application config and compose file in the service directory.
+## 7. Chạy Docker Compose
 
 ```bash
 docker compose up -d
 ```
 
-This is expected to run:
+Dự kiến sẽ chạy:
 
-- `web` for the Next.js application
-- `api` for the NestJS backend
-- `db` for PostgreSQL
+- `web` cho frontend
+- `api` cho backend
+- `db` cho PostgreSQL
 
-## 8. Check Service Health
+## 8. Kiểm tra health
 
 ```bash
-curl http://localhost:3001/health
 curl http://localhost:3000
+curl http://localhost:3001/health
 ```
 
-The backend health endpoint should respond with a successful status payload.
+## 9. Backup và rollback
 
-## 9. Backup and Recovery
+- Sử dụng EBS snapshot hoặc backup database cho PostgreSQL.
+- Lưu cấu hình ứng dụng cố định trong Git / version control.
+- Giữ file `.env` hoặc secret trong nơi bảo mật riêng.
+- Quy trình rollback có thể quay về image hoặc config được đánh dấu là ổn định trước đó.
 
-- Use EBS snapshots or database backups for PostgreSQL persistence.
-- Store the dockerized application config under version control.
-- Keep environment variables in a secure secret manager or protected `.env` file outside the repository.
-- Document a rollback plan by reusing the previous ECR image tag or container configuration.
+## 10. Ghi chú bảo mật
 
-## 10. Rollback Procedure
+- Không commit private key `.pem`.
+- Không lưu AWS access key, secret hay password thực tế vào repo.
+- Hạn chế SSH chỉ cho IP quản trị được phép.
+- Mã hóa EBS và tách quyền truy cập theo nguyên tắc an ninh tối thiểu.
 
-1. Stop the current containers:
+## Kết luận
 
-```bash
-docker compose down
-```
-
-2. Pull the previous known-good image from ECR.
-3. Redeploy the previous container version.
-4. Verify health on the backend and frontend.
-5. Restore PostgreSQL data from the latest consistent backup if needed.
-
-## Security Notes
-
-- Never commit `.pem` keys, access tokens, `.env` files, or database passwords.
-- Use AWS IAM roles or temporary credentials when possible.
-- Keep SSH access restricted to trusted source IPs.
-- Encrypt EBS volumes where appropriate.
-
-## Status
-
-The repository is prepared for deployment planning and AWS readiness documentation. No live AWS resources are created as part of this task.
+Tài liệu này mô tả kiến trúc và phương án triển khai mục tiêu cho BrewLite. Hiện tại dự án chưa deploy thật lên AWS và chưa tạo resource production, vì vậy các bước trên nên được xem như kế hoạch chuẩn bị triển khai, không phải trạng thái hiện hữu của hệ thống.

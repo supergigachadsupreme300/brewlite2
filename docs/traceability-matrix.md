@@ -1,20 +1,21 @@
-# Traceability Matrix
+# Ma trận truy nguyên yêu cầu
 
-This repository is organized to match the assignment requirements, while preserving the project's existing documentation and source assets. The matrix below links requirements to architecture, design artifacts, implementation entry points, and verification coverage.
+Tài liệu này liên kết yêu cầu nghiệp vụ và kiến trúc của BrewLite với các tài liệu và biểu đồ có trong repository. Phần này tập trung vào mối liên hệ giữa use case, kiến trúc hệ thống và công việc triển khai / kiểm thử.
 
-## Requirement Mapping
+## Ánh xạ yêu cầu
 
-| Requirement ID | User Story / Use Case | Design / Diagram | Code / API | Test Coverage |
+| Mã yêu cầu | User story / Use case | Thiết kế / Biểu đồ | Code / API | Phạm vi kiểm thử |
 | --- | --- | --- | --- | --- |
-| FR-01 | Customer places order | `docs/requirements/use-case-place-and-pay.md`, `docs/diagrams/sequence-checkout.puml` | `apps/api/src` endpoints and modules | Integration and E2E tests |
-| FR-02 | Customer pays for order | `docs/requirements/use-case-place-and-pay.md` | `apps/api/src` payment flow | Integration and E2E tests |
-| FR-03 | Order status visibility | `docs/architecture/architecture.md` | API response models and frontend data flow | Integration tests |
-| NFR-01 | System availability | `docs/architecture/architecture.md` | Docker Compose and EC2 deployment plan | Health check and smoke checks |
-| NFR-02 | Performance | `docs/architecture/architecture.md` | service boundaries and API design | Load and smoke test plan |
-| NFR-03 | Security | `docs/architecture/adr/003-ssh-key-pair.md` | env management, SSH, secrets handling | CI and deployment validation |
+| FR-01 | Khách hàng lựa chọn món và đặt hàng | `docs/requirements/use-case-place-and-pay.md`, `docs/diagrams/sequence-checkout.puml` | API order module trong `apps/api/src` | Integration và E2E tests |
+| FR-02 | Khách hàng thanh toán đơn hàng | `docs/requirements/use-case-place-and-pay.md` | API payment module và order flow | Integration và E2E tests |
+| FR-03 | Khách hàng xem trạng thái đơn | `docs/architecture/architecture.md` | API response model và frontend flow | Integration tests |
+| NFR-01 | Hệ thống có thể triển khai ổn định | `docs/architecture/architecture.md` | Docker / deployment configuration | Smoke test và health check |
+| NFR-02 | Hệ thống dễ bảo trì | `docs/architecture/architecture.md` | Module/domain structure | Unit test và review architecture |
+| NFR-03 | Quản lý configuration và bảo mật | `docs/architecture/architecture.md` | Environment variables và secret handling | CI và deployment validation |
 
-## Notes
+## Ghi chú
 
-- This repository deliberately keeps the required structure and artifact placeholders aligned to the assignment.
-- Source code should be added under `apps/web` and `apps/api` without altering business behavior.
-- Generated plant UML sources remain under `docs/diagrams` and are not replaced with screenshots.
+- Requirement và use case tập trung vào luồng nghiệp vụ của BrewLite.
+- Architecture mô tả toàn bộ hệ thống và deployment mục tiêu.
+- PlantUML source file vẫn được lưu trong `docs/diagrams` và không bị thay bằng hình ảnh.
+- Tài liệu này được thiết kế để dễ truy vết giữa use case, thiết kế và triển khai mà không cần giữ các file ADR riêng lẻ.

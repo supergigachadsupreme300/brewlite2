@@ -1,17 +1,17 @@
 @startuml
 start
-:Customer opens menu;
-:Select drinks and add to cart;
-:Review order summary;
-:Confirm checkout;
-:Submit payment;
-if (Payment successful?) then (yes)
-  :Create order;
-  :Notify customer and staff;
-  :Prepare order;
-else (no)
-  :Show payment error;
-  :Retry or cancel;
+:Khách hàng mở menu;
+:Chọn đồ uống và thêm vào giỏ hàng;
+:Xem lại tóm tắt đơn hàng;
+:Xác nhận thanh toán;
+:Gửi yêu cầu thanh toán;
+if (Thanh toán thành công?) then (có)
+  :Tạo đơn hàng;
+  :Thông báo cho khách hàng và nhân viên;
+  :Chuẩn bị đơn hàng;
+else (không)
+  :Hiển thị lỗi thanh toán;
+  :Thử lại hoặc hủy;
 endif
 stop
 @enduml

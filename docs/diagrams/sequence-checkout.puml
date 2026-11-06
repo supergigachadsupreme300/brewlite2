@@ -1,19 +1,19 @@
 @startuml
-actor Customer
+actor Customer as "Khách hàng"
 participant Web as "Next.js Web"
 participant API as "NestJS API"
 database DB as "PostgreSQL"
 
-Customer -> Web: Select item(s)
+Customer -> Web: Chọn món
 Web -> API: POST /orders
-API -> DB: Save order
-DB --> API: Order created
-API --> Web: Order confirmation
-Web --> Customer: Show confirmation
-Customer -> Web: Submit payment
+API -> DB: Lưu đơn hàng
+DB --> API: Đơn hàng đã được tạo
+API --> Web: Xác nhận đơn hàng
+Web --> Customer: Hiển thị xác nhận
+Customer -> Web: Gửi thanh toán
 Web -> API: POST /payments
-API -> DB: Record payment
-DB --> API: Payment saved
-API --> Web: Payment success
-Web --> Customer: Show receipt
+API -> DB: Ghi nhận thanh toán
+DB --> API: Thanh toán đã được lưu
+API --> Web: Thanh toán thành công
+Web --> Customer: Hiển thị hóa đơn
 @enduml
