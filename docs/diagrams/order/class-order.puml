@@ -1,0 +1,116 @@
+@startuml class
+title Sơ đồ Lớp Thực thể (Domain Class Diagram) — Hệ thống BrewLite
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PREPARING
+  READY
+  COMPLETED
+  PAYMENT_FAILED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  MOMO
+  BANK_TRANSFER
+  CARD
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+class User {
+  +id: String
+  +email: String
+  +name: String
+  +phone: String
+  +role: String
+  +orders: Order[]
+  +loyaltyTransactions: LoyaltyTransaction[]
+}
+
+class Product {
+  +id: String
+  +name: String
+  +description: String
+  +price: Decimal
+  +stock: Int
+  +imageUrl: String
+  +isAvailable: Boolean
+  +orderItems: OrderItem[]
+}
+
+class Order {
+  +id: String
+  +userId: String
+  +total: Decimal
+  +status: OrderStatus
+  +customerName: String
+  +customerPhone: String
+  +pickupType: String
+  +tableNumber: String
+  +note: String
+  +createdAt: DateTime
+  +updatedAt: DateTime
+  +items: OrderItem[]
+  +payments: Payment[]
+  +calculateTotal(): Decimal
+}
+
+class OrderItem {
+  +id: String
+  +orderId: String
+  +productId: String
+  +quantity: Int
+  +size: String
+  +unitPrice: Decimal
+  +lineTotal: Decimal
+  +order: Order
+  +product: Product
+}
+
+class Payment {
+  +id: String
+  +orderId: String
+  +amount: Decimal
+  +method: PaymentMethod
+  +status: PaymentStatus
+  +transactionCode: String
+  +createdAt: DateTime
+  +order: Order
+}
+
+class Promotion {
+  +id: String
+  +code: String
+  +discountValue: Decimal
+  +minOrderValue: Decimal
+  +startDate: DateTime
+  +endDate: DateTime
+  +isActive: Boolean
+}
+
+class LoyaltyTransaction {
+  +id: String
+  +userId: String
+  +points: Int
+  +type: String
+  +createdAt: DateTime
+  +user: User
+}
+
+' Mối quan hệ giữa các lớp
+User "1" -- "0..*" Order : đặt hàng >
+User "1" -- "0..*" LoyaltyTransaction : sở hữu >
+Order "1" *-- "1..*" OrderItem : bao gồm >
+Product "1" -- "0..*" OrderItem : thuộc về >
+Order "1" -- "0..*" Payment : thanh toán qua >
+Order ..> Promotion : áp dụng mã giảm
+Order ..> OrderStatus : có trạng thái
+Payment ..> PaymentStatus : có trạng thái
+Payment ..> PaymentMethod : sử dụng
+@enduml

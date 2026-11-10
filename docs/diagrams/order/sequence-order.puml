@@ -1,0 +1,75 @@
+@startuml sequence
+autonumber
+skinparam BoxPadding 10
+skinparam ParticipantPadding 10
+
+title Sơ đồ Tuần tự (Sequence Diagram) — UC-01: Đặt và Thanh toán đơn hàng
+
+actor "Customer" as User
+box "Frontend" #F9F9F9
+  participant "Next.js UI" as UI
+end box
+box "Backend API" #EDF2F8
+  participant "NestJS API" as API
+end box
+box "Database Layer" #FFF9E6
+  database "PostgreSQL\n(Prisma ORM)" as DB
+end box
+box "External Payment" #F3E5F5
+  participant "Payment Service\n(MoMo/VietQR)" as Pay
+end box
+
+== 1. Xác thực & Gửi yêu cầu Đặt hàng ==
+User -> UI: Điền thông tin nhận nước & bấm "Xác nhận đặt món"
+activate UI
+UI -> UI: Validate SĐT 10 số, số bàn & chặn click đúp
+UI -> API: POST /orders (CreateOrderDto + Bearer JWT)
+activate API
+
+API -> API: Xác thực JWT token & kiểm tra quyền người dùng
+API -> DB: Bắt đầu prisma.$transaction()
+activate DB
+
+== 2. Kiểm tra tồn kho & Tạo đơn nguyên tử ==
+loop Duyệt từng sản phẩm trong giỏ
+  API -> DB: SELECT stock, price FROM Product WHERE id = ?
+  DB --> API: Trả về tồn kho thực tế
+  alt Tồn kho không đủ (stock < quantity)
+    API --> DB: ROLLBACK Transaction
+    API --> UI: HTTP 400 Bad Request ("Món X không đủ số lượng")
+    UI --> User: Hiển thị cảnh báo hết hàng
+  end
+end
+
+API -> DB: INSERT INTO "Order" (status: 'PENDING', total)
+API -> DB: INSERT INTO "OrderItem" (...)
+API -> DB: UPDATE Product SET stock = stock - quantity (decrement)
+DB --> API: Transaction COMMIT thành công
+deactivate DB
+
+API --> UI: HTTP 201 Created (Trả về orderId, status = PENDING)
+deactivate API
+
+== 3. Xử lý Thanh toán (Module Payment) ==
+UI -> UI: Dọn sạch giỏ hàng & chuyển sang /payment?orderId=...
+UI -> Pay: Gửi yêu cầu khởi tạo thanh toán (amount, orderId)
+activate Pay
+Pay --> UI: Trả về mã QR thanh toán (VietQR/MoMo)
+User -> Pay: Khách hàng quét mã thanh toán
+
+alt Thanh toán thành công
+  Pay -> API: Webhook / Callback xác nhận thanh toán thành công
+  activate API
+  API -> DB: UPDATE "Order" SET status = 'PAID'
+  API --> Pay: HTTP 200 OK
+  deactivate API
+  Pay --> UI: Xác nhận giao dịch thành công
+  UI --> User: Chuyển màn hình thành công, hiển thị mã đơn nhận nước
+else Thanh toán thất bại hoặc Hết thời gian chờ
+  Pay --> UI: Giao dịch thất bại (Số dư không đủ / Hủy)
+  UI -> API: PATCH /orders/:id { status: 'PAYMENT_FAILED' }
+  UI --> User: Báo lỗi thanh toán & hiển thị nút "Thử lại"
+end
+deactivate Pay
+deactivate UI
+@enduml

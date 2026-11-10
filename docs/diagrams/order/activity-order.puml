@@ -1,0 +1,86 @@
+@startuml activity
+title Sơ đồ Hoạt động (Activity Diagram) — Luồng Đặt món & Thanh toán BrewLite
+
+|#F9F9F9|Khách hàng (Customer)|
+start
+:Xem menu & chọn món vào giỏ;
+:Vào trang Checkout xem lại đơn hàng;
+
+if (Kiểm tra đăng nhập?) then (Chưa đăng nhập)
+  :Yêu cầu đăng nhập / xác thực JWT;
+  if (Đăng nhập thành công?) then (Hủy / Thất bại)
+    stop
+  else (Thành công)
+  endif
+else (Đã đăng nhập)
+endif
+
+|Khách hàng (Customer)|
+if (Đơn hàng có món không?) then (Giỏ rỗng [BR-06])
+  |#E8F4FD|Frontend (Next.js)|
+  :Khóa nút thanh toán & cảnh báo giỏ rỗng;
+  stop
+else (Có món)
+  |Khách hàng (Customer)|
+  :Nhập tên, SĐT và chọn Mang đi hoặc Số bàn;
+  :Chọn phương thức thanh toán không tiền mặt;
+  :Bấm "Xác nhận đặt món";
+endif
+
+|Frontend (Next.js)|
+:Validate SĐT 10 số & Số bàn tại client;
+if (Thông tin hợp lệ?) then (Không hợp lệ)
+  :Báo lỗi viền đỏ, chặn gửi đơn;
+  stop
+else (Hợp lệ)
+  :Khóa nút đặt hàng (chống gửi đúp - Idempotency);
+  :Gửi POST /orders sang Backend;
+endif
+
+|#EDF2F8|Backend (NestJS API)|
+:Tiếp nhận DTO & mở Database Transaction;
+
+|#FFF9E6|Cơ sở dữ liệu (PostgreSQL)|
+:Kiểm tra tồn kho (product.stock >= quantity);
+if (Đủ hàng trong kho?) then (Hết hàng / Không đủ)
+  |Backend (NestJS API)|
+  :Rollback transaction;
+  :Trả về lỗi 400 Bad Request (Hết hàng);
+  |Frontend (Next.js)|
+  :Hiển thị thông báo món đã hết;
+  stop
+else (Đủ hàng)
+  |Cơ sở dữ liệu (PostgreSQL)|
+  :Tạo đơn hàng (status = PENDING);
+  :Tạo các bản ghi OrderItem;
+  :Trừ kho nguyên tử (stock decrement);
+  |Backend (NestJS API)|
+  :Commit transaction thành công;
+  :Trả về orderId và thông tin đơn;
+endif
+
+|Frontend (Next.js)|
+:Dọn sạch giỏ hàng;
+:Điều hướng sang cổng thanh toán (/payment);
+
+|Khách hàng (Customer)|
+:Thực hiện quét mã QR MoMo / VietQR;
+
+|#F3E5F5|Dịch vụ Thanh toán (Payment Service)|
+:Xử lý giao dịch thanh toán;
+if (Giao dịch thành công?) then (Thất bại / Hết hạn)
+  |Backend (NestJS API)|
+  :Cập nhật trạng thái đơn -> PAYMENT_FAILED;
+  |Frontend (Next.js)|
+  :Hiển thị lỗi thanh toán & cho phép thử lại;
+  stop
+else (Thành công)
+  |Backend (NestJS API)|
+  :Cập nhật trạng thái đơn -> PAID;
+  |Frontend (Next.js)|
+  :Hiển thị thông báo xác nhận thành công;
+  |Khách hàng (Customer)|
+  :Theo dõi tiến độ pha chế tại quầy;
+  stop
+endif
+@enduml
