@@ -1,0 +1,117 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+class User {
+  +id: String
+  +email: String
+  +name: String
+  +password: String
+  +role: Role
+  +createdAt: DateTime
+}
+
+class Product {
+  +id: String
+  +name: String
+  +description: String
+  +imageUrl: String
+  +price: Decimal
+  +stock: Int
+}
+
+class Cart {
+  +id: String
+  +clientId: String
+  +createdAt: DateTime
+  +updatedAt: DateTime
+  +getTotalItems(): Int
+  +getTotalPrice(): Decimal
+}
+
+class CartItem {
+  +id: String
+  +cartId: String
+  +productId: String
+  +quantity: Int
+  +size: String
+  +toppings: String
+  +getLineTotal(): Decimal
+}
+
+class Order {
+  +id: String
+  +userId: String
+  +total: Decimal
+  +status: OrderStatus
+  +createdAt: DateTime
+}
+
+class OrderItem {
+  +id: String
+  +orderId: String
+  +productId: String
+  +quantity: Int
+  +unitPrice: Decimal
+  +lineTotal: Decimal
+}
+
+class Payment {
+  +id: String
+  +orderId: String
+  +amount: Decimal
+  +method: String
+  +status: PaymentStatus
+  +idempotencyKey: String
+}
+
+class Promotion <<future / not implemented>> {
+  +id: String
+  +code: String
+  +discountType: String
+  +discountValue: Decimal
+  +startAt: DateTime
+  +endAt: DateTime
+}
+
+class LoyaltyTransaction <<future / not implemented>> {
+  +id: String
+  +userId: String
+  +orderId: String
+  +points: Int
+  +type: LoyaltyTransactionType
+  +createdAt: DateTime
+}
+
+enum Role { USER; ADMIN }
+enum OrderStatus { PENDING; PROCESSING; COMPLETED; CANCELLED }
+enum PaymentStatus { PENDING; SUCCESS; FAILED; REFUNDED }
+enum LoyaltyTransactionType { EARN; REDEEM; ADJUST }
+
+User "1" -- "0..1" Cart : sở hữu/phiên khách
+Cart "1" *-- "0..*" CartItem : chứa
+Product "1" -- "0..*" CartItem : được chọn
+User "1" -- "0..*" Order : đặt
+Order "1" *-- "1..*" OrderItem : gồm
+Product "1" -- "0..*" OrderItem : tham chiếu
+Order "1" -- "0..*" Payment : thanh toán
+User "1" -- "0..*" LoyaltyTransaction : phát sinh
+Order "0..1" -- "0..*" LoyaltyTransaction : liên quan
+Promotion "0..*" .. "0..*" Order : áp dụng (mở rộng)
+
+note right of Cart
+  Cart trong schema hiện tại dùng clientId
+  và chưa có quan hệ trực tiếp với User.
+  Quan hệ User–Cart là khái niệm nghiệp vụ
+  nếu nhóm bổ sung giỏ hàng theo tài khoản.
+end note
+note bottom of Promotion
+  Lớp theo yêu cầu tối thiểu của Assignment 2;
+  chưa có model tương ứng trong Prisma hiện tại.
+end note
+note bottom of LoyaltyTransaction
+  Lớp theo yêu cầu tối thiểu của Assignment 2;
+  User hiện có loyaltyPoints nhưng chưa có
+  bảng lịch sử giao dịch điểm.
+end note
+@enduml

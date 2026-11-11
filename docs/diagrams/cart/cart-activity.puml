@@ -1,0 +1,93 @@
+@startuml
+|Khách hàng|
+start
+:Mở menu/chi tiết sản phẩm;
+:Chọn sản phẩm và số lượng;
+|Next.js UI / Cart|
+:Gửi yêu cầu thêm vào giỏ;
+|Product / Backend|
+:Đọc thông tin sản phẩm và tồn kho;
+|Cart|
+:Kiểm tra productId, quantity và stock;
+if (Dữ liệu hợp lệ và còn hàng?) then (Có)
+  :Thêm dòng hoặc cộng số lượng;
+  :Tính thành tiền và tổng tiền;
+  :Lưu giỏ và cập nhật badge;
+else (Không)
+  |Next.js UI / Cart|
+  :Hiển thị lỗi / hết hàng;
+  |Khách hàng|
+  :Điều chỉnh sản phẩm hoặc số lượng;
+  stop
+endif
+|Khách hàng|
+:Mở giỏ hàng;
+|Next.js UI / Cart|
+:Hiển thị món, số lượng và tổng tiền;
+|Khách hàng|
+if (Cần chỉnh sửa giỏ?) then (Có)
+  if (Xóa hay đổi số lượng?) then (Xóa)
+    :Chọn xóa sản phẩm;
+    |Cart|
+    :Xóa dòng và tính lại tổng tiền;
+  else (Đổi số lượng)
+    :Nhập số lượng mới;
+    |Cart|
+    :Validate số nguyên dương và tồn kho;
+    if (Số lượng hợp lệ?) then (Có)
+      :Cập nhật số lượng và tính lại tiền;
+    else (Không)
+      |Next.js UI / Cart|
+      :Thông báo số lượng không hợp lệ;
+    endif
+  endif
+  |Next.js UI / Cart|
+  :Cập nhật giao diện giỏ hàng;
+  |Khách hàng|
+endif
+:Chọn tiến hành thanh toán;
+if (Đã đăng nhập?) then (Có)
+else (Chưa)
+  |Login/Auth|
+  :Yêu cầu đăng nhập;
+  |Khách hàng|
+  :Nhập thông tin đăng nhập;
+  |Login/Auth|
+  :Xác thực thông tin và cấp JWT;
+  if (Đăng nhập thành công?) then (Có)
+  else (Không)
+    |Next.js UI / Cart|
+    :Thông báo đăng nhập thất bại;
+    stop
+  endif
+endif
+|Checkout|
+:Nhận danh sách productId và quantity;
+:Kiểm tra JWT, validate dữ liệu;
+:Đọc lại giá và tồn kho từ Database;
+if (Giỏ hợp lệ và đủ hàng?) then (Có)
+  :Tạo đơn trong transaction;
+  :Ghi Order/OrderItem và cập nhật tồn kho;
+  :Gửi yêu cầu thanh toán;
+  |Payment Service|
+  :Xử lý giao dịch;
+  if (Thanh toán thành công?) then (Có)
+    |Checkout|
+    :Cập nhật trạng thái thanh toán/đơn;
+    |Next.js UI / Cart|
+    :Thông báo đặt hàng thành công;
+    stop
+  else (Không)
+    |Checkout|
+    :Ghi nhận thanh toán thất bại;
+    |Next.js UI / Cart|
+    :Hiển thị lỗi và hướng dẫn thử lại;
+    stop
+  endif
+else (Không)
+  |Next.js UI / Cart|
+  :Thông báo sản phẩm hết hàng/giá thay đổi;
+  :Yêu cầu khách cập nhật giỏ;
+  stop
+endif
+@enduml

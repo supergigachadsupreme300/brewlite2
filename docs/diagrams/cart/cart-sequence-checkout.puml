@@ -1,0 +1,63 @@
+@startuml
+hide footbox
+autonumber
+actor Customer as C
+participant "Next.js UI" as UI
+participant "NestJS API" as API
+database "PostgreSQL" as DB
+participant "Payment Service" as Pay
+
+C -> UI: Chọn tiến hành thanh toán
+UI -> API: POST /orders/checkout\nAuthorization: Bearer JWT\nIdempotency-Key: key
+activate API
+API -> API: Verify JWT và xác định userId
+alt JWT không hợp lệ / chưa đăng nhập
+  API --> UI: 401 Unauthorized
+  UI --> C: Yêu cầu đăng nhập
+else JWT hợp lệ
+  API -> API: Validate cart items, productId, quantity
+  alt Dữ liệu không hợp lệ hoặc giỏ rỗng
+    API --> UI: 400 Bad Request + lỗi validation
+    UI --> C: Hiển thị lỗi, yêu cầu sửa giỏ
+  else Dữ liệu hợp lệ
+    API -> DB: BEGIN TRANSACTION
+    API -> DB: SELECT Product theo productId\nkiểm tra giá và stock (lock phù hợp)
+    DB --> API: Product, current price, current stock
+    alt Sản phẩm không tồn tại / hết hàng / thiếu stock
+      API -> DB: ROLLBACK
+      API --> UI: 409 Conflict + sản phẩm không khả dụng
+      UI --> C: Thông báo cập nhật giỏ hàng
+    else Tất cả sản phẩm hợp lệ
+      API -> DB: Tính lại tổng tiền từ giá DB
+      API -> DB: INSERT Order + OrderItem
+      API -> DB: UPDATE Product.stock = stock - quantity
+      API -> DB: COMMIT TRANSACTION
+      DB --> API: Order đã tạo, tồn kho cập nhật
+      API -> DB: Tạo/đọc Payment theo Idempotency-Key
+      alt Idempotency-Key đã được xử lý
+        DB --> API: Trả kết quả Payment/Order đã có
+      else Key mới
+        API -> Pay: Create/charge payment\n(orderId, amount, key)
+        activate Pay
+        alt Thanh toán thành công
+          Pay --> API: success + transaction reference
+          API -> DB: UPDATE Payment.status = SUCCESS
+          API -> DB: UPDATE Order.status theo quy tắc nghiệp vụ
+          DB --> API: Đã cập nhật
+          API --> UI: 200 OK + order + payment SUCCESS
+          UI --> C: Hiển thị xác nhận đơn và thanh toán
+        else Thanh toán thất bại
+          Pay --> API: failed + reason
+          API -> DB: UPDATE Payment.status = FAILED
+          API -> DB: Cập nhật Order theo chính sách thất bại\n(giữ pending hoặc hủy/hoàn stock)
+          DB --> API: Đã ghi nhận thất bại
+          API --> UI: 402/400 + payment FAILED
+          UI --> C: Hiển thị lỗi và hướng dẫn thử lại
+        end
+        deactivate Pay
+      end
+    end
+  end
+end
+deactivate API
+@enduml
