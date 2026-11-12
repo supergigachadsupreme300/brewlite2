@@ -1,0 +1,58 @@
+import { Product } from './product';
+
+export const PRODUCTS_SEED: Product[] = [
+  {
+    id: '1',
+    name: 'Espresso',
+    description: 'Rich and bold single shot espresso.',
+    price: 2.5,
+    imageUrl: '/images/espresso.png',
+    category: 'Coffee',
+    available: true,
+  },
+  {
+    id: '2',
+    name: 'Americano',
+    description: 'Espresso diluted with hot water for a smooth cup.',
+    price: 3.0,
+    imageUrl: '/images/americano.png',
+    category: 'Coffee',
+    available: true,
+  },
+  {
+    id: '3',
+    name: 'Cappuccino',
+    description: 'Espresso with steamed milk and a thick foam layer.',
+    price: 3.75,
+    imageUrl: '/images/cappuccino.png',
+    category: 'Coffee',
+    available: true,
+  },
+  {
+    id: '4',
+    name: 'Latte',
+    description: 'Creamy espresso with steamed milk.',
+    price: 4.0,
+    imageUrl: '/images/latte.png',
+    category: 'Coffee',
+    available: true,
+  },
+  {
+    id: '5',
+    name: 'Mocha',
+    description: 'Chocolate-flavored latte topped with whipped cream.',
+    price: 4.5,
+    imageUrl: '/images/mocha.png',
+    category: 'Coffee',
+    available: false,
+  },
+  {
+    id: '6',
+    name: 'Croissant',
+    description: 'Buttery, flaky French pastry.',
+    price: 2.75,
+    imageUrl: '/images/croissant.png',
+    category: 'Pastry',
+    available: true,
+  },
+];
