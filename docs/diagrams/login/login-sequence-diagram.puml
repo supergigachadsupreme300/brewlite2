@@ -1,0 +1,179 @@
+@startuml sequence
+autonumber
+skinparam BoxPadding 10
+skinparam ParticipantPadding 10
+
+title Sơ đồ Tuần tự (Sequence Diagram) — UC-AUTH-01: Đăng ký, Đăng nhập, JWT & Quản lý trạng thái đăng nhập
+
+actor "Customer" as User
+box "Frontend" #F9F9F9
+  participant "Next.js UI" as UI
+end box
+box "Backend API" #EDF2F8
+  participant "NestJS API" as API
+end box
+box "Database Layer" #FFF9E6
+  database "PostgreSQL\n(Prisma ORM)" as DB
+end box
+box "External Payment" #F3E5F5
+  participant "Payment Service\n(mô phỏng)" as Pay
+end box
+
+== 1. Đăng ký (Register) — FR-01, FR-02, FR-04 ==
+User -> UI: Điền email, mật khẩu, họ tên & bấm "Đăng ký"
+activate UI
+UI -> UI: Validate email, mật khẩu >= 8 ký tự & khóa nút (chặn click đúp)
+UI -> API: POST /auth/register (RegisterDto)
+activate API
+API -> API: Validate RegisterDto (class-validator)
+
+alt DTO không hợp lệ
+  API --> UI: HTTP 400 Bad Request (lỗi theo từng trường)
+  UI --> User: Hiển thị lỗi, mở lại nút "Đăng ký"
+else DTO hợp lệ
+  API -> API: bcrypt.hash(password, saltRounds 10-12)
+  API -> DB: BEGIN prisma.$transaction()
+  activate DB
+  API -> DB: SELECT id FROM "User" WHERE email = ?
+  DB --> API: Kết quả tìm email
+
+  alt Email đã tồn tại (hoặc vi phạm UNIQUE(email) khi đăng ký song song)
+    API -> DB: ROLLBACK
+    API --> UI: HTTP 409 Conflict ("Email đã được đăng ký")
+    UI --> User: Báo email đã đăng ký, gợi ý chuyển sang Đăng nhập
+  else Email chưa tồn tại
+    API -> DB: INSERT INTO "User" (email, passwordHash, fullName)
+    DB --> API: COMMIT thành công
+    API --> UI: HTTP 201 Created (id, email, fullName — không có mật khẩu)
+    UI --> User: Thông báo đăng ký thành công, chuyển sang /login
+  end
+  deactivate DB
+end
+deactivate API
+deactivate UI
+
+== 2. Đăng nhập (Login) & cấp JWT — FR-03, FR-04, FR-05, FR-08 ==
+User -> UI: Nhập email, mật khẩu & bấm "Đăng nhập"
+activate UI
+UI -> UI: Validate email, trường bắt buộc & khóa nút (chặn click đúp)
+UI -> API: POST /auth/login (LoginDto)
+activate API
+API -> API: Validate LoginDto (class-validator)
+
+alt DTO không hợp lệ
+  API --> UI: HTTP 400 Bad Request
+  UI --> User: Hiển thị lỗi theo từng trường
+else DTO hợp lệ
+  API -> DB: SELECT * FROM "User" WHERE email = ?
+  activate DB
+  DB --> API: Bản ghi người dùng hoặc không có kết quả / lỗi DB
+  deactivate DB
+
+  alt Lỗi cơ sở dữ liệu (E6)
+    API --> UI: HTTP 500 (thông báo chung, không lộ chi tiết)
+    UI --> User: Báo lỗi hệ thống, cho phép thử lại
+  else Truy vấn thành công
+    API -> API: bcrypt.compare(password, passwordHash)
+
+    alt Không có người dùng hoặc sai mật khẩu (E2)
+      API --> UI: HTTP 401 Unauthorized (thông báo chung)
+      UI --> User: Hiển thị "Email hoặc mật khẩu không đúng"
+    else Mật khẩu khớp
+      API -> DB: BEGIN prisma.$transaction()
+      activate DB
+      API -> DB: UPDATE "User" SET lastLoginAt = now() WHERE id = ?
+      DB --> API: COMMIT thành công
+      deactivate DB
+      API -> API: Sinh JWT (sub, email, iat, exp = 1 giờ) ký bằng JWT_SECRET
+      API --> UI: HTTP 200 OK (accessToken, user)
+      UI -> UI: Lưu token, cập nhật auth state, chuyển về returnUrl hoặc trang chủ
+      UI --> User: Hiển thị trạng thái đã đăng nhập (tên người dùng, nút "Đăng xuất")
+    end
+  end
+end
+deactivate API
+deactivate UI
+
+== 3. Idempotency khi client gửi lại yêu cầu ==
+note over User, DB
+  Đăng ký: gửi lại cùng email (timeout, F5, click đúp) KHÔNG tạo bản ghi thứ hai
+  vì UNIQUE(email). Lần gửi lại nhận HTTP 409 và UI gợi ý chuyển sang Đăng nhập.
+  Đăng nhập: gửi lại là an toàn. Mỗi lần thành công trả về một token mới,
+  token cũ vẫn có hiệu lực đến khi hết hạn (exp). Không tạo đơn hay giao dịch.
+end note
+
+User -> UI: Bấm "Đăng ký" lần nữa (cùng email, mạng chậm / gửi lại)
+activate UI
+UI -> API: POST /auth/register (cùng RegisterDto)
+activate API
+API -> DB: SELECT / INSERT trong transaction (UNIQUE email)
+DB --> API: Email đã tồn tại
+API --> UI: HTTP 409 Conflict (không tạo thêm bản ghi)
+deactivate API
+UI --> User: Báo email đã đăng ký, gợi ý đăng nhập
+deactivate UI
+
+== 4. Khôi phục phiên & bảo vệ route bằng JWT — FR-06, FR-07, FR-09, FR-10 ==
+User -> UI: Tải lại trang (F5) hoặc mở trang cần đăng nhập
+activate UI
+UI -> UI: Đọc token từ nơi lưu trữ phía client
+
+alt Không có token (chưa đăng nhập, A5)
+  UI -> UI: Ghi nhớ returnUrl
+  UI --> User: Chuyển hướng tới /login
+else Có token
+  UI -> API: GET /auth/me (Authorization: Bearer token)
+  activate API
+  API -> API: JwtAuthGuard xác minh chữ ký và exp
+
+  alt Token sai chữ ký hoặc hết hạn (E3, E4)
+    API --> UI: HTTP 401 Unauthorized
+    UI -> UI: Xóa token, đặt lại auth state
+    UI --> User: Báo phiên hết hạn, chuyển hướng tới /login
+  else Token hợp lệ
+    API -> DB: SELECT id, email, fullName FROM "User" WHERE id = sub
+    activate DB
+    DB --> API: Thông tin người dùng
+    deactivate DB
+    API --> UI: HTTP 200 OK (id, email, fullName)
+    UI -> UI: Khôi phục auth state
+    UI --> User: Hiển thị trang được bảo vệ với trạng thái đã đăng nhập
+  end
+  deactivate API
+end
+deactivate UI
+
+== 5. Dùng JWT cho chức năng thanh toán (Payment Service) ==
+note over UI, Pay
+  Payment Service KHÔNG tham gia đăng ký / đăng nhập.
+  Sau khi đăng nhập, module thanh toán chỉ nhận danh tính từ JWT (sub).
+  Chi tiết thanh toán thuộc module khác, nằm ngoài phạm vi UC-AUTH-01.
+end note
+
+User -> UI: Bấm "Thanh toán" (đã đăng nhập)
+activate UI
+UI -> API: POST /payments (Authorization: Bearer token)
+activate API
+API -> API: JwtAuthGuard xác minh token
+
+alt Token không hợp lệ hoặc hết hạn
+  API --> UI: HTTP 401 Unauthorized
+  UI --> User: Báo phiên hết hạn, chuyển hướng tới /login
+else Token hợp lệ
+  API -> Pay: Khởi tạo giao dịch (userId = sub, amount, orderId)
+  activate Pay
+  Pay --> API: Kết quả giao dịch (mô phỏng)
+  deactivate Pay
+  API --> UI: HTTP 200 OK (kết quả thanh toán)
+  UI --> User: Hiển thị kết quả thanh toán
+end
+deactivate API
+deactivate UI
+
+== 6. Đăng xuất (Logout) — FR-11 ==
+User -> UI: Bấm "Đăng xuất"
+activate UI
+UI -> UI: Xóa token, đặt lại auth state (không gọi API, không thu hồi token phía server)
+UI --> User: Quay về trạng thái chưa đăng nhập, chuyển hướng tới /login
+deactivate UI
+@enduml
