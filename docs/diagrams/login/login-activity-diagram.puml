@@ -1,0 +1,161 @@
+@startuml activity
+title Sơ đồ Hoạt động (Activity Diagram) — Luồng Đăng ký, Đăng nhập, JWT & Quản lý trạng thái đăng nhập BrewLite
+
+|#F9F9F9|Khách hàng (Customer)|
+start
+:Mở ứng dụng và truy cập trang cần đăng nhập (ví dụ /checkout);
+
+|#E8F4FD|Frontend (Next.js)|
+:Đọc access token từ nơi lưu trữ phía client;
+
+if (Có token?) then (Có token)
+  :Gửi GET /auth/me kèm Authorization: Bearer;
+
+  |#EDF2F8|Backend (NestJS API)|
+  :JwtAuthGuard xác minh chữ ký và thời hạn (exp);
+  if (Token hợp lệ?) then (Hợp lệ)
+    |#FFF9E6|Cơ sở dữ liệu (PostgreSQL)|
+    :Truy vấn người dùng theo sub (id trong token);
+
+    |Backend (NestJS API)|
+    :Trả về HTTP 200 kèm thông tin người dùng (không có mật khẩu);
+
+    |Frontend (Next.js)|
+    :Khôi phục trạng thái đăng nhập và hiển thị trang được bảo vệ;
+
+    |Khách hàng (Customer)|
+    if (Chọn Đăng xuất?) then (Đăng xuất)
+      |Frontend (Next.js)|
+      :Xóa token và đặt lại trạng thái đăng nhập;
+      :Chuyển về trang /login;
+      stop
+    else (Tiếp tục sử dụng)
+      :Tiếp tục đặt hàng / thanh toán với phiên hiện tại;
+      stop
+    endif
+  else (Sai chữ ký / Hết hạn [E3, E4])
+    |Backend (NestJS API)|
+    :Trả về HTTP 401 Unauthorized;
+
+    |Frontend (Next.js)|
+    :Xóa token và báo phiên đăng nhập đã hết hạn;
+  endif
+else (Chưa đăng nhập [A5])
+  :Ghi nhớ trang đích (returnUrl);
+endif
+
+|Frontend (Next.js)|
+:Chuyển hướng tới trang /login;
+
+|Khách hàng (Customer)|
+if (Đã có tài khoản?) then (Chưa có [A1])
+  :Chọn Đăng ký, nhập email, mật khẩu, họ tên;
+  :Bấm "Đăng ký";
+
+  |Frontend (Next.js)|
+  :Validate email, độ dài mật khẩu tối thiểu 8 ký tự;
+  if (Dữ liệu hợp lệ?) then (Không hợp lệ)
+    :Báo lỗi theo từng trường, chặn gửi;
+    stop
+  else (Hợp lệ)
+    :Khóa nút Đăng ký (chống gửi đúp - Idempotency);
+    :Gửi POST /auth/register;
+  endif
+
+  |Backend (NestJS API)|
+  :Validate RegisterDto (class-validator);
+  if (DTO hợp lệ?) then (Không hợp lệ)
+    :Trả về HTTP 400 Bad Request;
+    |Frontend (Next.js)|
+    :Hiển thị lỗi và mở lại nút Đăng ký;
+    stop
+  else (Hợp lệ)
+    :Băm mật khẩu bằng bcrypt (salt rounds 10-12);
+    :Mở Database Transaction;
+  endif
+
+  |Cơ sở dữ liệu (PostgreSQL)|
+  :Kiểm tra email đã tồn tại trong bảng users;
+  if (Email đã tồn tại?) then (Đã tồn tại)
+    |Backend (NestJS API)|
+    :Rollback transaction;
+    :Trả về HTTP 409 Conflict;
+    |Frontend (Next.js)|
+    :Báo email đã đăng ký và gợi ý chuyển sang Đăng nhập;
+    stop
+  else (Chưa tồn tại)
+    |Cơ sở dữ liệu (PostgreSQL)|
+    :Tạo bản ghi users (email, passwordHash, fullName);
+    |Backend (NestJS API)|
+    :Commit transaction thành công;
+    :Trả về HTTP 201 Created (không có mật khẩu);
+  endif
+
+  |Frontend (Next.js)|
+  :Thông báo đăng ký thành công;
+  :Chuyển về form Đăng nhập;
+else (Đã có tài khoản)
+endif
+
+|Khách hàng (Customer)|
+:Nhập email, mật khẩu và bấm "Đăng nhập";
+
+|Frontend (Next.js)|
+:Validate email và trường bắt buộc tại client;
+if (Thông tin hợp lệ?) then (Không hợp lệ [E1])
+  :Báo lỗi theo từng trường, chặn gửi;
+  stop
+else (Hợp lệ)
+  :Khóa nút Đăng nhập (chống gửi đúp);
+  :Gửi POST /auth/login;
+endif
+
+|Backend (NestJS API)|
+:Validate LoginDto (class-validator);
+if (DTO hợp lệ?) then (Không hợp lệ [E1])
+  :Trả về HTTP 400 Bad Request;
+  |Frontend (Next.js)|
+  :Hiển thị lỗi và mở lại nút Đăng nhập;
+  stop
+else (Hợp lệ)
+  |Cơ sở dữ liệu (PostgreSQL)|
+  :Tìm người dùng theo email;
+endif
+
+if (Cơ sở dữ liệu phản hồi bình thường?) then (Lỗi hệ thống [E6])
+  |Backend (NestJS API)|
+  :Trả về HTTP 500 với thông báo chung;
+  |Frontend (Next.js)|
+  :Hiển thị lỗi hệ thống và cho phép thử lại;
+  stop
+else (Bình thường)
+  |Backend (NestJS API)|
+  :So sánh mật khẩu bằng bcrypt.compare với passwordHash;
+endif
+
+if (Người dùng tồn tại và mật khẩu khớp?) then (Sai thông tin [E2])
+  :Trả về HTTP 401 với thông báo chung (không lộ email có tồn tại);
+  |Frontend (Next.js)|
+  :Hiển thị "Email hoặc mật khẩu không đúng";
+  stop
+else (Đúng)
+  |Backend (NestJS API)|
+  :Mở transaction, cập nhật lastLoginAt;
+  :Sinh JWT (sub, email, iat, exp) ký bằng JWT_SECRET;
+  :Trả về HTTP 200 kèm accessToken và thông tin người dùng;
+endif
+
+|Frontend (Next.js)|
+:Lưu token và cập nhật trạng thái đăng nhập (auth state);
+:Chuyển về returnUrl hoặc trang chủ;
+
+|Khách hàng (Customer)|
+:Thấy trạng thái đã đăng nhập (tên người dùng, nút Đăng xuất);
+stop
+
+note right
+  Mọi nhánh thất bại kết thúc tại stop;
+  người dùng thử lại từ đầu luồng.
+  Mã A1-A5, E1-E8 tham chiếu UC-AUTH-01 (Task 1.3).
+end note
+@enduml

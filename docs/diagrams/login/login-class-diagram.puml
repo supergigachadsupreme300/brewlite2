@@ -1,0 +1,133 @@
+@startuml class
+title Sơ đồ Lớp Thực thể (Domain Class Diagram) — BrewLite (trọng tâm: Register, Login, JWT, bcrypt, trạng thái đăng nhập)
+
+skinparam classAttributeIconSize 0
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PREPARING
+  COMPLETED
+  PAYMENT_FAILED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+class User <<trọng tâm: xác thực>> {
+  +id: String {PK}
+  +email: String {unique}
+  +passwordHash: String
+  +fullName: String [0..1]
+  +createdAt: DateTime
+  +updatedAt: DateTime
+  +lastLoginAt: DateTime [0..1]
+  --
+  +register(email, password, fullName): User
+  +verifyPassword(password): Boolean
+  +issueAccessToken(): String
+}
+
+class JwtPayload <<value object, không lưu DB>> {
+  +sub: String
+  +email: String
+  +iat: Int
+  +exp: Int
+}
+
+class Product {
+  +id: String {PK}
+  +name: String
+  +description: String
+  +price: Decimal
+  +stock: Int
+  +imageUrl: String
+  +isAvailable: Boolean
+}
+
+class Order {
+  +id: String {PK}
+  +userId: String {FK}
+  +promotionId: String [0..1] {FK}
+  +total: Decimal
+  +status: OrderStatus
+  +createdAt: DateTime
+  +updatedAt: DateTime
+  +calculateTotal(): Decimal
+}
+
+class OrderItem {
+  +id: String {PK}
+  +orderId: String {FK}
+  +productId: String {FK}
+  +quantity: Int
+  +unitPrice: Decimal
+  +lineTotal: Decimal
+}
+
+class Payment {
+  +id: String {PK}
+  +orderId: String {FK}
+  +amount: Decimal
+  +method: String
+  +status: PaymentStatus
+  +transactionCode: String
+  +createdAt: DateTime
+}
+
+class Promotion <<ngoài MVP>> {
+  +id: String {PK}
+  +code: String {unique}
+  +discountType: String
+  +discountValue: Decimal
+  +minOrderValue: Decimal
+  +startDate: DateTime
+  +endDate: DateTime
+  +isActive: Boolean
+}
+
+class LoyaltyTransaction <<ngoài MVP>> {
+  +id: String {PK}
+  +userId: String {FK}
+  +orderId: String [0..1] {FK}
+  +points: Int
+  +type: String
+  +createdAt: DateTime
+}
+
+' Quan hệ giữa các lớp (multiplicity)
+User "1" -- "0..*" Order : đặt hàng >
+User "1" -- "0..*" LoyaltyTransaction : sở hữu >
+Order "1" *-- "1..*" OrderItem : bao gồm >
+Product "1" -- "0..*" OrderItem : được chọn trong >
+Order "1" -- "0..*" Payment : thanh toán qua >
+Order "0..*" -- "0..1" Promotion : áp dụng >
+Order "0..1" -- "0..*" LoyaltyTransaction : phát sinh điểm >
+
+' Quan hệ phụ thuộc và enum
+User ..> JwtPayload : sinh ra khi đăng nhập
+Order ..> OrderStatus
+Payment ..> PaymentStatus
+
+note right of User
+  passwordHash: chỉ lưu hash bcrypt ($2b$, salt rounds 10-12),
+  không bao giờ lưu hoặc trả về mật khẩu thô (FR-04, NFR-01).
+  email: định danh duy nhất, UNIQUE (FR-02).
+  Không có role: RBAC thuộc Won't Have trong MVP.
+end note
+
+note right of JwtPayload
+  Access token có thời hạn (mặc định 1 giờ), ký bằng JWT_SECRET
+  lấy từ biến môi trường (FR-05, NFR-02).
+  sub = User.id.
+end note
+
+note bottom of Promotion
+  Promotion và LoyaltyTransaction nằm ngoài MVP (SRS Won't Have),
+  giữ ở mức domain để mô hình đầy đủ và không mâu thuẫn.
+end note
+@enduml
