@@ -1,0 +1,91 @@
+@startuml
+autonumber
+hide footbox
+skinparam BoxPadding 10
+skinparam ParticipantPadding 10
+
+title Sơ đồ Tuần tự (Sequence Diagram) — UC-PROD-01: Xem Menu, Chi tiết Sản phẩm & Chọn món vào Giỏ
+
+actor "Khách hàng\n(Customer)" as C
+box "Frontend (Next.js)" #F9F9F9
+  participant "Menu & Product UI" as UI
+  participant "Cart State\n(Client / LocalStorage)" as Cart
+end box
+box "Backend API (NestJS)" #EDF2F8
+  participant "ProductsController\n& ProductsService" as API
+end box
+box "Database Layer" #FFF9E6
+  database "PostgreSQL\n(Prisma ORM)" as DB
+end box
+
+== 1. Hiển thị danh sách Thực đơn (Menu) ==
+C -> UI: Truy cập trang Thực đơn (/menu)
+activate UI
+UI -> API: GET /products
+activate API
+API -> DB: prisma.product.findMany({ where: { isAvailable: true } })
+activate DB
+DB --> API: Danh sách Product (id, name, price, stock, imageUrl, category)
+deactivate DB
+API --> UI: 200 OK + Product[]
+deactivate API
+UI --> C: Hiển thị danh sách món trên Menu\n(Gắn nhãn "Hết hàng" cho món có stock == 0)
+deactivate UI
+
+== 2. Tìm kiếm và Lọc sản phẩm (Tùy chọn) ==
+C -> UI: Nhập từ khóa tìm kiếm hoặc chọn Danh mục
+activate UI
+UI -> API: GET /products?search=keyword&category=COFFEE
+activate API
+API -> API: Validate & chuẩn hóa query params
+API -> DB: SELECT * FROM "Product" WHERE name ILIKE %keyword% AND category = 'COFFEE'
+activate DB
+DB --> API: Danh sách sản phẩm khớp điều kiện
+deactivate DB
+alt Có sản phẩm khớp điều kiện
+  API --> UI: 200 OK + Filtered Product[]
+  UI --> C: Cập nhật danh sách sản phẩm tương ứng
+else Không có sản phẩm nào khớp
+  API --> UI: 200 OK + [] (Mảng rỗng)
+  UI --> C: Hiển thị "Không tìm thấy sản phẩm phù hợp"
+end
+deactivate API
+deactivate UI
+
+== 3. Xem chi tiết sản phẩm (Product Detail) ==
+C -> UI: Nhấn chọn một sản phẩm trên Menu
+activate UI
+UI -> API: GET /products/:id
+activate API
+API -> DB: prisma.product.findUnique({ where: { id } })
+activate DB
+alt Sản phẩm không tồn tại
+  DB --> API: null
+  API --> UI: 404 Not Found ("Product not found")
+  UI --> C: Hiển thị thông báo món không tồn tại & nút quay lại Menu
+else Sản phẩm tồn tại
+  DB --> API: Chi tiết Product (id, name, description, price, stock, imageUrl)
+  deactivate DB
+  API --> UI: 200 OK + Product Detail
+  deactivate API
+  UI --> C: Hiển thị mô tả, đơn giá, tồn kho hiện có & khung chọn số lượng
+end
+deactivate UI
+
+== 4. Kiểm tra tồn kho & Thêm sản phẩm vào Giỏ hàng ==
+C -> UI: Chọn số lượng (quantity), tùy chọn & bấm "Thêm vào giỏ"
+activate UI
+UI -> UI: Kiểm tra điều kiện: stock > 0 và 1 <= quantity <= stock
+alt Sản phẩm hết hàng (stock == 0) hoặc số lượng vượt tồn kho (quantity > stock)
+  UI --> C: Chặn thao tác & hiển thị cảnh báo "Số lượng vượt quá tồn kho hiện có"
+else Hợp lệ (1 <= quantity <= stock)
+  UI -> Cart: addItem({ productId, name, price, imageUrl, stock, quantity, options })
+  activate Cart
+  Cart -> Cart: Cộng dồn số lượng (nếu trùng món/tùy chọn) & tính lại tạm tính
+  Cart --> UI: Cập nhật trạng thái giỏ hàng thành công
+  deactivate Cart
+  UI --> C: Cập nhật số lượng trên icon Giỏ hàng & báo "Đã thêm vào giỏ"
+end
+deactivate UI
+@enduml
+
