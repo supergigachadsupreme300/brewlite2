@@ -1,4 +1,4 @@
-import { AppService } from './app.service';
+import { AppService } from '../../apps/api/src/app.service';
 
 describe('AppService', () => {
   it('returns health status', () => {
