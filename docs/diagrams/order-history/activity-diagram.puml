@@ -1,0 +1,106 @@
+@startuml
+ title Activity Diagram - Order History
+ skinparam monochrome true
+ skinparam shadowing false
+
+|Customer|
+start
+:Truy cập trang Order History;
+
+|Order History UI|
+:Hiển thị trạng thái Loading;
+:Yêu cầu tải danh sách đơn hàng;
+
+' Tải danh sách và cho phép thử lại khi tải thất bại
+repeat
+  |Order History Service|
+  :Gửi yêu cầu GET /orders;
+
+  if (API trả về dữ liệu thành công?) then (Có)
+    :Đọc dữ liệu mock từ localStorage;
+    :Kết hợp dữ liệu API và mock;
+    :Loại bỏ đơn hàng trùng ID;
+    :Ưu tiên dữ liệu từ API;
+    :Sắp xếp theo ngày tạo giảm dần;
+    |Order History UI|
+    :Nhận danh sách đơn hàng;
+    :Đánh dấu tải dữ liệu thành công;
+  else (Không)
+    :Đọc dữ liệu mock từ localStorage;
+    if (Có dữ liệu mock?) then (Có)
+      :Sử dụng dữ liệu mock;
+      :Sắp xếp theo ngày tạo giảm dần;
+      |Order History UI|
+      :Nhận danh sách đơn hàng;
+      :Đánh dấu tải dữ liệu thành công;
+    else (Không)
+      |Order History UI|
+      :Hiển thị thông báo lỗi;
+      :Hiển thị chức năng thử tải lại;
+      |Customer|
+      :Chọn thử tải lại hoặc rời trang;
+    endif
+  endif
+repeat while (Tải thất bại và khách hàng chọn thử lại?) is (Có) not (Không)
+
+|Order History UI|
+if (Tải dữ liệu thành công?) then (Có)
+  if (Danh sách có đơn hàng?) then (Có)
+    :Hiển thị danh sách đơn hàng;
+  else (Không)
+    :Hiển thị trạng thái danh sách trống;
+  endif
+
+  |Customer|
+  repeat
+    if (Tìm kiếm theo mã đơn hàng?) then (Có)
+      |Order History UI|
+      :Nhập từ khóa Order ID;
+      :Chuẩn hóa từ khóa;
+      :Lọc danh sách theo Order ID;
+      if (Có kết quả?) then (Có)
+        :Hiển thị kết quả tìm kiếm;
+      else (Không)
+        :Hiển thị trạng thái No Results;
+      endif
+    else (Không)
+      if (Lọc theo trạng thái?) then (Có)
+        :Chọn trạng thái đơn hàng;
+        :Lọc danh sách theo trạng thái;
+        :Hiển thị kết quả lọc;
+      else (Không)
+        |Customer|
+        :Chọn một đơn hàng;
+        |Order History UI|
+        :Yêu cầu tải chi tiết đơn hàng;
+        |Order History Service|
+        :Gửi yêu cầu GET /orders/:id;
+        if (API trả về chi tiết thành công?) then (Có)
+          :Nhận dữ liệu chi tiết;
+        else (Không)
+          :Tìm đơn hàng trong dữ liệu mock;
+        endif
+
+        |Order History UI|
+        if (Tìm thấy dữ liệu chi tiết?) then (Có)
+          :Hiển thị chi tiết đơn hàng;
+          |Customer|
+          if (Quay lại danh sách?) then (Có)
+            :Quay lại trang Order History;
+          else (Không)
+            stop
+          endif
+        else (Không)
+          :Hiển thị thông báo lỗi;
+          stop
+        endif
+      endif
+    endif
+    |Customer|
+  repeat while (Tiếp tục thao tác với danh sách?) is (Có) not (Không)
+else (Không)
+  |Customer|
+  :Kết thúc do không tải được dữ liệu;
+endif
+stop
+@enduml
