@@ -1,118 +1,177 @@
+
 @startuml
- title SD-OH-01 - Order History List Management
- skinparam monochrome true
- skinparam shadowing false
- skinparam sequenceMessageAlign center
- autonumber
+title SD-OH-01 - Order History List Management
 
- actor Customer
- boundary "Order History Page\n(/orders)" as UI
- control "useOrderHistory" as Hook
- participant "orderHistoryApi" as Service
- participant "Orders API" as API
- database "localStorage\n(brewlite_mock_orders)" as Local
+skinparam monochrome true
+skinparam shadowing false
+skinparam sequenceMessageAlign center
 
- Customer -> UI: Truy cập trang Order History
- activate UI
- UI -> Hook: Yêu cầu tải danh sách đơn hàng
- activate Hook
+autonumber
 
- loop Lần đầu tải danh sách hoặc sau mỗi lần khách hàng yêu cầu thử lại
-   Hook -> Service: getOrders()
-   activate Service
-   Service -> API: GET /orders
-   activate API
+actor Customer
+boundary "Order History Page\n(/orders)" as UI
+control "useOrderHistory" as Hook
+participant "orderHistoryApi" as Service
+participant "Orders API" as API
+database "localStorage\n(brewlite_mock_orders)" as Local
 
-   alt API trả về dữ liệu thành công
-     API --> Service: Danh sách đơn hàng từ API
-     deactivate API
-     Service -> Local: Đọc dữ liệu mock
-     Local --> Service: Danh sách mock (nếu có)
-     Service -> Service: Kết hợp dữ liệu, loại bỏ ID trùng\nvà ưu tiên bản ghi từ API
-     Service -> Service: Sắp xếp theo ngày tạo giảm dần
-     Service --> Hook: Trả về danh sách đơn hàng
-   else API gặp lỗi
-     API --> Service: Lỗi truy xuất dữ liệu
-     deactivate API
-     Service -> Local: Đọc dữ liệu mock
-     Local --> Service: Danh sách mock
-     alt Có dữ liệu mock
-       Service -> Service: Sắp xếp dữ liệu mock\ntheo ngày tạo giảm dần
-       Service --> Hook: Trả về danh sách mock
-     else Không có dữ liệu mock
-       Service --> Hook: Trả về lỗi tải danh sách
-     end
-   end
-   deactivate Service
+Customer -> UI: Truy cập trang Order History
+activate UI
 
-   alt Tải dữ liệu thành công
-     Hook --> UI: Danh sách đơn hàng
-     UI -> UI: Cập nhật trạng thái hiển thị
-     break Đã tải dữ liệu thành công
-   else Tải dữ liệu thất bại
-     Hook --> UI: Trạng thái lỗi
-     UI --> Customer: Hiển thị thông báo lỗi\nvà nút Thử tải lại
-     alt Customer chọn Thử tải lại
-       Customer -> UI: Chọn Thử tải lại
-       UI -> Hook: Yêu cầu tải danh sách lần nữa
-     else Customer không thử lại
-       break Kết thúc thao tác tải danh sách
-     end
-   end
- end
+UI -> Hook: Yêu cầu tải danh sách đơn hàng
+activate Hook
 
- alt Tải danh sách thành công
-   alt Danh sách có đơn hàng
-     UI --> Customer: Hiển thị danh sách đơn hàng
-   else Danh sách rỗng
-     UI --> Customer: Hiển thị trạng thái chưa có đơn hàng
-   end
- else Không tải được danh sách
-   note over UI, Customer: Thông báo lỗi và lựa chọn thử lại
-   đã được hiển thị trong quá trình tải.
- end
+loop Lần đầu tải danh sách hoặc sau mỗi lần khách hàng yêu cầu thử lại
 
- opt Khách hàng tìm kiếm theo mã đơn hàng (UC-OH-02)
-   Customer -> UI: Nhập hoặc xóa từ khóa Order ID
-   UI -> Hook: Cập nhật từ khóa tìm kiếm
-   Hook -> Hook: Trim khoảng trắng và chuyển chữ thường
-   Hook -> Hook: Tìm mã đơn hàng có chứa từ khóa
-   note over Hook
-     Tìm kiếm được thực hiện trên danh sách đã tải,
-     không gửi yêu cầu API riêng.
-   end note
-   Hook --> UI: Danh sách sau tìm kiếm
-   alt Có kết quả
-     UI --> Customer: Hiển thị các đơn hàng phù hợp
-   else Không có kết quả
-     UI --> Customer: Hiển thị trạng thái No Results
-   end
- end
+  Hook -> Service: getOrders()
+  activate Service
 
- opt Khách hàng lọc theo trạng thái (UC-OH-03)
-   Customer -> UI: Chọn trạng thái hoặc ALL
-   UI -> Hook: Cập nhật trạng thái lọc
-   Hook -> Hook: Lọc danh sách theo trạng thái
-   note over Hook
-     Nếu tìm kiếm và lọc cùng được sử dụng,
-     hai điều kiện được áp dụng đồng thời.
-   end note
-   Hook --> UI: Danh sách sau lọc
-   alt Có đơn hàng phù hợp
-     UI --> Customer: Hiển thị danh sách đã lọc
-   else Không có đơn hàng phù hợp
-     UI --> Customer: Hiển thị trạng thái No Results
-   end
- end
+  Service -> API: GET /orders
+  activate API
 
- opt Khách hàng xóa từ khóa hoặc chọn ALL
-   Customer -> UI: Xóa từ khóa / chọn ALL
-   UI -> Hook: Cập nhật điều kiện tìm kiếm và lọc
-   Hook -> Hook: Tính lại danh sách theo điều kiện hiện tại
-   Hook --> UI: Danh sách được cập nhật
-   UI --> Customer: Hiển thị danh sách tương ứng
- end
+  alt API trả về dữ liệu thành công
 
- deactivate Hook
- deactivate UI
+    API --> Service: Danh sách đơn hàng từ API
+    deactivate API
+
+    Service -> Local: Đọc dữ liệu mock
+    Local --> Service: Danh sách mock (nếu có)
+
+    Service -> Service: Kết hợp dữ liệu, loại bỏ ID trùng\nvà ưu tiên bản ghi từ API
+    Service -> Service: Sắp xếp theo ngày tạo giảm dần
+    Service --> Hook: Trả về danh sách đơn hàng
+
+  else API gặp lỗi
+
+    API --> Service: Lỗi truy xuất dữ liệu
+    deactivate API
+
+    Service -> Local: Đọc dữ liệu mock
+    Local --> Service: Danh sách mock
+
+    alt Có dữ liệu mock
+
+      Service -> Service: Sắp xếp dữ liệu mock\ntheo ngày tạo giảm dần
+      Service --> Hook: Trả về danh sách mock
+
+    else Không có dữ liệu mock
+
+      Service --> Hook: Trả về lỗi tải danh sách
+
+    end
+  end
+
+  deactivate Service
+
+  alt Tải dữ liệu thành công
+
+    Hook --> UI: Danh sách đơn hàng
+    UI -> UI: Cập nhật trạng thái hiển thị
+
+    break Đã tải dữ liệu thành công
+    end
+
+  else Tải dữ liệu thất bại
+
+    Hook --> UI: Trạng thái lỗi
+    UI --> Customer: Hiển thị thông báo lỗi\nvà nút Thử tải lại
+
+    alt Customer chọn Thử tải lại
+
+      Customer -> UI: Chọn Thử tải lại
+      UI -> Hook: Yêu cầu tải danh sách lần nữa
+
+    else Customer không thử lại
+
+      break Kết thúc thao tác tải danh sách
+      end
+
+    end
+  end
+
+end
+
+alt Tải danh sách thành công
+
+  alt Danh sách có đơn hàng
+
+    UI --> Customer: Hiển thị danh sách đơn hàng
+
+  else Danh sách rỗng
+
+    UI --> Customer: Hiển thị trạng thái chưa có đơn hàng
+
+  end
+
+else Không tải được danh sách
+
+  note over UI, Customer
+    Thông báo lỗi và lựa chọn thử lại
+    đã được hiển thị trong quá trình tải.
+  end note
+
+end
+
+opt Khách hàng tìm kiếm theo mã đơn hàng (UC-OH-02)
+
+  Customer -> UI: Nhập hoặc xóa từ khóa Order ID
+  UI -> Hook: Cập nhật từ khóa tìm kiếm
+  Hook -> Hook: Trim khoảng trắng và chuyển chữ thường
+  Hook -> Hook: Tìm mã đơn hàng có chứa từ khóa
+
+  note over Hook
+    Tìm kiếm được thực hiện trên danh sách đã tải,
+    không gửi yêu cầu API riêng.
+  end note
+
+  Hook --> UI: Danh sách sau tìm kiếm
+
+  alt Có kết quả
+
+    UI --> Customer: Hiển thị các đơn hàng phù hợp
+
+  else Không có kết quả
+
+    UI --> Customer: Hiển thị trạng thái No Results
+
+  end
+end
+
+opt Khách hàng lọc theo trạng thái (UC-OH-03)
+
+  Customer -> UI: Chọn trạng thái hoặc ALL
+  UI -> Hook: Cập nhật trạng thái lọc
+  Hook -> Hook: Lọc danh sách theo trạng thái
+
+  note over Hook
+    Nếu tìm kiếm và lọc cùng được sử dụng,
+    hai điều kiện được áp dụng đồng thời.
+  end note
+
+  Hook --> UI: Danh sách sau lọc
+
+  alt Có đơn hàng phù hợp
+
+    UI --> Customer: Hiển thị danh sách đã lọc
+
+  else Không có đơn hàng phù hợp
+
+    UI --> Customer: Hiển thị trạng thái No Results
+
+  end
+end
+
+opt Khách hàng xóa từ khóa hoặc chọn ALL
+
+  Customer -> UI: Xóa từ khóa / chọn ALL
+  UI -> Hook: Cập nhật điều kiện tìm kiếm và lọc
+  Hook -> Hook: Tính lại danh sách theo điều kiện hiện tại
+  Hook --> UI: Danh sách được cập nhật
+  UI --> Customer: Hiển thị danh sách tương ứng
+
+end
+
+deactivate Hook
+deactivate UI
+
 @enduml
