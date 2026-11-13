@@ -6,9 +6,10 @@ export interface Product {
   imageUrl: string;
   category: string;
   stock: number;
+  isAvailable: boolean;
 }
 
 export type ProductSummary = Pick<
   Product,
-  'id' | 'name' | 'price' | 'imageUrl' | 'category' | 'stock'
+  'id' | 'name' | 'price' | 'imageUrl' | 'category' | 'stock' | 'isAvailable'
 >;

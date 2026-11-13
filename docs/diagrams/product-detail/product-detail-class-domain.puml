@@ -1,17 +1,19 @@
 @startuml
+skinparam shadowing false
+
 class Product {
-  +id: string
-  +name: string
-  +description: string
-  +price: number
-  +imageUrl: string
-  +category: string
-  +available: boolean
+  +id : string
+  +name : string
+  +description : string
+  +price : number
+  +imageUrl : string
+  +category : string
+  +stock : number
 }
 
 class ProductDetailPage {
-  +loadProduct(id: string): void
-  +render(): void
+  +loadProduct(id : string) : void
+  +render() : void
 }
 
 ProductDetailPage ..> Product : hiển thị

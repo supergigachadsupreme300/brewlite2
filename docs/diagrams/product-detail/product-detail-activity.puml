@@ -1,12 +1,42 @@
 @startuml
+skinparam shadowing false
+
+|Khách hàng|
 start
-:Khách hàng chọn sản phẩm;
-:Hệ thống gọi API GET /products/:id;
-if (Sản phẩm tồn tại?) then (Có)
-  :Hệ thống nhận dữ liệu sản phẩm;
-  :Hiển thị trang chi tiết sản phẩm;
-else (Không)
-  :Hiển thị thông báo lỗi;
+:Xem Menu và chọn sản phẩm;
+
+|Next.js UI|
+:Gọi API GET /products/:id;
+
+|NestJS API|
+:Kiểm tra và validate id sản phẩm;
+if (id hợp lệ?) then (không)
+  |Next.js UI|
+  :Hiển thị thông báo sản phẩm không tồn tại;
+  stop
+else (có)
 endif
+
+|NestJS API|
+:Truy vấn sản phẩm theo id;
+
+|Database|
+if (Sản phẩm tồn tại?) then (không)
+  |NestJS API|
+  :Trả về HTTP 404 Not Found;
+  |Next.js UI|
+  :Hiển thị thông báo sản phẩm không tồn tại;
+  stop
+else (có)
+  |Database|
+  :Trả về dữ liệu sản phẩm;
+endif
+
+|NestJS API|
+:Trả về HTTP 200 OK + Product;
+
+|Next.js UI|
+:Hiển thị chi tiết sản phẩm;
+:Hiển thị tồn kho và trạng thái còn/hết hàng;
 stop
 @enduml
