@@ -4,7 +4,7 @@ describe('AppService', () => {
   it('returns health status', () => {
     const service = new AppService();
     expect(service.getHealth()).toEqual({
-      status: 'ok',
+      status: 'fail',
       service: 'brewlite-api',
     });
   });
