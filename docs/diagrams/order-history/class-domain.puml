@@ -1,0 +1,30 @@
+@startuml
+skinparam shadowing false
+
+class Order {
+  +id : string
+  +userId : string
+  +status : string
+  +total : number
+  +createdAt : DateTime
+  +updatedAt : DateTime
+}
+
+class OrderItem {
+  +id : string
+  +orderId : string
+  +productId : string
+  +quantity : number
+  +unitPrice : number
+  +lineTotal : number
+}
+
+class User {
+  +id : string
+  +email : string
+  +name : string
+}
+
+User "1" -- "0..*" Order : owns >
+Order "1" *-- "1..*" OrderItem : contains >
+@enduml

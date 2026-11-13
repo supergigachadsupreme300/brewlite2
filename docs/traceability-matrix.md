@@ -12,9 +12,9 @@
 | FR-08      | US-08 Xác nhận đơn hàng và thanh toán | `docs/diagrams/sequence-checkout.puml`                                         |                  |                                                  |
 | FR-09      | US-09 Xem lịch sử đơn hàng            | `docs/diagrams/order-history/sequence-order-history-list.puml`                 |                  |                                                  |
 | FR-10      | US-10 Quản lý trạng thái đơn          | `docs/diagrams/order/activity-order.puml`                                      |                  |                                                  |
-| FR-11      | US-11 Health check                    | `docs/diagrams/deployment.puml`                                                | `GET /health`    | `apps/api/src/app.service.spec.ts`               |
-| NFR-01     | Hiệu năng                             | `docs/diagrams/deployment.puml`                                                |                  |                                                  |
+| FR-11      | US-11 Health check                    | `docs/architecture/deployment.puml`                                                | `GET /health`    | `apps/api/src/app.service.spec.ts`               |
+| NFR-01     | Hiệu năng                             | `docs/architecture/deployment.puml`                                                |                  |                                                  |
 | NFR-02     | Tính khả dụng                         | `docs/architecture/architecture.md`                                            |                  |                                                  |
 | NFR-03     | Bảo mật                               | `docs/architecture/architecture.md`                                            |                  |                                                  |
 | NFR-04     | Khả năng mở rộng                      | `docs/architecture/architecture.md`                                            |                  |                                                  |
-| NFR-05     | Khả năng triển khai                   | `docs/diagrams/deployment.puml`                                                |                  |                                                  |
+| NFR-05     | Khả năng triển khai                   | `docs/architecture/deployment.puml`                                                |                  |                                                  |

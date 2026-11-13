@@ -1,18 +1,36 @@
 @startuml
-actor Customer
+skinparam shadowing false
+autonumber
+
+actor "Khách hàng" as Customer
 participant "Next.js UI" as UI
 participant "NestJS API" as API
-database "PostgreSQL" as DB
+database "Database" as DB
 
-Customer -> UI: Chọn sản phẩm
-UI -> API: GET /products/:id
-API -> DB: Truy vấn sản phẩm theo id
-DB --> API: Dữ liệu sản phẩm
-alt Sản phẩm tồn tại
-  API --> UI: 200 OK + Product
-  UI --> Customer: Hiển thị chi tiết sản phẩm
-else Không tồn tại
-  API --> UI: 404 Not Found
-  UI --> Customer: Hiển thị lỗi
+Customer -> UI : Chọn sản phẩm từ Menu
+activate UI
+UI -> API : GET /products/:id
+activate API
+API -> API : Validate id sản phẩm
+(Không yêu cầu JWT - endpoint công khai)
+
+alt id không hợp lệ
+  API --> UI : 400 Bad Request
+  UI --> Customer : Hiển thị thông báo lỗi
+else id hợp lệ
+  API -> DB : SELECT Product WHERE id = :id
+  activate DB
+  DB --> API : Product hoặc rỗng
+  deactivate DB
+
+  alt Sản phẩm không tồn tại
+    API --> UI : 404 Not Found
+    UI --> Customer : Hiển thị sản phẩm không tồn tại
+  else Sản phẩm tồn tại
+    API --> UI : 200 OK + Product
+    UI --> Customer : Hiển thị chi tiết sản phẩm,\ntồn kho và trạng thái còn/hết hàng
+  end
 end
+deactivate API
+deactivate UI
 @enduml

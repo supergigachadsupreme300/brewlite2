@@ -11,6 +11,7 @@ type Product = {
   imageUrl: string;
   category: string;
   stock: number;
+  isAvailable: boolean;
 };
 
 const API_BASE_URL =
