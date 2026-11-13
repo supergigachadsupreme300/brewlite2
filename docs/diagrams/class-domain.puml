@@ -61,7 +61,7 @@ class Product {
   +name : String
   +description : String
   +price : Decimal
-  +stock : Integer
+  +stockQuantity : Integer
   +isAvailable : Boolean
   +createdAt : DateTime
 }

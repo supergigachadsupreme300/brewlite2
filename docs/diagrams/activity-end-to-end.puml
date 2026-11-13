@@ -67,7 +67,7 @@ if (Tồn kho đủ cho mọi dòng hàng?) then (đủ hàng)
   |NestJS API|
   :Tính tạm tính, áp khuyến mãi (nếu hợp lệ)\nvà xác định totalAmount;
   |Database|
-  :Tạo Order (PENDING_PAYMENT) và OrderItem;\nTrừ Product.stock;\nCOMMIT;
+  :Tạo Order (PENDING_PAYMENT) và OrderItem;\nTrừ Product.stockQuantity;\nCOMMIT;
 else (hết hàng)
   :ROLLBACK;
   |Next.js UI|

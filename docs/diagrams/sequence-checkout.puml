@@ -40,14 +40,14 @@ else JWT và dữ liệu hợp lệ
   API -> DB : BEGIN transaction
   activate DB
   API -> DB : SELECT Product ... FOR UPDATE\n(đọc và khóa tồn kho)
-  DB --> API : stock từng sản phẩm
+  DB --> API : stockQuantity từng sản phẩm
   alt Có sản phẩm hết hàng / không đủ số lượng
     API -> DB : ROLLBACK
     deactivate DB
     API --> UI : 409 Conflict (OUT_OF_STOCK)
     UI --> C : Thông báo hết hàng,\nđề nghị đổi số lượng hoặc sản phẩm
   else Tồn kho đủ
-    API -> DB : INSERT Order (status = PENDING_PAYMENT, totalAmount)\nINSERT OrderItem[]\nUPDATE Product SET stock = stock - quantity
+    API -> DB : INSERT Order (status = PENDING_PAYMENT, totalAmount)\nINSERT OrderItem[]\nUPDATE Product SET stockQuantity = stockQuantity - quantity
     API -> DB : COMMIT
     deactivate DB
     API --> UI : 201 Created {orderId, totalAmount}
