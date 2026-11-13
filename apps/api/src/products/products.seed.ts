@@ -8,7 +8,7 @@ export const PRODUCTS_SEED: Product[] = [
     price: 2.5,
     imageUrl: '/images/espresso.png',
     category: 'Coffee',
-    available: true,
+    stock: 12,
   },
   {
     id: '2',
@@ -17,7 +17,7 @@ export const PRODUCTS_SEED: Product[] = [
     price: 3.0,
     imageUrl: '/images/americano.png',
     category: 'Coffee',
-    available: true,
+    stock: 8,
   },
   {
     id: '3',
@@ -26,7 +26,7 @@ export const PRODUCTS_SEED: Product[] = [
     price: 3.75,
     imageUrl: '/images/cappuccino.png',
     category: 'Coffee',
-    available: true,
+    stock: 5,
   },
   {
     id: '4',
@@ -35,7 +35,7 @@ export const PRODUCTS_SEED: Product[] = [
     price: 4.0,
     imageUrl: '/images/latte.png',
     category: 'Coffee',
-    available: true,
+    stock: 7,
   },
   {
     id: '5',
@@ -44,7 +44,7 @@ export const PRODUCTS_SEED: Product[] = [
     price: 4.5,
     imageUrl: '/images/mocha.png',
     category: 'Coffee',
-    available: false,
+    stock: 0,
   },
   {
     id: '6',
@@ -53,6 +53,6 @@ export const PRODUCTS_SEED: Product[] = [
     price: 2.75,
     imageUrl: '/images/croissant.png',
     category: 'Pastry',
-    available: true,
+    stock: 10,
   },
 ];

@@ -1,35 +1,35 @@
-# Repository Setup and Workflow
+# Thiết lập và quy trình repository
 
-## Structure
+## Cấu trúc
 
-- `apps/web` - Next.js mobile-first frontend
-- `apps/api` - NestJS backend
-- `docs` - requirements, diagrams, architecture and traceability
-- `tests` - integration and end-to-end tests
+- `apps/web` - Frontend Next.js mobile-first
+- `apps/api` - Backend NestJS
+- `docs` - Yêu cầu, sơ đồ, kiến trúc và truy vết
+- `tests` - Kiểm thử tích hợp và end-to-end
 
-## Branch strategy
+## Chiến lược nhánh
 
-- `main` - stable branch
-- `develop` - integration branch
-- `feature/<name>` - feature branches
+- `main` - nhánh ổn định
+- `develop` - nhánh tích hợp
+- `feature/<ten>` - nhánh tính năng
 
-## Commit convention
+## Quy ước commit
 
-- `feat:` new feature
-- `fix:` bug fix
-- `docs:` documentation
-- `test:` tests
-- `chore:` maintenance
+- `feat:` tính năng mới
+- `fix:` sửa lỗi
+- `docs:` tài liệu
+- `test:` kiểm thử
+- `chore:` bảo trì
 
-## Pull request rules
+## Quy tắc pull request
 
-- CI must pass: install, lint, unit test, build
-- At least one review before merge
-- No secrets in commits
+- CI phải pass: install, lint, unit test, build
+- Ít nhất một review trước khi merge
+- Không commit secret
 
-## Definition of Done
+## Định nghĩa hoàn thành
 
-- Code compiles and tests pass
-- Documentation updated
-- Health check works
-- No lint errors
+- Code biên dịch và kiểm thử pass
+- Tài liệu được cập nhật
+- Health check hoạt động
+- Không có lỗi lint

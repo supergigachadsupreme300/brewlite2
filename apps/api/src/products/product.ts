@@ -5,10 +5,10 @@ export interface Product {
   price: number;
   imageUrl: string;
   category: string;
-  available: boolean;
+  stock: number;
 }
 
 export type ProductSummary = Pick<
   Product,
-  'id' | 'name' | 'price' | 'imageUrl' | 'category' | 'available'
+  'id' | 'name' | 'price' | 'imageUrl' | 'category' | 'stock'
 >;

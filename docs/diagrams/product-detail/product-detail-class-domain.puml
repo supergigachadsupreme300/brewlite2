@@ -1,0 +1,18 @@
+@startuml
+class Product {
+  +id: string
+  +name: string
+  +description: string
+  +price: number
+  +imageUrl: string
+  +category: string
+  +available: boolean
+}
+
+class ProductDetailPage {
+  +loadProduct(id: string): void
+  +render(): void
+}
+
+ProductDetailPage ..> Product : hiển thị
+@enduml

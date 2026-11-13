@@ -1,0 +1,18 @@
+@startuml
+actor Customer
+participant "Next.js UI" as UI
+participant "NestJS API" as API
+database "PostgreSQL" as DB
+
+Customer -> UI: Chọn sản phẩm
+UI -> API: GET /products/:id
+API -> DB: Truy vấn sản phẩm theo id
+DB --> API: Dữ liệu sản phẩm
+alt Sản phẩm tồn tại
+  API --> UI: 200 OK + Product
+  UI --> Customer: Hiển thị chi tiết sản phẩm
+else Không tồn tại
+  API --> UI: 404 Not Found
+  UI --> Customer: Hiển thị lỗi
+end
+@enduml

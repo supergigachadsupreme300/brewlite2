@@ -1,0 +1,12 @@
+@startuml
+start
+:Khách hàng chọn sản phẩm;
+:Hệ thống gọi API GET /products/:id;
+if (Sản phẩm tồn tại?) then (Có)
+  :Hệ thống nhận dữ liệu sản phẩm;
+  :Hiển thị trang chi tiết sản phẩm;
+else (Không)
+  :Hiển thị thông báo lỗi;
+endif
+stop
+@enduml
