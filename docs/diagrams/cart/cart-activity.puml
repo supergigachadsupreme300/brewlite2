@@ -1,93 +1,120 @@
+
 @startuml
-|Khách hàng|
+title BrewLite - Activity Diagram: End-to-End Ordering
+
+skinparam shadowing false
+skinparam activity {
+  BackgroundColor White
+  BorderColor #555555
+  FontSize 13
+  DiamondBackgroundColor #FFF2CC
+  DiamondBorderColor #B8860B
+}
+skinparam ArrowColor #555555
+
+|Customer|
 start
-:Mở menu/chi tiết sản phẩm;
-:Chọn sản phẩm và số lượng;
-|Next.js UI / Cart|
-:Gửi yêu cầu thêm vào giỏ;
-|Product / Backend|
-:Đọc thông tin sản phẩm và tồn kho;
-|Cart|
-:Kiểm tra productId, quantity và stock;
-if (Dữ liệu hợp lệ và còn hàng?) then (Có)
-  :Thêm dòng hoặc cộng số lượng;
-  :Tính thành tiền và tổng tiền;
-  :Lưu giỏ và cập nhật badge;
-else (Không)
-  |Next.js UI / Cart|
-  :Hiển thị lỗi / hết hàng;
-  |Khách hàng|
-  :Điều chỉnh sản phẩm hoặc số lượng;
+:Open BrewLite;
+:View product list;
+:Select product;
+:View product details;
+:Add product to cart;
+:Open cart;
+:Review cart;
+
+if (Cart empty?) then (Yes)
+  :Display empty cart;
   stop
+else (No)
+  :Select Checkout;
 endif
-|Khách hàng|
-:Mở giỏ hàng;
-|Next.js UI / Cart|
-:Hiển thị món, số lượng và tổng tiền;
-|Khách hàng|
-if (Cần chỉnh sửa giỏ?) then (Có)
-  if (Xóa hay đổi số lượng?) then (Xóa)
-    :Chọn xóa sản phẩm;
-    |Cart|
-    :Xóa dòng và tính lại tổng tiền;
-  else (Đổi số lượng)
-    :Nhập số lượng mới;
-    |Cart|
-    :Validate số nguyên dương và tồn kho;
-    if (Số lượng hợp lệ?) then (Có)
-      :Cập nhật số lượng và tính lại tiền;
-    else (Không)
-      |Next.js UI / Cart|
-      :Thông báo số lượng không hợp lệ;
-    endif
+
+|System|
+:Check authentication;
+
+if (Logged in?) then (No)
+  |Customer|
+  :Enter login credentials;
+
+  |System|
+  :Validate credentials;
+
+  if (Credentials valid?) then (No)
+    :Display login error;
+    stop
+  else (Yes)
+    :Create authenticated session;
   endif
-  |Next.js UI / Cart|
-  :Cập nhật giao diện giỏ hàng;
-  |Khách hàng|
+else (Yes)
 endif
-:Chọn tiến hành thanh toán;
-if (Đã đăng nhập?) then (Có)
-else (Chưa)
-  |Login/Auth|
-  :Yêu cầu đăng nhập;
-  |Khách hàng|
-  :Nhập thông tin đăng nhập;
-  |Login/Auth|
-  :Xác thực thông tin và cấp JWT;
-  if (Đăng nhập thành công?) then (Có)
-  else (Không)
-    |Next.js UI / Cart|
-    :Thông báo đăng nhập thất bại;
-    stop
-  endif
-endif
-|Checkout|
-:Nhận danh sách productId và quantity;
-:Kiểm tra JWT, validate dữ liệu;
-:Đọc lại giá và tồn kho từ Database;
-if (Giỏ hợp lệ và đủ hàng?) then (Có)
-  :Tạo đơn trong transaction;
-  :Ghi Order/OrderItem và cập nhật tồn kho;
-  :Gửi yêu cầu thanh toán;
-  |Payment Service|
-  :Xử lý giao dịch;
-  if (Thanh toán thành công?) then (Có)
-    |Checkout|
-    :Cập nhật trạng thái thanh toán/đơn;
-    |Next.js UI / Cart|
-    :Thông báo đặt hàng thành công;
-    stop
-  else (Không)
-    |Checkout|
-    :Ghi nhận thanh toán thất bại;
-    |Next.js UI / Cart|
-    :Hiển thị lỗi và hướng dẫn thử lại;
-    stop
-  endif
-else (Không)
-  |Next.js UI / Cart|
-  :Thông báo sản phẩm hết hàng/giá thay đổi;
-  :Yêu cầu khách cập nhật giỏ;
+
+:Validate cart;
+:Check product availability;
+:Check stock quantity;
+
+if (Products available?) then (No)
+  :Return out-of-stock information;
+
+  |Customer|
+  :Adjust quantity or remove product;
   stop
+else (Yes)
 endif
+
+|System|
+:Calculate order total;
+:Display checkout summary;
+
+|Customer|
+:Confirm order information;
+:Choose payment method;
+:Submit payment request;
+
+|System|
+:Create payment request;
+:Generate idempotency key;
+
+|Payment Service|
+:Process payment;
+:Return payment result;
+
+|System|
+if (Payment successful?) then (Yes)
+  :Update payment status to SUCCESS;
+  :Confirm order;
+  :Update inventory consistently;
+  :Clear or mark cart as processed;
+  :Create order confirmation;
+
+  |Customer|
+  :View order confirmation;
+  stop
+
+else (No)
+  :Update payment status to FAILED;
+  :Keep order unpaid;
+  :Display payment failure message;
+
+  |Customer|
+  if (Retry payment?) then (Yes)
+    :Request payment retry;
+
+    |System|
+    :Verify payment status and idempotency key;
+    :Create or reuse valid retry request;
+
+    |Payment Service|
+    :Process retry payment;
+
+    |System|
+    :Return retry result;
+    :Display updated payment result;
+    stop
+
+  else (No)
+    :Cancel retry;
+    stop
+  endif
+endif
+
 @enduml
