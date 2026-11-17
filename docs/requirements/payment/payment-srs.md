@@ -32,7 +32,13 @@ Chức năng cho phép khách hàng thanh toán một đơn hàng đã tạo b�
 | PAY-NFR-05 | Khả năng phục hồi trước request lặp: xử lý idempotency phải an toàn khi client retry. | Must | Integration test gửi nhiều request cùng idempotencyKey và xác nhận chỉ có một kết quả giao dịch logic. |
 | PAY-NFR-06 | Bảo vệ dữ liệu: hệ thống không lưu thông tin thẻ nhạy cảm trong MVP. | Must | Kiểm tra schema và payload/log không có số thẻ đầy đủ, CVV hoặc mật khẩu thanh toán. |
 
-## 4. Use-case tổng quát trong phạm vi Payment
+ ## 4. Trạng thái triển khai mock demo trong Task 4
+
+Bản demo hiện thực `GET /payments/demo-orders` và `POST /payments` với các đơn mẫu do backend cung cấp. Backend lấy số tiền từ fixture, hỗ trợ `WALLET`/`CARD`, mô phỏng `SUCCESS`/`FAILED`, kiểm tra `idempotencyKey` và chặn thanh toán thành công lặp cho cùng đơn trong cùng tiến trình. UI có lựa chọn kết quả mô phỏng; không yêu cầu thông tin thẻ thật.
+
+Đây là mock demo độc lập, chưa đáp ứng các yêu cầu tích hợp đầy đủ về JWT/ownership, Order và Payment lưu trong PostgreSQL, hoặc tính bền vững của idempotency. Các yêu cầu đó vẫn cần hoàn thiện khi module Order, auth và database sẵn sàng; trạng thái trong bộ nhớ sẽ mất khi API khởi động lại.
+
+## 5. Use-case tổng quát trong phạm vi Payment
 
 Sơ đồ dưới đây mô tả phần chức năng Payment. Nhóm cần tích hợp nó vào use-case diagram tổng quát toàn hệ thống theo yêu cầu Task 1.2.
 
@@ -56,8 +62,7 @@ UC2 .> UC4 : <<include>>
 UC4 .> UC5 : <<include>>
 @enduml
 ```
-
-## 5. Quy tắc nghiệp vụ và điểm cần thống nhất
+## 6. Quy tắc nghiệp vụ và điểm cần thống nhất
 
 1. Backend là nguồn xác định số tiền phải thanh toán.
 2. Chỉ xử lý thanh toán cho đơn hàng tồn tại, hợp lệ và thuộc quyền truy cập của khách hàng.
@@ -66,7 +71,7 @@ UC4 .> UC5 : <<include>>
 5. `idempotencyKey` phải được kiểm tra ở backend; chỉ thêm unique constraint/transaction theo cách phù hợp với schema và database hiện có.
 6. Tên trạng thái Order sau thanh toán phải lấy theo quy ước module Order của nhóm, không tự tạo enum mới trong tài liệu Payment.
 
-## 6. Traceability sơ bộ
+## 7. Traceability sơ bộ
 
 | Yêu cầu | Use-case | API / thành phần dự kiến | Kiểm thử dự kiến |
 |---|---|---|---|
