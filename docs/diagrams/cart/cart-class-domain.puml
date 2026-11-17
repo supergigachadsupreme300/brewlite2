@@ -1,0 +1,112 @@
+
+@startuml
+title BrewLite - Domain Class Diagram
+
+class User {
+  +id: String
+  +email: String
+  +name: String
+  +password: String
+  +role: Role
+  +loyaltyPoints: Int
+  +createdAt: DateTime
+  +updatedAt: DateTime
+}
+
+class Product {
+  +id: String
+  +name: String
+  +description: String
+  +imageUrl: String
+  +price: Float
+  +stock: Int
+  +createdAt: DateTime
+  +updatedAt: DateTime
+}
+
+class Cart {
+  +id: String
+  +clientId: String
+  +createdAt: DateTime
+  +updatedAt: DateTime
+}
+
+class CartItem {
+  +id: String
+  +cartId: String
+  +productId: String
+  +quantity: Int
+  +size: String
+  +toppings: String
+  +createdAt: DateTime
+  +updatedAt: DateTime
+}
+
+class Order {
+  +id: String
+  +userId: String
+  +total: Float
+  +status: String
+  +customerName: String
+  +customerPhone: String
+  +pickupType: String
+  +tableNumber: String
+  +note: String
+  +paymentMethod: String
+  +createdAt: DateTime
+  +updatedAt: DateTime
+}
+
+class OrderItem {
+  +id: String
+  +orderId: String
+  +productId: String
+  +quantity: Int
+  +size: String
+  +toppings: String
+  +unitPrice: Float
+  +lineTotal: Float
+  +createdAt: DateTime
+}
+
+class Payment {
+  +id: String
+  +orderId: String
+  +amount: Float
+  +method: String
+  +status: String
+  +idempotencyKey: String
+  +createdAt: DateTime
+  +updatedAt: DateTime
+}
+
+class Promotion {
+  +id: String
+  +code: String
+  +discountType: String
+  +discountValue: Float
+  +startAt: DateTime
+  +endAt: DateTime
+  +isActive: Boolean
+}
+
+class LoyaltyTransaction {
+  +id: String
+  +userId: String
+  +points: Int
+  +type: String
+  +createdAt: DateTime
+}
+
+User "1" -- "0..*" Order : places
+Order "1" *-- "1..*" OrderItem : contains
+Product "1" -- "0..*" OrderItem : referenced by
+
+Cart "1" *-- "0..*" CartItem : contains
+Product "1" -- "0..*" CartItem : referenced by
+
+Order "1" -- "0..*" Payment : payments
+User "1" -- "0..*" LoyaltyTransaction : earns
+Promotion "0..*" -- "0..*" Order : applies to
+
+@enduml

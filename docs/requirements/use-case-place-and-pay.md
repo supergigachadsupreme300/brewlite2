@@ -81,3 +81,17 @@ Khách hàng bắt đầu quy trình khi chọn món từ menu và chọn nút �
 ## 12. Ghi chú
 
 Use case này là luồng nghiệp vụ trọng tâm của BrewLite và là cơ sở để thiết kế test trong các task tiếp theo như unit test, integration test và end-to-end test.
+
+## 13. Tài liệu theo phân hệ
+
+Các use case chi tiết theo từng phân hệ được quản lý trong thư mục docs/requirements/<phan-he>/ và sơ đồ trong docs/diagrams/<phan-he>/. Các phân hệ hiện có:
+
+- cart: giỏ hàng
+- login: xác thực
+- order: đặt đơn
+- order-history: lịch sử và chi tiết đơn
+- payment: thanh toán
+- product: sản phẩm và menu
+- product-detail: chi tiết sản phẩm
+
+Use case tổng quan này mô tả luồng đặt và thanh toán; chi tiết từng phân hệ xem trong các thư mục tương ứng.

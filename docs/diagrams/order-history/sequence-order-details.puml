@@ -1,0 +1,115 @@
+
+@startuml
+title SD-OH-02 - Order Details Management
+
+' ===== Cấu hình sơ đồ =====
+skinparam monochrome true
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+autonumber
+
+' ===== Các thành phần tham gia =====
+actor Customer
+boundary "Order History UI\n(/orders/[id])" as UI
+control "useOrderHistoryDetail" as Hook
+participant "orderHistoryApi" as Service
+participant "Orders API" as API
+database "localStorage\n(brewlite_mock_orders)" as Local
+
+' ===== Luồng chính: Xem chi tiết đơn hàng =====
+
+Customer -> UI: Chọn một đơn hàng
+activate UI
+
+UI -> UI: Điều hướng đến /orders/[id]
+
+UI -> Hook: Yêu cầu tải chi tiết theo orderId
+activate Hook
+
+loop Tải chi tiết lần đầu hoặc khi thử tải lại
+
+    Hook -> Service: getOrderById(orderId)
+    activate Service
+
+    Service -> API: GET /orders/:id
+    activate API
+
+    alt API trả về chi tiết thành công
+        API --> Service: Thông tin chi tiết đơn hàng
+        deactivate API
+
+        Service --> Hook: Trả về chi tiết đơn hàng
+
+    else API không truy xuất được chi tiết
+        API --> Service: Lỗi truy xuất / không tìm thấy
+        deactivate API
+
+        Service -> Local: Đọc và tìm đơn hàng theo ID
+        Local --> Service: Đơn hàng phù hợp hoặc không có kết quả
+
+        alt Tìm thấy đơn hàng trong dữ liệu mock
+            Service --> Hook: Trả về chi tiết từ mock
+
+        else Không tìm thấy đơn hàng trong mock
+            Service --> Hook: Trả về lỗi không tìm thấy đơn hàng
+        end
+    end
+
+    deactivate Service
+
+    alt Lấy được dữ liệu chi tiết
+        Hook --> UI: Dữ liệu chi tiết đơn hàng
+        UI -> UI: Cập nhật trạng thái hiển thị
+
+        break Đã lấy được chi tiết đơn hàng
+        end
+
+    else Không tải được chi tiết
+        Hook --> UI: Trạng thái lỗi
+        UI --> Customer: Hiển thị thông báo lỗi\nvà nút Thử tải lại
+
+        alt Khách hàng chọn Thử tải lại (UC-OH-05)
+            Customer -> UI: Chọn Thử tải lại
+            UI -> Hook: Yêu cầu tải chi tiết lần nữa
+
+        else Khách hàng không thử lại
+            break Kết thúc thao tác tải chi tiết
+            end
+        end
+    end
+
+end
+
+' ===== Kết quả hiển thị =====
+
+alt Tìm thấy đơn hàng
+
+    UI --> Customer: Hiển thị thông tin đơn hàng
+
+    note over UI
+        Thông tin có thể hiển thị:
+        - Mã đơn, ngày tạo, trạng thái, hình thức nhận
+        - Tên người nhận, số điện thoại, số bàn, ghi chú (nếu có)
+        - Sản phẩm, hình ảnh, kích thước (nếu có)
+        - Đơn giá, số lượng, thành tiền, tổng tiền
+    end note
+
+    opt Khách hàng quay lại danh sách
+        Customer -> UI: Chọn quay lại danh sách
+        UI -> UI: Điều hướng về /orders
+        UI --> Customer: Hiển thị trang Order History
+    end
+
+else Không tìm thấy / không tải được đơn hàng
+
+    note over UI, Customer
+        Thông báo lỗi đã được hiển thị
+        trong quá trình tải chi tiết.
+    end note
+
+end
+
+deactivate Hook
+deactivate UI
+
+@enduml

@@ -1,0 +1,120 @@
+
+@startuml
+title BrewLite - Activity Diagram: End-to-End Ordering
+
+skinparam shadowing false
+skinparam activity {
+  BackgroundColor White
+  BorderColor #555555
+  FontSize 13
+  DiamondBackgroundColor #FFF2CC
+  DiamondBorderColor #B8860B
+}
+skinparam ArrowColor #555555
+
+|Customer|
+start
+:Open BrewLite;
+:View product list;
+:Select product;
+:View product details;
+:Add product to cart;
+:Open cart;
+:Review cart;
+
+if (Cart empty?) then (Yes)
+  :Display empty cart;
+  stop
+else (No)
+  :Select Checkout;
+endif
+
+|System|
+:Check authentication;
+
+if (Logged in?) then (No)
+  |Customer|
+  :Enter login credentials;
+
+  |System|
+  :Validate credentials;
+
+  if (Credentials valid?) then (No)
+    :Display login error;
+    stop
+  else (Yes)
+    :Create authenticated session;
+  endif
+else (Yes)
+endif
+
+:Validate cart;
+:Check product availability;
+:Check stock quantity;
+
+if (Products available?) then (No)
+  :Return out-of-stock information;
+
+  |Customer|
+  :Adjust quantity or remove product;
+  stop
+else (Yes)
+endif
+
+|System|
+:Calculate order total;
+:Display checkout summary;
+
+|Customer|
+:Confirm order information;
+:Choose payment method;
+:Submit payment request;
+
+|System|
+:Create payment request;
+:Generate idempotency key;
+
+|Payment Service|
+:Process payment;
+:Return payment result;
+
+|System|
+if (Payment successful?) then (Yes)
+  :Update payment status to SUCCESS;
+  :Confirm order;
+  :Update inventory consistently;
+  :Clear or mark cart as processed;
+  :Create order confirmation;
+
+  |Customer|
+  :View order confirmation;
+  stop
+
+else (No)
+  :Update payment status to FAILED;
+  :Keep order unpaid;
+  :Display payment failure message;
+
+  |Customer|
+  if (Retry payment?) then (Yes)
+    :Request payment retry;
+
+    |System|
+    :Verify payment status and idempotency key;
+    :Create or reuse valid retry request;
+
+    |Payment Service|
+    :Process retry payment;
+
+    |System|
+    :Return retry result;
+    :Display updated payment result;
+    stop
+
+  else (No)
+    :Cancel retry;
+    stop
+  endif
+endif
+
+@enduml

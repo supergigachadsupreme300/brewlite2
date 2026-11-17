@@ -1,0 +1,152 @@
+@startuml
+title Sơ đồ Lớp Thực thể (Domain Class Diagram) — Phân hệ Product & Menu trong BrewLite
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum ProductCategory {
+  COFFEE
+  TEA
+  FREEZE
+  PASTRY
+  OTHER
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PREPARING
+  READY
+  COMPLETED
+  PAYMENT_FAILED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+class Product {
+  +id: String
+  +name: String
+  +description: String
+  +category: ProductCategory
+  +price: Decimal
+  +stock: Int
+  +imageUrl: String
+  +isAvailable: Boolean
+  +createdAt: DateTime
+  +updatedAt: DateTime
+  +checkAvailability(quantity: Int): Boolean
+  +hasSufficientStock(quantity: Int): Boolean
+  +decrementStock(quantity: Int): void
+}
+
+class ProductOption <<value object>> {
+  +size: String
+  +sugarLevel: String
+  +iceLevel: String
+  +extraToppings: String[]
+}
+
+class User {
+  +id: String
+  +email: String
+  +name: String
+  +password: String
+  +role: Role
+  +createdAt: DateTime
+}
+
+class Cart {
+  +id: String
+  +clientId: String
+  +createdAt: DateTime
+  +updatedAt: DateTime
+  +getTotalItems(): Int
+  +getTotalPrice(): Decimal
+}
+
+class CartItem {
+  +id: String
+  +cartId: String
+  +productId: String
+  +quantity: Int
+  +size: String
+  +toppings: String
+  +getLineTotal(): Decimal
+}
+
+class Order {
+  +id: String
+  +userId: String
+  +total: Decimal
+  +status: OrderStatus
+  +createdAt: DateTime
+  +updatedAt: DateTime
+}
+
+class OrderItem {
+  +id: String
+  +orderId: String
+  +productId: String
+  +quantity: Int
+  +unitPrice: Decimal
+  +lineTotal: Decimal
+}
+
+class Payment {
+  +id: String
+  +orderId: String
+  +amount: Decimal
+  +method: String
+  +status: PaymentStatus
+  +idempotencyKey: String
+}
+
+class Promotion <<future / optional>> {
+  +id: String
+  +code: String
+  +discountValue: Decimal
+  +isActive: Boolean
+}
+
+class LoyaltyTransaction <<future / optional>> {
+  +id: String
+  +userId: String
+  +orderId: String
+  +points: Int
+  +type: String
+}
+
+' Quan hệ trọng tâm của Product & Menu
+Product "1" *-- "0..*" ProductOption : hỗ trợ tùy chọn >
+Product "1" -- "0..*" CartItem : được tham chiếu trong giỏ >
+Product "1" -- "0..*" OrderItem : cung cấp giá gốc & trừ tồn kho >
+Product ..> ProductCategory : phân loại theo
+
+' Quan hệ liên kết toàn hệ thống BrewLite
+User "1" -- "0..1" Cart : sử dụng >
+Cart "1" *-- "0..*" CartItem : chứa >
+User "1" -- "0..*" Order : đặt >
+Order "1" *-- "1..*" OrderItem : bao gồm >
+Order "1" -- "0..*" Payment : thanh toán >
+User "1" -- "0..*" LoyaltyTransaction : tích điểm >
+Order "0..1" -- "0..*" LoyaltyTransaction : phát sinh từ >
+Order "0..*" .. "0..*" Promotion : áp dụng
+
+note right of Product
+  Nguồn dữ liệu chuẩn (Single Source of Truth)
+  cho Menu hiển thị, Cart kiểm tra sơ bộ
+  và Order/Checkout tính tiền + trừ tồn kho
+  nguyên tử trong Prisma Transaction.
+end note
+@enduml
+

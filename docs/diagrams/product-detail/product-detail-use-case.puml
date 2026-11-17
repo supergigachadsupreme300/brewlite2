@@ -1,0 +1,21 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+actor "Khách hàng" as Customer
+
+rectangle "BrewLite - Chi tiết sản phẩm" {
+  usecase "Chọn sản phẩm từ Menu" as UC1
+  usecase "Gọi API GET /products/:id" as UC2
+  usecase "Hiển thị chi tiết sản phẩm" as UC3
+  usecase "Hiển thị tồn kho và trạng thái còn/hết hàng" as UC4
+  usecase "Xử lý sản phẩm không tồn tại" as UC5
+}
+
+Customer --> UC1
+UC1 .> UC2 : <<include>>
+UC2 .> UC3 : <<include>>
+UC3 .> UC4 : <<include>>
+UC2 .> UC5 : <<extend>>
+@enduml
