@@ -88,3 +88,43 @@ BrewLite nhằm cung cấp một quy trình đặt hàng trực tuyến, tối g
 ## 8. Tóm tắt phạm vi
 
 BrewLite tập trung vào việc cung cấp một quy trình đặt món và thanh toán rõ ràng, dễ dùng và có thể kiểm thử. MVP tập trung vào luồng cốt lõi: menu, giỏ hàng, đặt hàng, thanh toán và trạng thái đơn. Các tính năng mở rộng và tích hợp phức tạp sẽ được xem xét sau khi MVP đã ổn định.
+
+## 10. Tài liệu theo phân hệ
+
+Các yêu cầu chi tiết theo từng phân hệ được quản lý trong thư mục docs/requirements/<phan-he>/ và sơ đồ trong docs/diagrams/<phan-he>/. Các phân hệ hiện có:
+
+- cart: giỏ hàng
+- login: xác thực
+- order: đặt đơn
+- order-history: lịch sử và chi tiết đơn
+- payment: thanh toán
+- product: sản phẩm và menu
+- product-detail: chi tiết sản phẩm
+
+Tài liệu tổng quan này tổng hợp phạm vi và stakeholder chung; chi tiết từng phân hệ xem trong các thư mục tương ứng.
+
+
+## 11. Tổng quan các phân hệ (theo tài liệu phân hệ)
+
+### cart
+Phân hệ giỏ hàng cho phép xem giỏ, thêm sản phẩm, cập nhật số lượng, xóa sản phẩm, tính thành tiền và tổng tiền, lưu/khôi phục giỏ hàng và chuyển dữ liệu sang Checkout.
+
+### login
+Phân hệ xác thực hỗ trợ đăng ký, đăng nhập, mã hóa mật khẩu, cấp và xác minh JWT, lấy thông tin người dùng hiện tại, lưu trạng thái đăng nhập phía client, xử lý token hết hạn và đăng xuất.
+
+### order
+Phân hệ đặt đơn và kiểm soát tồn kho cho phép xác nhận đơn từ giỏ hàng, kiểm tra tồn kho, tạo đơn hàng, cập nhật trạng thái đơn và đồng bộ dữ liệu với Cart và Payment.
+
+### order-history
+Phân hệ lịch sử đơn hàng hỗ trợ xem danh sách đơn, sắp xếp theo ngày tạo, tìm kiếm theo mã đơn, lọc theo trạng thái, xem chi tiết đơn và xử lý các trạng thái loading, empty, error.
+
+### payment
+Phân hệ thanh toán mô phỏng hỗ trợ thanh toán ví/thẻ, xác nhận hoặc từ chối giao dịch, lưu log giao dịch và cập nhật trạng thái đơn hàng.
+
+### product
+Phân hệ sản phẩm và menu cung cấp danh sách sản phẩm, tìm kiếm/lọc, chi tiết sản phẩm, trạng thái tồn kho và API sản phẩm cho Cart và Order.
+
+### product-detail
+Phân hệ chi tiết sản phẩm hiển thị đầy đủ thông tin sản phẩm, trạng thái tồn kho, xử lý sản phẩm không tồn tại và cung cấp API GET /products/:id.
+
+Tài liệu tổng quan này tổng hợp phạm vi và stakeholder chung; chi tiết từng phân hệ xem trong các thư mục tương ứng.

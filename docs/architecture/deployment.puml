@@ -1,0 +1,48 @@
+@startuml
+left to right direction
+skinparam componentStyle rectangle
+skinparam linetype ortho
+
+actor "Người dùng" as User
+node "Trình duyệt / PWA" as Browser
+node "CDN / Edge / Reverse Proxy" as CDN
+node "Frontend Next.js" as Web
+node "Backend NestJS API" as API
+node "PostgreSQL" as DB
+node "Dịch vụ thanh toán mô phỏng" as Payment
+node "Amazon ECR" as Registry
+node "Domain Name (DNS)" as Domain
+node "SSH Key Pair" as KeyPair
+node "Ubuntu Server (AWS EC2)" as Platform
+node "Biến môi trường / Secret" as Config
+node "Health + Logging" as Logs
+
+User --> Browser : HTTPS
+Browser --> CDN : HTTPS
+CDN --> Web : Phục vụ ứng dụng
+Web --> API : HTTPS / REST API
+API --> DB : SQL / ORM
+API --> Payment : Yêu cầu thanh toán nội bộ
+API --> Config : Đọc cấu hình
+API --> Logs : Health + log lỗi
+Payment --> Logs : Log giao dịch
+
+Web --> Config : Cấu hình runtime công khai
+DB --> Logs : Health DB + giám sát
+Domain --> Platform : Tro toi server
+KeyPair --> Platform : SSH authentication
+Platform --> Registry : Build / pull image
+Platform --> Web : Triển khai frontend
+Platform --> API : Triển khai backend
+Platform --> DB : Lưu trữ bền vững
+note right of Platform
+Production target platform
+Health checks, HTTPS,
+container registry and persistent DB
+end note
+
+note bottom of Config
+Secrets are not committed to source control
+end note
+
+@enduml

@@ -1,0 +1,184 @@
+@startuml activity-checkout
+title Activity diagram – Luồng end-to-end: Đặt hàng và Thanh toán (UC-PAY-01)
+
+skinparam defaultFontName "DejaVu Sans"
+skinparam defaultFontSize 12
+skinparam shadowing false
+skinparam ArrowColor #444444
+skinparam ActivityBackgroundColor #FFFFFF
+skinparam ActivityBorderColor #444444
+skinparam ActivityDiamondBackgroundColor #FFF8DC
+skinparam ActivityDiamondBorderColor #B8860B
+skinparam SwimlaneBorderColor #888888
+skinparam SwimlaneTitleFontStyle bold
+skinparam NoteBackgroundColor #FFFFE0
+skinparam NoteBorderColor #B8860B
+
+|Khách hàng|
+start
+:Mở BrewLite, xem menu\nvà thêm đồ uống vào giỏ;
+:Nhấn "Đặt hàng";
+
+|Next.js UI|
+if (Khách hàng đã đăng nhập?\n(có JWT hợp lệ ở client)) then (chưa đăng nhập)
+  :Chuyển đến trang đăng nhập;
+  |Khách hàng|
+  :Nhập email và mật khẩu;
+  |Next.js UI|
+  :Gửi POST /auth/login;
+  |NestJS API|
+  :Kiểm tra thông tin đăng nhập;
+  if (Thông tin đúng?) then (đúng)
+    :Cấp JWT cho khách hàng;
+    |Next.js UI|
+    :Lưu JWT và quay lại bước đặt hàng;
+  else (sai)
+    |Next.js UI|
+    :Hiển thị lỗi đăng nhập;
+    stop
+  endif
+else (đã đăng nhập)
+endif
+
+|Next.js UI|
+:Gửi POST /orders\n(Bearer JWT, danh sách sản phẩm,\nmã khuyến mãi nếu có);
+
+|NestJS API|
+:Xác thực JWT;
+if (JWT hợp lệ và chưa hết hạn?) then (không)
+  |Next.js UI|
+  :Hiển thị "Phiên đăng nhập hết hạn"\nvà yêu cầu đăng nhập lại;
+  stop
+else (có)
+endif
+
+|NestJS API|
+:Validate dữ liệu đầu vào (DTO);
+if (Dữ liệu hợp lệ?) then (không)
+  |Next.js UI|
+  :Hiển thị lỗi validation;
+  stop
+else (có)
+endif
+
+|Database|
+:BEGIN transaction;\nĐọc và khóa tồn kho các sản phẩm\n(SELECT ... FOR UPDATE);
+if (Tồn kho đủ cho mọi dòng hàng?) then (đủ hàng)
+  |NestJS API|
+  :Tính tạm tính, áp khuyến mãi (nếu hợp lệ)\nvà xác định totalAmount;
+  |Database|
+  :Tạo Order (PENDING_PAYMENT) và OrderItem;\nTrừ Product.stockQuantity;\nCOMMIT;
+else (hết hàng)
+  :ROLLBACK;
+  |Next.js UI|
+  :Thông báo sản phẩm đã hết hàng,\nđề nghị đổi số lượng hoặc sản phẩm khác;
+  |Khách hàng|
+  :Xem thông báo hết hàng;
+  stop
+endif
+
+|NestJS API|
+:Trả orderId và totalAmount;
+|Next.js UI|
+:Hiển thị màn hình thanh toán;
+
+|Khách hàng|
+:Chọn phương thức WALLET hoặc CARD;
+:Nhấn xác nhận thanh toán;
+
+|Next.js UI|
+:Sinh idempotencyKey;\nGửi POST /payments\n{orderId, method, idempotencyKey};
+
+|NestJS API|
+:Xác thực JWT;
+if (JWT hợp lệ?) then (không)
+  |Next.js UI|
+  :Yêu cầu khách hàng đăng nhập lại;
+  stop
+else (có)
+endif
+
+|NestJS API|
+:Validate orderId, method, idempotencyKey;
+if (Dữ liệu hợp lệ và method\nthuộc WALLET/CARD?) then (không)
+  |Next.js UI|
+  :Hiển thị lỗi validation;
+  stop
+else (có)
+endif
+
+|Database|
+:Đọc Order theo orderId\nvà kiểm tra quyền sở hữu;
+if (Order tồn tại và\nthuộc khách hàng?) then (không)
+  |Next.js UI|
+  :Hiển thị "Không tìm thấy đơn hàng";
+  stop
+else (có)
+endif
+
+|Database|
+:Tra cứu Payment theo idempotencyKey;
+if (idempotencyKey đã được xử lý?) then (đã xử lý – gửi lại)
+  |NestJS API|
+  :Trả lại kết quả Payment đã lưu\n(không gọi Mock Payment Service);
+  |Next.js UI|
+  :Hiển thị kết quả đã lưu;
+  stop
+else (chưa xử lý)
+endif
+
+|Database|
+if (Order đã thanh toán thành công?) then (đã thanh toán)
+  |NestJS API|
+  :Không tạo thanh toán mới,\ntrả trạng thái hiện có;
+  |Next.js UI|
+  :Hiển thị "Đơn hàng đã được thanh toán";
+  stop
+else (chưa thanh toán)
+endif
+
+|Database|
+:Tạo Payment (PENDING)\nvới amount = Order.totalAmount\nvà idempotencyKey;
+
+|NestJS API|
+:Gửi yêu cầu thanh toán\nđến Mock Payment Service;
+
+|Mock Payment Service|
+:Mô phỏng xử lý giao dịch;
+|NestJS API|
+if (Có phản hồi kết quả xác định?) then (lỗi kỹ thuật / không phản hồi)
+  :Không kết luận thành công;\nPayment giữ PENDING;\nTrả lỗi kỹ thuật;
+  |Next.js UI|
+  :Thông báo chưa xác định được kết quả,\ncho phép thử lại với cùng idempotencyKey;
+  stop
+else (có phản hồi)
+endif
+
+|NestJS API|
+if (Kết quả thanh toán?) then (SUCCESS)
+  |Database|
+  :Transaction: cập nhật Payment = SUCCESS\nvà Order = PAID;
+  |NestJS API|
+  :Trả response thành công;
+  |Next.js UI|
+  :Hiển thị thông báo thanh toán thành công\nvà thông tin đơn hàng;
+else (FAILED)
+  |Database|
+  :Cập nhật Payment = FAILED;\nOrder giữ PENDING_PAYMENT;
+  |NestJS API|
+  :Trả response thất bại;
+  |Next.js UI|
+  :Hiển thị thông báo thanh toán thất bại,\ncho phép chọn lại phương thức hoặc thử lại;
+endif
+
+|Khách hàng|
+:Xem kết quả thanh toán;
+stop
+
+note right
+  Quy ước kết thúc:
+  mỗi nhánh lỗi/ngoại lệ kết thúc ở một
+  điểm "stop" riêng; các nhánh thành công/thất bại
+  hội tụ tại bước "Xem kết quả thanh toán".
+end note
+@enduml

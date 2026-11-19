@@ -1,0 +1,92 @@
+@startuml
+title Sơ đồ Hoạt động (Activity Diagram) — Luồng Xem Menu, Tra cứu Sản phẩm & Chọn món (Product & Menu)
+
+|#F9F9F9|Khách hàng (Customer)|
+start
+:Truy cập trang Thực đơn (Menu);
+
+|#E8F4FD|Next.js UI (Menu & Product)|
+:Gửi yêu cầu tải danh sách sản phẩm (GET /products);
+
+|#EDF2F8|NestJS API (Product Module)|
+:Tiếp nhận request & kiểm tra tham số truy vấn;
+
+|#FFF9E6|PostgreSQL (Prisma ORM)|
+:Truy vấn danh sách Product đang mở bán;
+:Trả về danh sách sản phẩm (id, name, price, stock, imageUrl);
+
+|NestJS API (Product Module)|
+:Trả về HTTP 200 OK + Danh sách sản phẩm;
+
+|Next.js UI (Menu & Product)|
+if (Danh sách có sản phẩm?) then (Trống)
+  :Hiển thị thông báo "Chưa có sản phẩm trong thực đơn";
+  stop
+else (Có sản phẩm)
+  :Hiển thị danh sách thẻ sản phẩm (Menu Grid);
+  :Hiển thị nhãn "Hết hàng" nếu stock == 0;
+endif
+
+|Khách hàng (Customer)|
+if (Cần tìm kiếm hoặc lọc theo danh mục?) then (Có)
+  :Nhập từ khóa hoặc chọn Danh mục (Cà phê, Trà,...);
+  |Next.js UI (Menu & Product)|
+  :Gửi GET /products?search=...&category=...;
+  |NestJS API (Product Module)|
+  :Lọc sản phẩm theo điều kiện truy vấn;
+  |Next.js UI (Menu & Product)|
+  if (Có sản phẩm khớp bộ lọc?) then (Không)
+    :Hiển thị "Không tìm thấy sản phẩm phù hợp";
+    |Khách hàng (Customer)|
+    :Nhấn "Xóa bộ lọc" để xem lại toàn bộ Menu;
+  else (Có)
+    |Next.js UI (Menu & Product)|
+    :Cập nhật danh sách sản phẩm theo bộ lọc;
+  endif
+endif
+
+|Khách hàng (Customer)|
+:Chọn một sản phẩm để xem chi tiết;
+
+|Next.js UI (Menu & Product)|
+:Gửi yêu cầu GET /products/:id;
+
+|NestJS API (Product Module)|
+:Tìm sản phẩm theo id trong PostgreSQL;
+if (Sản phẩm tồn tại?) then (Không [404])
+  :Trả về HTTP 404 Not Found;
+  |Next.js UI (Menu & Product)|
+  :Hiển thị lỗi "Sản phẩm không tồn tại" & nút quay lại Menu;
+  stop
+else (Tồn tại [200])
+  |NestJS API (Product Module)|
+  :Trả về thông tin chi tiết (description, price, stock, options);
+endif
+
+|Next.js UI (Menu & Product)|
+:Hiển thị trang/modal Chi tiết sản phẩm;
+if (Kiểm tra tồn kho: stock > 0?) then (Hết hàng [stock == 0])
+  :Hiển thị trạng thái "Hết hàng" & Khóa nút "Thêm vào giỏ";
+  stop
+else (Còn hàng [stock > 0])
+  |Khách hàng (Customer)|
+  :Chọn tùy chọn (Size/Đá/Đường) và nhập số lượng (quantity);
+  :Nhấn nút "Thêm vào giỏ hàng";
+endif
+
+|Next.js UI (Menu & Product)|
+:Kiểm tra số lượng hợp lệ (1 <= quantity <= stock);
+if (Số lượng hợp lệ?) then (Không hợp lệ / Vượt stock)
+  :Hiển thị cảnh báo vượt quá tồn kho hiện có;
+  stop
+else (Hợp lệ)
+  |#F3E5F5|Module Cart & Checkout|
+  :Nhận dữ liệu chuẩn từ Product (productId, name, price, stock, quantity);
+  :Cập nhật giỏ hàng & tính tổng tạm tính;
+  :Khi Checkout, Order đối chiếu lại Product.price và trừ Product.stock trong Transaction;
+  |Next.js UI (Menu & Product)|
+  :Cập nhật badge giỏ hàng & thông báo thêm món thành công;
+  stop
+endif
+@enduml
+
