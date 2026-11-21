@@ -1,0 +1,132 @@
+@startuml sequence-checkout
+title Sequence diagram – UC-PAY-01 Thanh toán đơn hàng
+
+skinparam defaultFontName "DejaVu Sans"
+skinparam defaultFontSize 12
+skinparam shadowing false
+skinparam sequenceMessageAlign left
+skinparam ParticipantPadding 20
+skinparam NoteBackgroundColor #FFFFE0
+skinparam NoteBorderColor #B8860B
+skinparam SequenceGroupBackgroundColor #F5F5F5
+autonumber
+
+actor "Customer\n(Khách hàng)" as C
+participant "Next.js UI" as UI
+participant "NestJS API" as API
+database "Database\n(PostgreSQL)" as DB
+participant "Payment Service\n(Mock)" as PS
+
+note over C, PS
+  Mã trạng thái HTTP trong sơ đồ là dự kiến; cần đối chiếu với controller/DTO thực tế.
+  Tên trạng thái Order (PAID) là đề xuất; cần đối chiếu enum trong Prisma schema.
+  Tiền điều kiện: Order đã được tạo bởi module Order trước khi sơ đồ này bắt đầu.
+end note
+
+== Thanh toán – luồng chính, thay thế và ngoại lệ (UC-PAY-01) ==
+
+C -> UI : Chọn WALLET hoặc CARD,\nnhấn xác nhận thanh toán
+activate UI
+UI -> UI : Sinh idempotencyKey (UUID)\nvô hiệu hóa nút để tránh bấm nhiều lần
+UI -> API : POST /payments\n{orderId, method, idempotencyKey}\nAuthorization: Bearer <JWT>
+activate API
+API -> API : JwtAuthGuard: xác thực JWT\nValidationPipe: validate orderId, method, idempotencyKey
+
+alt JWT không hợp lệ hoặc hết hạn (E1)
+  API --> UI : 401 Unauthorized
+  UI --> C : Yêu cầu đăng nhập lại
+else Thiếu trường hoặc method không thuộc WALLET/CARD (E3)
+  API --> UI : 400 Bad Request
+  UI --> C : Hiển thị lỗi validation
+else Dữ liệu hợp lệ
+  API -> DB : SELECT Order WHERE id = orderId AND userId = userId từ JWT
+  activate DB
+  DB --> API : Order hoặc rỗng
+  deactivate DB
+
+  alt Order không tồn tại hoặc không thuộc khách hàng (E2)
+    API --> UI : 404 Not Found
+    UI --> C : Hiển thị "Không tìm thấy đơn hàng"\n(không gọi Payment Service)
+  else Order hợp lệ
+    API -> DB : SELECT Payment WHERE idempotencyKey = key
+    activate DB
+    DB --> API : Payment hoặc rỗng
+    deactivate DB
+
+    alt idempotencyKey đã được xử lý (A4)
+      API --> UI : 200 OK – kết quả Payment đã lưu\n(không gọi Payment Service)
+      UI --> C : Hiển thị kết quả đã lưu
+    else Order đã thanh toán thành công bằng key khác (E5)
+      API --> UI : 409 Conflict (ALREADY_PAID) / trạng thái hiện có
+      UI --> C : Hiển thị "Đơn hàng đã được thanh toán"
+    else Yêu cầu mới, order chưa thanh toán
+      API -> DB : INSERT Payment (status = PENDING,\namount = Order.totalAmount, method, idempotencyKey UNIQUE)
+      note right of DB
+        Số tiền lấy từ Order trong database,
+        không dùng amount do client gửi (PAY-FR-03).
+        Ràng buộc UNIQUE trên idempotencyKey chặn
+        hai request đồng thời cùng key.
+      end note
+      API -> PS : charge(orderId, amount, method, idempotencyKey)
+      activate PS
+
+      alt Payment Service trả SUCCESS
+        PS --> API : result = SUCCESS (+ mã giao dịch)
+        deactivate PS
+        API -> DB : BEGIN transaction
+        API -> DB : UPDATE Payment SET status = SUCCESS\nUPDATE Order SET status = PAID
+        API -> DB : COMMIT
+        API --> UI : 200 OK {status = SUCCESS, paymentId, orderId}
+        UI --> C : Thông báo thanh toán thành công
+      else Payment Service trả FAILED
+        PS --> API : result = FAILED
+        deactivate PS
+        API -> DB : UPDATE Payment SET status = FAILED\n(Order không đổi sang PAID)
+        API --> UI : 200 OK {status = FAILED, paymentId}\n(hoặc mã lỗi nghiệp vụ theo thiết kế API)
+        UI --> C : Thông báo thanh toán thất bại,\ncho phép chọn lại phương thức hoặc thử lại
+      else Payment Service lỗi kỹ thuật / không phản hồi (E4)
+        PS --> API : timeout / lỗi
+        deactivate PS
+        note right of API
+          Không tự kết luận SUCCESS.
+          Payment giữ PENDING, Order không đổi.
+        end note
+        API --> UI : 503/504 – chưa xác định được kết quả
+        UI --> C : Thông báo lỗi kỹ thuật,\nthử lại với cùng idempotencyKey
+      end
+    end
+  end
+end
+deactivate API
+deactivate UI
+
+== Client gửi lại yêu cầu với cùng idempotencyKey (A4, E4) ==
+
+C -> UI : Nhấn thử lại / UI tự retry sau timeout
+activate UI
+UI -> API : POST /payments\n{orderId, method, idempotencyKey (GIỐNG lần trước)}
+activate API
+API -> API : Xác thực JWT, validate DTO, kiểm tra quyền sở hữu Order
+API -> DB : SELECT Payment WHERE idempotencyKey = key
+activate DB
+DB --> API : Payment đã tồn tại
+deactivate DB
+
+alt Payment.status = SUCCESS hoặc FAILED
+  API --> UI : 200 OK – trả lại kết quả đã lưu
+  note right of API
+    Không tạo Payment mới và
+    không gọi Payment Service lần nữa.
+  end note
+else Payment.status = PENDING (lần trước gặp lỗi kỹ thuật)
+  API -> PS : charge(orderId, amount, method, idempotencyKey)
+  activate PS
+  PS --> API : result (SUCCESS / FAILED)
+  deactivate PS
+  API -> DB : Cập nhật Payment và Order\ntheo kết quả (như luồng thanh toán ở trên)
+  API --> UI : 200 OK {status, paymentId}
+end
+UI --> C : Hiển thị kết quả cuối cùng\n(thành công hoặc thất bại)
+deactivate API
+deactivate UI
+@enduml

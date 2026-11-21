@@ -199,3 +199,17 @@ Payment --> UC7
 ## 7. Kết luận
 
 SRS này tập trung vào các yêu cầu cốt lõi của BrewLite, với trọng tâm là luồng đặt món, giỏ hàng, thanh toán và quản lý trạng thái đơn. Mục tiêu là đảm bảo hệ thống có thể kiểm tra, triển khai và phát triển theo hướng rõ ràng trong giai đoạn MVP mà không bị rơi vào scope quá rộng.
+
+## 8. Yêu cầu theo phân hệ
+
+Các yêu cầu chi tiết theo từng phân hệ được quản lý trong thư mục `docs/requirements/<phan-he>/` và sơ đồ trong `docs/diagrams/<phan-he>/`. Các phân hệ và mã yêu cầu chính:
+
+- cart: FR-CART-01 đến FR-CART-11
+- login: FR-01 đến FR-11
+- order: FR-06, FR-10
+- order-history: FR-OH-01 đến FR-OH-08
+- payment: thanh toán và xác nhận giao dịch
+- product: FR-PROD-01 đến FR-PROD-07
+- product-detail: FR-PD-01 đến FR-PD-03
+
+Tài liệu SRS tổng quan này tổng hợp các yêu cầu chung; chi tiết từng phân hệ xem trong các thư mục tương ứng.

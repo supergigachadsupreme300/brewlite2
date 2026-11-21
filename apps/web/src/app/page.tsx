@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import React, { useEffect, useMemo, useState } from 'react';
 import { CategoryFilter } from '../components/CategoryFilter';
 import { Header } from '../components/Header';
@@ -7,13 +8,55 @@ import { ProductCard } from '../components/ProductCard';
 import { ProductDetailModal } from '../components/ProductDetailModal';
 import { Product } from '../types/product';
 
-// Dữ liệu sản phẩm mẫu dự phòng (fallback) khớp hoàn toàn với Backend API
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+
 const INITIAL_PRODUCTS: Product[] = [
+  {
+    id: '1',
+    name: 'Espresso',
+    description: 'Rich and bold single shot espresso.',
+    price: 2.5,
+    imageUrl: 'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?w=500&auto=format&fit=crop&q=60',
+    category: 'Coffee',
+    stock: 12,
+    isAvailable: true,
+  },
+  {
+    id: '2',
+    name: 'Americano',
+    description: 'Espresso diluted with hot water for a smooth cup.',
+    price: 3.0,
+    imageUrl: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=500&auto=format&fit=crop&q=60',
+    category: 'Coffee',
+    stock: 8,
+    isAvailable: true,
+  },
+  {
+    id: '3',
+    name: 'Cappuccino',
+    description: 'Espresso with steamed milk and a thick foam layer.',
+    price: 3.75,
+    imageUrl: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=500&auto=format&fit=crop&q=60',
+    category: 'Coffee',
+    stock: 5,
+    isAvailable: true,
+  },
+  {
+    id: '4',
+    name: 'Latte',
+    description: 'Creamy espresso with steamed milk.',
+    price: 4.0,
+    imageUrl: 'https://images.unsplash.com/photo-1561047029-3000c68339ca?w=500&auto=format&fit=crop&q=60',
+    category: 'Coffee',
+    stock: 7,
+    isAvailable: true,
+  },
   {
     id: 'prod-001',
     name: 'Cà phê Phin Sữa Đá',
     description: 'Cà phê Robusta Đắk Lắk pha phin truyền thống hòa quyện cùng sữa đặc béo ngậy thơm nồng.',
-    category: 'COFFEE',
+    category: 'Coffee',
     price: 29000,
     stock: 50,
     imageUrl: 'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?w=500&auto=format&fit=crop&q=60',
@@ -23,70 +66,30 @@ const INITIAL_PRODUCTS: Product[] = [
     id: 'prod-002',
     name: 'Bạc Xỉu Sữa Tươi Nóng/Đá',
     description: 'Hương vị tuổi thơ với nhiều sữa, ít cà phê đắng nhẹ, thơm nồng cốt sữa tươi.',
-    category: 'COFFEE',
+    category: 'Coffee',
     price: 32000,
     stock: 40,
     imageUrl: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=500&auto=format&fit=crop&q=60',
     isAvailable: true,
   },
   {
-    id: 'prod-003',
-    name: 'Cold Brew Cam Vàng Sả',
-    description: 'Cà phê ủ lạnh 18 tiếng thanh mát kết hợp lát cam tươi và hương sả nồng ấm giải nhiệt.',
-    category: 'COFFEE',
-    price: 45000,
-    stock: 25,
-    imageUrl: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=500&auto=format&fit=crop&q=60',
-    isAvailable: true,
-  },
-  {
     id: 'prod-004',
     name: 'Trà Đào Cam Sả Đặc Biệt',
     description: 'Trà đen Ceylon đậm đà, những miếng đào giòn ngọt lịm cùng vị chua thanh của cam tươi.',
-    category: 'TEA',
+    category: 'Tea',
     price: 39000,
     stock: 35,
     imageUrl: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=500&auto=format&fit=crop&q=60',
     isAvailable: true,
   },
   {
-    id: 'prod-005',
-    name: 'Trà Hoa Cúc Mật Ong Nhiệt Đới',
-    description: 'Thanh lọc cơ thể với trà cúc hoa thảo mộc vàng óng quyện chút mật ong hoa nhãn dịu ngọt.',
-    category: 'TEA',
-    price: 35000,
-    stock: 20,
-    imageUrl: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=500&auto=format&fit=crop&q=60',
-    isAvailable: true,
-  },
-  {
-    id: 'prod-006',
-    name: 'Matcha Uji Đá Xay Kem Cheese',
-    description: 'Bột trà xanh Uji Nhật Bản đá xay mịn màng phủ lớp kem cheese béo mặn sánh mịn.',
-    category: 'FREEZE',
-    price: 49000,
-    stock: 15,
-    imageUrl: 'https://images.unsplash.com/photo-1536256263959-770b48d82b0a?w=500&auto=format&fit=crop&q=60',
-    isAvailable: true,
-  },
-  {
-    id: 'prod-007',
-    name: 'Cà Phê Cốt Dừa Đá Xay',
-    description: 'Vị béo thơm đậm vị cốt dừa Bến Tre xay cùng cà phê espresso đắng nhẹ đặc trưng.',
-    category: 'FREEZE',
-    price: 49000,
-    stock: 0, // Mô phỏng hết hàng để test tính năng FR-PROD-04
-    imageUrl: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=500&auto=format&fit=crop&q=60',
-    isAvailable: true,
-  },
-  {
-    id: 'prod-008',
-    name: 'Bánh Croissant Bơ Tỏi Nướng Giòn',
-    description: 'Bánh sừng bò ngàn lớp thơm lừng nướng cùng bơ Pháp và sốt tỏi tây thơm phức.',
-    category: 'PASTRY',
+    id: '6',
+    name: 'Croissant Bơ Pháp',
+    description: 'Bánh sừng bò ngàn lớp thơm lừng nướng cùng bơ Pháp.',
     price: 32000,
-    stock: 12,
     imageUrl: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=500&auto=format&fit=crop&q=60',
+    category: 'Pastry',
+    stock: 10,
     isAvailable: true,
   },
 ];
@@ -96,11 +99,26 @@ export default function MenuPage() {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('ALL');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [cartCount, setCartCount] = useState(0);
 
-  // Gọi API NestJS nếu Backend đang chạy
+  // Đọc số lượng giỏ hàng từ localStorage (đồng bộ với phần Cart của teammate)
   useEffect(() => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
-    fetch(`${apiUrl}/products`)
+    try {
+      const storedCart = window.localStorage.getItem('brewlite_cart');
+      if (storedCart) {
+        const parsed = JSON.parse(storedCart);
+        if (Array.isArray(parsed)) {
+          setCartCount(parsed.reduce((sum: number, item: { quantity?: number }) => sum + (item.quantity ?? 1), 0));
+        }
+      }
+    } catch {
+      // Ignored
+    }
+  }, []);
+
+  // Tải danh sách sản phẩm từ API
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/products`)
       .then((res) => {
         if (!res.ok) throw new Error('API request failed');
         return res.json();
@@ -111,15 +129,15 @@ export default function MenuPage() {
         }
       })
       .catch(() => {
-        // Fallback danh sách ban đầu nếu API chưa khởi động ở môi trường dev
+        // Fallback danh sách ban đầu nếu API chưa chạy
       });
   }, []);
 
-  // Lọc sản phẩm theo Category và Tìm kiếm từ khóa
   const filteredProducts = useMemo(() => {
     return products.filter((item) => {
       const matchCategory =
-        selectedCategory === 'ALL' || item.category === selectedCategory;
+        selectedCategory === 'ALL' ||
+        item.category.toLowerCase() === selectedCategory.toLowerCase();
       const matchSearch =
         !searchKeyword.trim() ||
         item.name.toLowerCase().includes(searchKeyword.toLowerCase()) ||
@@ -130,10 +148,9 @@ export default function MenuPage() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* Navigation Header */}
       <Header searchKeyword={searchKeyword} onSearchChange={setSearchKeyword} />
 
-      {/* Hero Banner Thực đơn */}
+      {/* Banner */}
       <section
         style={{
           background: 'linear-gradient(135deg, #4a2c11 0%, #2b1706 100%)',
@@ -149,12 +166,27 @@ export default function MenuPage() {
           <p style={{ color: '#d4a373', fontSize: '0.9375rem', maxWidth: '550px', margin: '0 auto' }}>
             Khám phá hương vị cà phê pha phin truyền thống, trà hoa quả tươi và các loại bánh tươi mỗi ngày.
           </p>
+          <div style={{ marginTop: '1rem' }}>
+            <Link
+              href="/checkout"
+              style={{
+                display: 'inline-block',
+                backgroundColor: 'var(--secondary)',
+                color: '#2b1706',
+                padding: '0.5rem 1.25rem',
+                borderRadius: '999px',
+                fontSize: '0.875rem',
+                fontWeight: 700,
+              }}
+            >
+              Xem Giỏ hàng ({cartCount})
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* Main Content Area */}
+      {/* Main Content */}
       <main style={{ maxWidth: '1200px', margin: '0 auto', width: '100%', padding: '1.5rem', flex: 1 }}>
-        {/* Category Tabs */}
         <div style={{ marginBottom: '1.5rem' }}>
           <CategoryFilter
             selectedCategory={selectedCategory}
@@ -162,7 +194,6 @@ export default function MenuPage() {
           />
         </div>
 
-        {/* Results Info & Count */}
         <div
           style={{
             display: 'flex',
@@ -181,7 +212,6 @@ export default function MenuPage() {
           </p>
         </div>
 
-        {/* Product Cards Grid */}
         {filteredProducts.length > 0 ? (
           <div
             style={{
@@ -199,7 +229,6 @@ export default function MenuPage() {
             ))}
           </div>
         ) : (
-          /* Empty Search State */
           <div
             style={{
               textAlign: 'center',

@@ -1,0 +1,115 @@
+@startuml class-domain
+title Class diagram mức domain – tập trung Payment (các lớp khác chỉ thể hiện thuộc tính liên quan)
+
+skinparam defaultFontName "DejaVu Sans"
+skinparam defaultFontSize 12
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam ClassBackgroundColor #FFFFFF
+skinparam ClassBorderColor #444444
+skinparam class {
+  BackgroundColor<<payment>> #E3F2FD
+  BorderColor<<payment>> #1565C0
+  BackgroundColor<<context>> #F5F5F5
+}
+skinparam NoteBackgroundColor #FFFFE0
+skinparam NoteBorderColor #B8860B
+hide empty methods
+
+enum PaymentMethod <<enumeration>> {
+  WALLET
+  CARD
+}
+
+enum PaymentStatus <<enumeration>> {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+enum OrderStatus <<enumeration>> {
+  PENDING_PAYMENT
+  PAID
+  CANCELLED
+}
+
+enum DiscountType <<enumeration>> {
+  PERCENT
+  FIXED_AMOUNT
+}
+
+enum LoyaltyTransactionType <<enumeration>> {
+  EARN
+  REDEEM
+  ADJUST
+}
+
+class Payment <<payment>> {
+  +id : UUID
+  +orderId : UUID
+  +amount : Decimal
+  +method : PaymentMethod
+  +status : PaymentStatus
+  +idempotencyKey : String {unique}
+  +transactionRef : String [0..1]
+  +createdAt : DateTime
+  +updatedAt : DateTime
+}
+
+class Order <<payment>> {
+  +id : UUID
+  +status : OrderStatus
+  +totalAmount : Decimal
+  +paidAt : DateTime [0..1]
+}
+
+class User <<context>> {
+  +id : UUID
+  +email : String
+}
+
+class OrderItem <<context>> {
+  +quantity : Integer
+  +unitPrice : Decimal
+}
+
+class Product <<context>> {
+  +id : UUID
+  +name : String
+  +price : Decimal
+}
+
+class Promotion <<context>> {
+  +code : String
+  +discountType : DiscountType
+  +discountValue : Decimal
+}
+
+class LoyaltyTransaction <<context>> {
+  +type : LoyaltyTransactionType
+  +points : Integer
+}
+
+Order "1" -- "0..*" Payment : được thanh toán bởi >
+User "1" -- "0..*" Order : đặt >
+Order "1" *-- "1..*" OrderItem : gồm >
+OrderItem "0..*" --> "1" Product : tham chiếu >
+Promotion "0..1" <-- "0..*" Order : áp dụng
+User "1" -- "0..*" LoyaltyTransaction : tích lũy >
+Order "0..1" <-- "0..*" LoyaltyTransaction : phát sinh từ
+
+Payment ..> PaymentMethod
+Payment ..> PaymentStatus
+Order ..> OrderStatus
+Promotion ..> DiscountType
+LoyaltyTransaction ..> LoyaltyTransactionType
+
+note bottom of Payment
+  Ràng buộc nghiệp vụ (UC-PAY-01, PAY-FR-03/07/10):
+  - amount luôn lấy từ Order.totalAmount, không nhận từ client.
+  - idempotencyKey là duy nhất: cùng key không tạo giao dịch logic mới.
+  - Mỗi Order có tối đa 1 Payment SUCCESS; các lần FAILED/PENDING trước đó dùng key khác.
+  - SUCCESS => Order = PAID; FAILED => Order không đổi sang PAID.
+  - Không lưu số thẻ, CVV hay mật khẩu thanh toán (PAY-NFR-06).
+end note
+@enduml

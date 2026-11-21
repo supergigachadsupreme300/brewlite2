@@ -1,0 +1,121 @@
+@startuml activity-checkout
+title Activity diagram – UC-PAY-01 Thanh toán đơn hàng
+
+skinparam defaultFontName "DejaVu Sans"
+skinparam defaultFontSize 12
+skinparam shadowing false
+skinparam ArrowColor #444444
+skinparam ActivityBackgroundColor #FFFFFF
+skinparam ActivityBorderColor #444444
+skinparam ActivityDiamondBackgroundColor #FFF8DC
+skinparam ActivityDiamondBorderColor #B8860B
+skinparam SwimlaneBorderColor #888888
+skinparam SwimlaneTitleFontStyle bold
+skinparam NoteBackgroundColor #FFFFE0
+skinparam NoteBorderColor #B8860B
+
+|Khách hàng|
+start
+note right
+  Tiền điều kiện: đơn hàng đã được tạo
+  (kể cả bước kiểm tra tồn kho / hết hàng
+  thuộc module Order, xảy ra trước điểm này).
+end note
+:Chọn phương thức WALLET hoặc CARD;
+:Nhấn xác nhận thanh toán;
+
+|Next.js UI|
+if (Có JWT đăng nhập?) then (chưa đăng nhập)
+  :Chuyển đến trang đăng nhập;
+  stop
+else (đã đăng nhập)
+endif
+:Sinh idempotencyKey;\nGửi POST /payments\n{orderId, method, idempotencyKey};
+
+|NestJS API|
+:Xác thực JWT;
+if (JWT hợp lệ và chưa hết hạn?) then (không – E1)
+  |Next.js UI|
+  :Yêu cầu khách hàng đăng nhập lại;
+  stop
+else (có)
+endif
+
+|NestJS API|
+:Validate orderId, method, idempotencyKey;
+if (Đủ trường và method\nthuộc WALLET/CARD?) then (không – E3)
+  |Next.js UI|
+  :Hiển thị lỗi validation;
+  stop
+else (có)
+endif
+
+|Database|
+:Đọc Order theo orderId\nvà kiểm tra quyền sở hữu;
+if (Order tồn tại và\nthuộc khách hàng?) then (không – E2)
+  |Next.js UI|
+  :Hiển thị "Không tìm thấy đơn hàng";
+  stop
+else (có)
+endif
+
+|Database|
+:Tra cứu Payment theo idempotencyKey;
+if (idempotencyKey đã được xử lý?) then (đã xử lý – A4)
+  |NestJS API|
+  :Trả lại kết quả Payment đã lưu\n(không gọi Mock Payment Service);
+  |Next.js UI|
+  :Hiển thị kết quả đã lưu;
+  stop
+else (chưa xử lý)
+endif
+
+|Database|
+if (Order đã thanh toán thành công?) then (đã thanh toán – E5)
+  |NestJS API|
+  :Không tạo thanh toán mới,\ntrả trạng thái hiện có;
+  |Next.js UI|
+  :Hiển thị "Đơn hàng đã được thanh toán";
+  stop
+else (chưa thanh toán)
+endif
+
+|Database|
+:Tạo Payment (PENDING)\nvới amount = Order.totalAmount\nvà idempotencyKey;
+
+|NestJS API|
+:Gửi yêu cầu thanh toán\nđến Mock Payment Service;
+
+|Mock Payment Service|
+:Mô phỏng xử lý giao dịch;
+
+|NestJS API|
+if (Có kết quả xác định?) then (lỗi kỹ thuật / không phản hồi – E4)
+  :Không kết luận thành công;\nPayment giữ PENDING;\nTrả lỗi kỹ thuật;
+  |Next.js UI|
+  :Thông báo chưa xác định được kết quả,\ncho phép thử lại với cùng idempotencyKey;
+  stop
+else (có kết quả)
+endif
+
+|NestJS API|
+if (Kết quả thanh toán?) then (SUCCESS)
+  |Database|
+  :Transaction: Payment = SUCCESS\nvà Order = PAID;
+  |NestJS API|
+  :Trả response thành công;
+  |Next.js UI|
+  :Hiển thị thông báo thanh toán thành công\nvà thông tin đơn hàng;
+else (FAILED – A3)
+  |Database|
+  :Payment = FAILED;\nOrder không bị đánh dấu đã thanh toán;
+  |NestJS API|
+  :Trả response thất bại;
+  |Next.js UI|
+  :Hiển thị thông báo thanh toán thất bại,\ncho phép thử lại;
+endif
+
+|Khách hàng|
+:Xem kết quả thanh toán;
+stop
+@enduml
