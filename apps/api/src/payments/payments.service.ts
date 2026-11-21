@@ -1,28 +1,25 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
+import { OrderStatus } from '../orders/order.entity';
+import { OrdersService } from '../orders/orders.service';
 import { MockPaymentGateway } from './mock-payment.gateway';
-import { CreatePaymentInput, DemoOrder, PaymentResult, PaymentStatus } from './payment.types';
-import { DEMO_ORDERS } from './payments.seed';
+import {
+  CreatePaymentInput,
+  PaymentResult,
+  PaymentStatus,
+} from './payment.types';
 
 @Injectable()
 export class PaymentsService {
-  private readonly orders = new Map(
-    DEMO_ORDERS.map((order) => [order.orderId, order]),
-  );
   private readonly paymentsByKey = new Map<string, PaymentResult>();
-  private readonly successfulPaymentByOrder = new Map<string, PaymentResult>();
   private nextPaymentId = 1;
 
-  constructor(private readonly mockPaymentGateway: MockPaymentGateway) {}
-
-  findDemoOrders(): DemoOrder[] {
-    return DEMO_ORDERS.map((order) => ({ ...order }));
-  }
+  constructor(
+    private readonly mockPaymentGateway: MockPaymentGateway,
+    private readonly ordersService: OrdersService,
+  ) {}
 
   createPayment(input: CreatePaymentInput): PaymentResult {
-    const order = this.orders.get(input.orderId);
-    if (!order) {
-      throw new NotFoundException(`Demo order "${input.orderId}" was not found`);
-    }
+    const order = this.ordersService.findOne(input.orderId);
 
     const existingPayment = this.paymentsByKey.get(input.idempotencyKey);
     if (existingPayment) {
@@ -39,16 +36,25 @@ export class PaymentsService {
       return { ...existingPayment };
     }
 
-    if (this.successfulPaymentByOrder.has(input.orderId)) {
-      throw new ConflictException('This demo order has already been paid');
+    if (
+      order.status !== OrderStatus.PENDING &&
+      order.status !== OrderStatus.PAYMENT_FAILED
+    ) {
+      throw new ConflictException('This order cannot be paid in its current state');
     }
 
     const status = this.mockPaymentGateway.charge(input.mockOutcome);
+    if (status === PaymentStatus.SUCCESS) {
+      this.ordersService.updateStatus(order.id, OrderStatus.PAID);
+    } else if (order.status === OrderStatus.PENDING) {
+      this.ordersService.updateStatus(order.id, OrderStatus.PAYMENT_FAILED);
+    }
+
     const payment: PaymentResult = {
-      paymentId: `demo-payment-${this.nextPaymentId}`,
-      orderId: order.orderId,
+      paymentId: `payment-${this.nextPaymentId}`,
+      orderId: order.id,
       method: input.method,
-      amount: order.amount,
+      amount: order.total,
       status,
       idempotencyKey: input.idempotencyKey,
       message:
@@ -59,9 +65,6 @@ export class PaymentsService {
 
     this.nextPaymentId += 1;
     this.paymentsByKey.set(input.idempotencyKey, payment);
-    if (status === PaymentStatus.SUCCESS) {
-      this.successfulPaymentByOrder.set(input.orderId, payment);
-    }
 
     return { ...payment };
   }

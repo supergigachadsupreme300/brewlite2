@@ -8,12 +8,6 @@ export enum PaymentStatus {
   FAILED = 'FAILED',
 }
 
-export interface DemoOrder {
-  orderId: string;
-  description: string;
-  amount: number;
-}
-
 export interface CreatePaymentInput {
   orderId: string;
   method: PaymentMethod;

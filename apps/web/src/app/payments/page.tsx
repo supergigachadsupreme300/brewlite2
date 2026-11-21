@@ -4,10 +4,22 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import styles from './payment.module.css';
 
-type DemoOrder = {
-  orderId: string;
-  description: string;
-  amount: number;
+type PaymentOrder = {
+  id: string;
+  total: number;
+  status:
+    | 'PENDING'
+    | 'PAYMENT_FAILED'
+    | 'PAID'
+    | 'PREPARING'
+    | 'READY'
+    | 'COMPLETED'
+    | 'CANCELLED';
+  items: Array<{
+    id: string;
+    productName: string;
+    quantity: number;
+  }>;
 };
 
 type PaymentMethod = 'WALLET' | 'CARD';
@@ -27,37 +39,69 @@ const API_BASE_URL = (
   process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 ).replace(/\/$/, '');
 
-function isPaymentResult(value: unknown): value is PaymentResult {
-  if (!value || typeof value !== 'object') {
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isPaymentOrderItem(
+  value: unknown,
+): value is PaymentOrder['items'][number] {
+  return (
+    isRecord(value) &&
+    typeof value.id === 'string' &&
+    typeof value.productName === 'string' &&
+    typeof value.quantity === 'number'
+  );
+}
+
+function isPaymentOrder(value: unknown): value is PaymentOrder {
+  if (!isRecord(value)) {
     return false;
   }
 
-  const result = value as Record<string, unknown>;
   return (
-    typeof result.paymentId === 'string' &&
-    typeof result.orderId === 'string' &&
-    (result.method === 'WALLET' || result.method === 'CARD') &&
-    typeof result.amount === 'number' &&
-    (result.status === 'SUCCESS' || result.status === 'FAILED') &&
-    typeof result.idempotencyKey === 'string' &&
-    typeof result.message === 'string'
+    typeof value.id === 'string' &&
+    typeof value.total === 'number' &&
+    (value.status === 'PENDING' ||
+      value.status === 'PAYMENT_FAILED' ||
+      value.status === 'PAID' ||
+      value.status === 'PREPARING' ||
+      value.status === 'READY' ||
+      value.status === 'COMPLETED' ||
+      value.status === 'CANCELLED') &&
+    Array.isArray(value.items) &&
+    value.items.every(isPaymentOrderItem)
+  );
+}
+
+function isPaymentResult(value: unknown): value is PaymentResult {
+  if (!isRecord(value)) {
+    return false;
+  }
+
+  return (
+    typeof value.paymentId === 'string' &&
+    typeof value.orderId === 'string' &&
+    (value.method === 'WALLET' || value.method === 'CARD') &&
+    typeof value.amount === 'number' &&
+    (value.status === 'SUCCESS' || value.status === 'FAILED') &&
+    typeof value.idempotencyKey === 'string' &&
+    typeof value.message === 'string'
   );
 }
 
 function formatAmount(amount: number): string {
-  return new Intl.NumberFormat('vi-VN', {
+  return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'VND',
-    maximumFractionDigits: 0,
+    currency: 'USD',
   }).format(amount);
 }
 
-export default function PaymentDemoPage() {
-  const [orders, setOrders] = useState<DemoOrder[]>([]);
-  const [selectedOrderId, setSelectedOrderId] = useState('');
+export default function PaymentsPage() {
+  const [order, setOrder] = useState<PaymentOrder | null>(null);
   const [method, setMethod] = useState<PaymentMethod>('WALLET');
   const [mockOutcome, setMockOutcome] = useState<PaymentStatus>('SUCCESS');
-  const [isLoadingOrders, setIsLoadingOrders] = useState(true);
+  const [isLoadingOrder, setIsLoadingOrder] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderError, setOrderError] = useState<string | null>(null);
   const [paymentError, setPaymentError] = useState<string | null>(null);
@@ -66,39 +110,50 @@ export default function PaymentDemoPage() {
 
   useEffect(() => {
     const controller = new AbortController();
+    const orderId = new URLSearchParams(window.location.search).get('orderId');
 
-    async function loadDemoOrders() {
+    async function loadOrder() {
+      if (!orderId) {
+        setOrderError('Thiếu mã đơn hàng cần thanh toán.');
+        setIsLoadingOrder(false);
+        return;
+      }
+
       try {
-        const response = await fetch(`${API_BASE_URL}/payments/demo-orders`, {
-          signal: controller.signal,
-        });
+        const response = await fetch(
+          `${API_BASE_URL}/orders/${encodeURIComponent(orderId)}`,
+          { signal: controller.signal },
+        );
         if (!response.ok) {
-          throw new Error(`Tải đơn demo thất bại (${response.status}).`);
+          throw new Error(
+            response.status === 404
+              ? 'Không tìm thấy đơn hàng.'
+              : `Tải đơn hàng thất bại (${response.status}).`,
+          );
         }
 
-        const demoOrders = (await response.json()) as DemoOrder[];
-        if (!Array.isArray(demoOrders)) {
-          throw new Error('API trả về danh sách đơn demo không hợp lệ.');
+        const body: unknown = await response.json();
+        if (!isPaymentOrder(body)) {
+          throw new Error('API trả về thông tin đơn hàng không hợp lệ.');
         }
 
-        setOrders(demoOrders);
-        setSelectedOrderId(demoOrders[0]?.orderId ?? '');
+        setOrder(body);
       } catch (error) {
         if (!controller.signal.aborted) {
           setOrderError(
             error instanceof Error
               ? error.message
-              : 'Không thể tải đơn demo.',
+              : 'Không thể tải đơn hàng.',
           );
         }
       } finally {
         if (!controller.signal.aborted) {
-          setIsLoadingOrders(false);
+          setIsLoadingOrder(false);
         }
       }
     }
 
-    void loadDemoOrders();
+    void loadOrder();
     return () => controller.abort();
   }, []);
 
@@ -109,7 +164,6 @@ export default function PaymentDemoPage() {
   }
 
   async function submitPayment() {
-    const order = orders.find((item) => item.orderId === selectedOrderId);
     if (!order || isSubmitting) {
       return;
     }
@@ -123,19 +177,19 @@ export default function PaymentDemoPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          orderId: order.orderId,
+          orderId: order.id,
           method,
           idempotencyKey: idempotencyKey.current,
           mockOutcome,
         }),
       });
-      const body = (await response.json()) as Record<string, unknown>;
+      const body: unknown = await response.json();
 
       if (!response.ok) {
         if (response.status < 500) {
           idempotencyKey.current = null;
         }
-        const message = body.message;
+        const message = isRecord(body) ? body.message : undefined;
         throw new Error(
           Array.isArray(message)
             ? message.join(', ')
@@ -162,9 +216,8 @@ export default function PaymentDemoPage() {
     }
   }
 
-  const selectedOrder = orders.find(
-    (order) => order.orderId === selectedOrderId,
-  );
+  const canPay =
+    order?.status === 'PENDING' || order?.status === 'PAYMENT_FAILED';
 
   return (
     <main className={styles.page}>
@@ -179,47 +232,33 @@ export default function PaymentDemoPage() {
             Thanh toán đơn hàng
           </h1>
           <p className={styles.description}>
-            Chọn đơn, phương thức và kết quả để thử luồng thanh toán mô phỏng.
+            Chọn phương thức và kết quả để thử thanh toán mô phỏng cho đơn hàng.
           </p>
 
           <section className={styles.section} aria-labelledby="order-heading">
             <h2 className={styles.sectionTitle} id="order-heading">
-              Đơn hàng demo
+              Đơn hàng
             </h2>
-            {isLoadingOrders && <p role="status">Đang tải đơn hàng...</p>}
+            {isLoadingOrder && <p role="status">Đang tải đơn hàng...</p>}
             {orderError && (
               <p className={styles.error} role="alert">
                 {orderError}
               </p>
             )}
-            {!isLoadingOrders && !orderError && orders.length === 0 && (
-              <p className={styles.muted}>Hiện chưa có đơn hàng demo.</p>
-            )}
-            {orders.length > 0 && (
-              <div className={styles.choices} role="group" aria-label="Đơn hàng">
-                {orders.map((order) => (
-                  <button
-                    className={`${styles.choice} ${styles.orderChoice} ${
-                      selectedOrderId === order.orderId
-                        ? styles.choiceSelected
-                        : ''
-                    }`}
-                    key={order.orderId}
-                    type="button"
-                    disabled={isSubmitting}
-                    aria-pressed={selectedOrderId === order.orderId}
-                    onClick={() => {
-                      setSelectedOrderId(order.orderId);
-                      resetAttempt();
-                    }}
-                  >
-                    <span>{order.orderId}</span>
-                    <span className={styles.orderDescription}>
-                      {order.description}
-                    </span>
-                    <span>{formatAmount(order.amount)}</span>
-                  </button>
-                ))}
+            {!isLoadingOrder && !orderError && order && (
+              <div className={styles.orderChoice}>
+                <strong>{order.id}</strong>
+                <div className={styles.orderDescription}>
+                  {order.items
+                    .map((item) => `${item.productName} × ${item.quantity}`)
+                    .join(', ')}
+                </div>
+                <strong>{formatAmount(order.total)}</strong>
+                {!canPay && (
+                  <p className={styles.muted}>
+                    Đơn hàng không còn ở trạng thái chờ thanh toán.
+                  </p>
+                )}
               </div>
             )}
           </section>
@@ -280,10 +319,10 @@ export default function PaymentDemoPage() {
             </div>
           </section>
 
-          {selectedOrder && (
+          {order && (
             <p className={styles.notice}>
-              Demo sẽ xử lý {formatAmount(selectedOrder.amount)} bằng dữ liệu mẫu.
-              Không nhập hoặc gửi số thẻ, CVV hay mật khẩu.
+              Demo sẽ xử lý {formatAmount(order.total)} lấy từ đơn hàng trên hệ
+              thống. Không nhập hoặc gửi số thẻ, CVV hay mật khẩu.
             </p>
           )}
 
@@ -291,9 +330,9 @@ export default function PaymentDemoPage() {
             className={styles.submit}
             type="button"
             disabled={
-              isLoadingOrders ||
+              isLoadingOrder ||
               isSubmitting ||
-              !selectedOrder ||
+              !canPay ||
               Boolean(orderError)
             }
             onClick={() => void submitPayment()}
@@ -323,6 +362,9 @@ export default function PaymentDemoPage() {
               </strong>
               <div>{result.message}</div>
               <div>Mã giao dịch: {result.paymentId}</div>
+              <Link href={`/orders/${result.orderId}`}>
+                Xem trạng thái đơn hàng
+              </Link>
             </div>
           )}
         </section>

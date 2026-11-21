@@ -8,8 +8,8 @@
 | FR-04      | US-04 Quản lý giỏ hàng                | `docs/diagrams/cart/cart-activity.puml`                                        |                  |                                                  |
 | FR-05      | UC-01 Xác thực người dùng             | `docs/diagrams/login/login-sequence-diagram.puml`                              |                  |                                                  |
 | FR-06      | US-06 Đặt đơn hàng                    | `docs/diagrams/sequence-checkout.puml`                                         |                  |                                                  |
-| FR-07      | US-07 Thanh toán                      | `docs/diagrams/payment/sequence-checkout.puml`                                 |                  |                                                  |
-| FR-08      | US-08 Xác nhận đơn hàng và thanh toán | `docs/diagrams/sequence-checkout.puml`                                         |                  |                                                  |
+| FR-07      | US-07 Thanh toán                      | `docs/diagrams/payment/sequence-checkout.puml`                                 | `GET /orders/:id`, `POST /payments` | `tests/unit/payments.service.spec.ts`, `tests/integration/payments.spec.ts` |
+| FR-08      | US-08 Xác nhận đơn hàng và thanh toán | `docs/diagrams/sequence-checkout.puml`                                         | `POST /payments` cập nhật trạng thái Order | `tests/integration/payments.spec.ts` |
 | FR-09      | US-09 Xem lịch sử đơn hàng            | `docs/diagrams/order-history/sequence-order-history-list.puml`                 |                  |                                                  |
 | FR-10      | US-10 Quản lý trạng thái đơn          | `docs/diagrams/order/activity-order.puml`                                      |                  |                                                  |
 | FR-11      | US-11 Health check                    | `docs/architecture/deployment.puml`                                                | `GET /health`    | `apps/api/src/app.service.spec.ts`               |

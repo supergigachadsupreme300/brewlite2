@@ -32,11 +32,11 @@ Chức năng cho phép khách hàng thanh toán một đơn hàng đã tạo b�
 | PAY-NFR-05 | Khả năng phục hồi trước request lặp: xử lý idempotency phải an toàn khi client retry. | Must | Integration test gửi nhiều request cùng idempotencyKey và xác nhận chỉ có một kết quả giao dịch logic. |
 | PAY-NFR-06 | Bảo vệ dữ liệu: hệ thống không lưu thông tin thẻ nhạy cảm trong MVP. | Must | Kiểm tra schema và payload/log không có số thẻ đầy đủ, CVV hoặc mật khẩu thanh toán. |
 
- ## 4. Trạng thái triển khai mock demo trong Task 4
+ ## 4. Trạng thái triển khai Payment
 
-Bản demo hiện thực `GET /payments/demo-orders` và `POST /payments` với các đơn mẫu do backend cung cấp. Backend lấy số tiền từ fixture, hỗ trợ `WALLET`/`CARD`, mô phỏng `SUCCESS`/`FAILED`, kiểm tra `idempotencyKey` và chặn thanh toán thành công lặp cho cùng đơn trong cùng tiến trình. UI có lựa chọn kết quả mô phỏng; không yêu cầu thông tin thẻ thật.
+ Bản hiện thực `POST /payments` nhận mã đơn thật, lấy tổng tiền từ `OrdersService`, hỗ trợ `WALLET`/`CARD`, mô phỏng `SUCCESS`/`FAILED` và xử lý `idempotencyKey`. Thanh toán thành công chuyển đơn sang `PAID`; thất bại chuyển đơn sang `PAYMENT_FAILED` và cho phép thử lại. Trang thanh toán nhận `orderId` từ trang chi tiết đơn và không yêu cầu thông tin thẻ thật.
 
-Đây là mock demo độc lập, chưa đáp ứng các yêu cầu tích hợp đầy đủ về JWT/ownership, Order và Payment lưu trong PostgreSQL, hoặc tính bền vững của idempotency. Các yêu cầu đó vẫn cần hoàn thiện khi module Order, auth và database sẵn sàng; trạng thái trong bộ nhớ sẽ mất khi API khởi động lại.
+ Mock Payment và dữ liệu Order/Payment hiện vẫn lưu trong bộ nhớ; lịch sử thanh toán và idempotency không tồn tại sau khi API khởi động lại. Xác thực JWT/kiểm tra quyền sở hữu và lưu Order/Payment bền vững trong PostgreSQL vẫn cần tích hợp theo tiến độ chung của nhóm. Kết quả mô phỏng hiện được chọn từ UI demo và không đại diện cho giao dịch tiền thật.
 
 ## 5. Use-case tổng quát trong phạm vi Payment
 
