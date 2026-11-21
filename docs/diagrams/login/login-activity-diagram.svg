@@ -1,0 +1,359 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2280 3860" width="2280" height="3860" style="background:#FFFFFF" font-family="DejaVu Sans, Verdana, Arial, sans-serif" xmlns:c2pa="http://c2pa.org/manifest">
+<title>Activity diagram - UC-AUTH-01: Đăng ký, Đăng nhập, JWT và quản lý trạng thái đăng nhập (BrewLite)</title>
+<rect width="2280" height="3860" fill="#FFFFFF"/>
+<text x="1140.0" y="30" text-anchor="middle" font-size="15" font-weight="bold">Activity diagram - UC-AUTH-01: Đăng ký, Đăng nhập, JWT và quản lý trạng thái đăng nhập (BrewLite)</text>
+<line x1="15" y1="48" x2="15" y2="3840" stroke="#888888" stroke-width="1.5"/>
+<line x1="420" y1="48" x2="420" y2="3840" stroke="#888888" stroke-width="1.5"/>
+<line x1="1060" y1="48" x2="1060" y2="3840" stroke="#888888" stroke-width="1.5"/>
+<line x1="1840" y1="48" x2="1840" y2="3840" stroke="#888888" stroke-width="1.5"/>
+<line x1="2260" y1="48" x2="2260" y2="3840" stroke="#888888" stroke-width="1.5"/>
+<text x="220.0" y="62" text-anchor="middle" font-size="12" font-weight="bold">Khách hàng</text>
+<text x="740.0" y="62" text-anchor="middle" font-size="12" font-weight="bold">Next.js UI</text>
+<text x="1450.0" y="62" text-anchor="middle" font-size="12" font-weight="bold">NestJS API</text>
+<text x="2050.0" y="62" text-anchor="middle" font-size="12" font-weight="bold">Database (PostgreSQL)</text>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="220.0,110.0 220.0,146.0"/>
+<polygon fill="#444444" points="216.0,136.0 220.0,146.0 224.0,136.0 220.0,140.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="220.0,194.0 220.0,215.0 740.0,215.0 740.0,236.0"/>
+<polygon fill="#444444" points="736.0,226.0 740.0,236.0 744.0,226.0 740.0,230.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="740.0,284.0 740.0,332.0"/>
+<polygon fill="#444444" points="736.0,322.0 740.0,332.0 744.0,322.0 740.0,326.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="686.0,350.0 510.0,350.0 510.0,426.0"/>
+<polygon fill="#444444" points="506.0,416.0 510.0,426.0 514.0,416.0 510.0,420.0" stroke="#444444" stroke-width="1"/>
+<text x="680.0" y="344.0" text-anchor="end" font-size="12">chưa [A3]</text>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="740.0,368.0 740.0,426.0"/>
+<polygon fill="#444444" points="736.0,416.0 740.0,426.0 744.0,416.0 740.0,420.0" stroke="#444444" stroke-width="1"/>
+<text x="748.0" y="385.0" font-size="12">có</text>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="740.0,474.0 740.0,495.0 1450.0,495.0 1450.0,516.0"/>
+<polygon fill="#444444" points="1446.0,506.0 1450.0,516.0 1454.0,506.0 1450.0,510.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="1450.0,564.0 1450.0,612.0"/>
+<polygon fill="#444444" points="1446.0,602.0 1450.0,612.0 1454.0,602.0 1450.0,606.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="1381.8,630.0 1180.0,630.0 1180.0,696.0"/>
+<polygon fill="#444444" points="1176.0,686.0 1180.0,696.0 1184.0,686.0 1180.0,690.0" stroke="#444444" stroke-width="1"/>
+<text x="1375.8" y="624.0" text-anchor="end" font-size="12">sai chữ ký / hết hạn [E5, E6]</text>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="1450.0,648.0 1450.0,672.0 2040.0,672.0 2040.0,696.0"/>
+<polygon fill="#444444" points="2036.0,686.0 2040.0,696.0 2044.0,686.0 2040.0,690.0" stroke="#444444" stroke-width="1"/>
+<text x="1458.0" y="665.0" font-size="12">hợp lệ</text>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="2040.0,744.0 2040.0,810.0 1553.7,810.0"/>
+<polygon fill="#444444" points="1563.7,806.0 1553.7,810.0 1563.7,814.0 1559.7,810.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="1346.3,810.0 1180.0,810.0 1180.0,744.0"/>
+<polygon fill="#444444" points="1184.0,754.0 1180.0,744.0 1176.0,754.0 1180.0,750.0" stroke="#444444" stroke-width="1"/>
+<text x="1340.3" y="804.0" text-anchor="end" font-size="12">không còn [E7]</text>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="1450.0,828.0 1450.0,876.0"/>
+<polygon fill="#444444" points="1446.0,866.0 1450.0,876.0 1454.0,866.0 1450.0,870.0" stroke="#444444" stroke-width="1"/>
+<text x="1458.0" y="845.0" font-size="12">còn</text>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="1125.4,720.0 1053.7,720.0"/>
+<polygon fill="#444444" points="1063.7,716.0 1053.7,720.0 1063.7,724.0 1059.7,720.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="1450.0,924.0 1450.0,941.5 740.0,941.5 740.0,959.0"/>
+<polygon fill="#444444" points="736.0,949.0 740.0,959.0 744.0,949.0 740.0,953.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="740.0,1021.0 740.0,1046.5 220.0,1046.5 220.0,1072.0"/>
+<polygon fill="#444444" points="216.0,1062.0 220.0,1072.0 224.0,1062.0 220.0,1066.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="295.2,1090.0 740.0,1090.0 740.0,1166.0"/>
+<polygon fill="#444444" points="736.0,1156.0 740.0,1166.0 744.0,1156.0 740.0,1160.0" stroke="#444444" stroke-width="1"/>
+<text x="301.2" y="1084.0" font-size="12">đăng xuất [FR-11]</text>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="220.0,1108.0 220.0,1166.0"/>
+<polygon fill="#444444" points="216.0,1156.0 220.0,1166.0 224.0,1156.0 220.0,1160.0" stroke="#444444" stroke-width="1"/>
+<text x="228.0" y="1125.0" font-size="12">tiếp tục</text>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="740.0,1214.0 740.0,1259.0"/>
+<polygon fill="#444444" points="736.0,1249.0 740.0,1259.0 744.0,1249.0 740.0,1253.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="220.0,1214.0 220.0,1259.0"/>
+<polygon fill="#444444" points="216.0,1249.0 220.0,1259.0 224.0,1249.0 220.0,1253.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="510.0,474.0 510.0,1320.0 740.0,1320.0 740.0,1363.0"/>
+<polygon fill="#444444" points="736.0,1353.0 740.0,1363.0 744.0,1353.0 740.0,1357.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="960.0,744.0 960.0,1320.0 740.0,1320.0 740.0,1363.0"/>
+<polygon fill="#444444" points="736.0,1353.0 740.0,1363.0 744.0,1353.0 740.0,1357.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="740.0,1397.0 740.0,1424.5 220.0,1424.5 220.0,1452.0"/>
+<polygon fill="#444444" points="216.0,1442.0 220.0,1452.0 224.0,1442.0 220.0,1446.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="220.0,1488.0 220.0,1546.0"/>
+<polygon fill="#444444" points="216.0,1536.0 220.0,1546.0 224.0,1536.0 220.0,1540.0" stroke="#444444" stroke-width="1"/>
+<text x="228.0" y="1505.0" font-size="12">chưa có</text>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="331.4,1570.0 600.2,1570.0"/>
+<polygon fill="#444444" points="590.2,1574.0 600.2,1570.0 590.2,1566.0 594.2,1570.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="740.0,1594.0 740.0,1647.0"/>
+<polygon fill="#444444" points="736.0,1637.0 740.0,1647.0 744.0,1637.0 740.0,1641.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="664.8,1665.0 582.4,1665.0"/>
+<polygon fill="#444444" points="592.4,1661.0 582.4,1665.0 592.4,1669.0 588.4,1665.0" stroke="#444444" stroke-width="1"/>
+<text x="658.8" y="1659.0" text-anchor="end" font-size="12">không [E1]</text>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="510.0,1689.0 510.0,1734.0"/>
+<polygon fill="#444444" points="506.0,1724.0 510.0,1734.0 514.0,1724.0 510.0,1728.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="740.0,1683.0 740.0,1714.5 1450.0,1714.5 1450.0,1746.0"/>
+<polygon fill="#444444" points="1446.0,1736.0 1450.0,1746.0 1454.0,1736.0 1450.0,1740.0" stroke="#444444" stroke-width="1"/>
+<text x="748.0" y="1700.0" font-size="12">hợp lệ</text>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="1450.0,1794.0 1450.0,1842.0"/>
+<polygon fill="#444444" points="1446.0,1832.0 1450.0,1842.0 1454.0,1832.0 1450.0,1836.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="1389.0,1860.0 1231.0,1860.0"/>
+<polygon fill="#444444" points="1241.0,1856.0 1231.0,1860.0 1241.0,1864.0 1237.0,1860.0" stroke="#444444" stroke-width="1"/>
+<text x="1383.0" y="1854.0" text-anchor="end" font-size="12">không [E1]</text>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="1129.0,1860.0 1054.3,1860.0"/>
+<polygon fill="#444444" points="1064.3,1856.0 1054.3,1860.0 1064.3,1864.0 1060.3,1860.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="950.0,1884.0 950.0,1934.0"/>
+<polygon fill="#444444" points="946.0,1924.0 950.0,1934.0 954.0,1924.0 950.0,1928.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="1450.0,1878.0 1450.0,1902.0 2040.0,1902.0 2040.0,1926.0"/>
+<polygon fill="#444444" points="2036.0,1916.0 2040.0,1926.0 2044.0,1916.0 2040.0,1920.0" stroke="#444444" stroke-width="1"/>
+<text x="1458.0" y="1895.0" font-size="12">hợp lệ</text>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="2040.0,1974.0 2040.0,2040.0 1532.3,2040.0"/>
+<polygon fill="#444444" points="1542.3,2036.0 1532.3,2040.0 1542.3,2044.0 1538.3,2040.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="1367.7,2040.0 1255.9,2040.0"/>
+<polygon fill="#444444" points="1265.9,2036.0 1255.9,2040.0 1265.9,2044.0 1261.9,2040.0" stroke="#444444" stroke-width="1"/>
+<text x="1361.7" y="2034.0" text-anchor="end" font-size="12">đã tồn tại [E2]</text>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="1104.1,2040.0 1057.8,2040.0"/>
+<polygon fill="#444444" points="1067.8,2036.0 1057.8,2040.0 1067.8,2044.0 1063.8,2040.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="950.0,2064.0 950.0,2114.0"/>
+<polygon fill="#444444" points="946.0,2104.0 950.0,2114.0 954.0,2104.0 950.0,2108.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="1450.0,2058.0 1450.0,2106.0"/>
+<polygon fill="#444444" points="1446.0,2096.0 1450.0,2106.0 1454.0,2096.0 1450.0,2100.0" stroke="#444444" stroke-width="1"/>
+<text x="1458.0" y="2075.0" font-size="12">chưa tồn tại</text>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="1450.0,2154.0 1450.0,2175.0 2040.0,2175.0 2040.0,2196.0"/>
+<polygon fill="#444444" points="2036.0,2186.0 2040.0,2196.0 2044.0,2186.0 2040.0,2190.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="2040.0,2244.0 2040.0,2310.0 1557.8,2310.0"/>
+<polygon fill="#444444" points="1567.8,2306.0 1557.8,2310.0 1567.8,2314.0 1563.8,2310.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="1450.0,2334.0 1450.0,2355.0 740.0,2355.0 740.0,2376.0"/>
+<polygon fill="#444444" points="736.0,2366.0 740.0,2376.0 744.0,2366.0 740.0,2370.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="740.0,2424.0 740.0,2445.0 220.0,2445.0 220.0,2466.0"/>
+<polygon fill="#444444" points="216.0,2456.0 220.0,2466.0 224.0,2456.0 220.0,2460.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="303.0,2490.0 614.4,2490.0"/>
+<polygon fill="#444444" points="604.4,2494.0 614.4,2490.0 604.4,2486.0 608.4,2490.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="740.0,2514.0 740.0,2567.0"/>
+<polygon fill="#444444" points="736.0,2557.0 740.0,2567.0 744.0,2557.0 740.0,2561.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="141.2,1470.0 45.0,1470.0 45.0,2445.0 220.0,2445.0 220.0,2466.0"/>
+<polygon fill="#444444" points="216.0,2456.0 220.0,2466.0 224.0,2456.0 220.0,2460.0" stroke="#444444" stroke-width="1"/>
+<text x="135.2" y="1464.0" text-anchor="end" font-size="12">đã có [A1]</text>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="657.6,2585.0 582.4,2585.0"/>
+<polygon fill="#444444" points="592.4,2581.0 582.4,2585.0 592.4,2589.0 588.4,2585.0" stroke="#444444" stroke-width="1"/>
+<text x="651.6" y="2579.0" text-anchor="end" font-size="12">không [E1]</text>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="510.0,2609.0 510.0,2654.0"/>
+<polygon fill="#444444" points="506.0,2644.0 510.0,2654.0 514.0,2644.0 510.0,2648.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="740.0,2603.0 740.0,2634.5 1450.0,2634.5 1450.0,2666.0"/>
+<polygon fill="#444444" points="1446.0,2656.0 1450.0,2666.0 1454.0,2656.0 1450.0,2660.0" stroke="#444444" stroke-width="1"/>
+<text x="748.0" y="2620.0" font-size="12">hợp lệ</text>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="1450.0,2714.0 1450.0,2762.0"/>
+<polygon fill="#444444" points="1446.0,2752.0 1450.0,2762.0 1454.0,2752.0 1450.0,2756.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="1389.0,2780.0 1231.0,2780.0"/>
+<polygon fill="#444444" points="1241.0,2776.0 1231.0,2780.0 1241.0,2784.0 1237.0,2780.0" stroke="#444444" stroke-width="1"/>
+<text x="1383.0" y="2774.0" text-anchor="end" font-size="12">không [E1]</text>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="1129.0,2780.0 1022.4,2780.0"/>
+<polygon fill="#444444" points="1032.3,2776.0 1022.4,2780.0 1032.3,2784.0 1028.3,2780.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="950.0,2804.0 950.0,2849.0"/>
+<polygon fill="#444444" points="946.0,2839.0 950.0,2849.0 954.0,2839.0 950.0,2843.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="1450.0,2798.0 1450.0,2822.0 2040.0,2822.0 2040.0,2846.0"/>
+<polygon fill="#444444" points="2036.0,2836.0 2040.0,2846.0 2044.0,2836.0 2040.0,2840.0" stroke="#444444" stroke-width="1"/>
+<text x="1458.0" y="2815.0" font-size="12">hợp lệ</text>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="2040.0,2894.0 2040.0,2960.0 1518.2,2960.0"/>
+<polygon fill="#444444" points="1528.2,2956.0 1518.2,2960.0 1528.2,2964.0 1524.2,2960.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="1381.8,2960.0 1245.2,2960.0"/>
+<polygon fill="#444444" points="1255.2,2956.0 1245.2,2960.0 1255.2,2964.0 1251.2,2960.0" stroke="#444444" stroke-width="1"/>
+<text x="1375.8" y="2954.0" text-anchor="end" font-size="12">lỗi [E9]</text>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="1114.8,2960.0 1040.1,2960.0"/>
+<polygon fill="#444444" points="1050.1,2956.0 1040.1,2960.0 1050.1,2964.0 1046.1,2960.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="950.0,2984.0 950.0,3034.0"/>
+<polygon fill="#444444" points="946.0,3024.0 950.0,3034.0 954.0,3024.0 950.0,3028.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="1450.0,2985.0 1450.0,3026.0"/>
+<polygon fill="#444444" points="1446.0,3016.0 1450.0,3026.0 1454.0,3016.0 1450.0,3020.0" stroke="#444444" stroke-width="1"/>
+<text x="1458.0" y="3002.0" font-size="12">bình thường</text>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="1450.0,3074.0 1450.0,3125.0"/>
+<polygon fill="#444444" points="1446.0,3115.0 1450.0,3125.0 1454.0,3115.0 1450.0,3119.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="1364.1,3150.0 1270.1,3150.0"/>
+<polygon fill="#444444" points="1280.1,3146.0 1270.1,3150.0 1280.1,3154.0 1276.1,3150.0" stroke="#444444" stroke-width="1"/>
+<text x="1358.1" y="3144.0" text-anchor="end" font-size="12">sai [E3]</text>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="1089.9,3150.0 1047.2,3150.0"/>
+<polygon fill="#444444" points="1057.2,3146.0 1047.2,3150.0 1057.2,3154.0 1053.2,3150.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="950.0,3174.0 950.0,3224.0"/>
+<polygon fill="#444444" points="946.0,3214.0 950.0,3224.0 954.0,3214.0 950.0,3218.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="1450.0,3175.0 1450.0,3226.0"/>
+<polygon fill="#444444" points="1446.0,3216.0 1450.0,3226.0 1454.0,3216.0 1450.0,3220.0" stroke="#444444" stroke-width="1"/>
+<text x="1458.0" y="3192.0" font-size="12">đúng</text>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="1450.0,3274.0 1450.0,3316.0"/>
+<polygon fill="#444444" points="1446.0,3306.0 1450.0,3316.0 1454.0,3306.0 1450.0,3310.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="1450.0,3364.0 1450.0,3384.5 740.0,3384.5 740.0,3405.0"/>
+<polygon fill="#444444" points="736.0,3395.0 740.0,3405.0 744.0,3395.0 740.0,3399.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="668.3,3430.0 593.0,3430.0"/>
+<polygon fill="#444444" points="603.0,3426.0 593.0,3430.0 603.0,3434.0 599.0,3430.0" stroke="#444444" stroke-width="1"/>
+<text x="662.3" y="3424.0" text-anchor="end" font-size="12">không [E8]</text>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="510.0,3454.0 510.0,3504.0"/>
+<polygon fill="#444444" points="506.0,3494.0 510.0,3504.0 514.0,3494.0 510.0,3498.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="740.0,3455.0 740.0,3496.0"/>
+<polygon fill="#444444" points="736.0,3486.0 740.0,3496.0 744.0,3486.0 740.0,3490.0" stroke="#444444" stroke-width="1"/>
+<text x="748.0" y="3472.0" font-size="12">được</text>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="740.0,3544.0 740.0,3565.0 220.0,3565.0 220.0,3586.0"/>
+<polygon fill="#444444" points="216.0,3576.0 220.0,3586.0 224.0,3576.0 220.0,3580.0" stroke="#444444" stroke-width="1"/>
+<polyline fill="none" stroke="#444444" stroke-width="1" points="220.0,3634.0 220.0,3674.0"/>
+<polygon fill="#444444" points="216.0,3664.0 220.0,3674.0 224.0,3664.0 220.0,3668.0" stroke="#444444" stroke-width="1"/>
+<circle cx="220" cy="100" r="10" fill="#222222" stroke="#222222"/>
+<rect x="119.2" y="146.0" width="201.5" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="220" y="167.5" text-anchor="middle" font-size="12">Mở ứng dụng hoặc truy cập</text>
+<text x="220" y="181.5" text-anchor="middle" font-size="12">trang cần đăng nhập</text>
+<rect x="646.4" y="236.0" width="187.3" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="740" y="257.5" text-anchor="middle" font-size="12">Đọc access token từ</text>
+<text x="740" y="271.5" text-anchor="middle" font-size="12">nơi lưu trữ phía client</text>
+<polygon fill="#FFF8DC" stroke="#B8860B" stroke-width="0.8" points="698.0,332.0 782.0,332.0 794.0,350.0 782.0,368.0 698.0,368.0 686.0,350.0"/>
+<text x="740" y="354.5" text-anchor="middle" font-size="12">Có token?</text>
+<rect x="465.0" y="426.0" width="90.0" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="510" y="447.5" text-anchor="middle" font-size="12">Ghi nhớ</text>
+<text x="510" y="461.5" text-anchor="middle" font-size="12">returnUrl</text>
+<rect x="653.5" y="426.0" width="173.1" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="740" y="447.5" text-anchor="middle" font-size="12">Gửi GET /auth/me kèm</text>
+<text x="740" y="461.5" text-anchor="middle" font-size="12">Authorization: Bearer</text>
+<rect x="1338.6" y="516.0" width="222.8" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="1450" y="537.5" text-anchor="middle" font-size="12">JwtAuthGuard xác minh chữ ký</text>
+<text x="1450" y="551.5" text-anchor="middle" font-size="12">và thời hạn (exp)</text>
+<polygon fill="#FFF8DC" stroke="#B8860B" stroke-width="0.8" points="1393.8,612.0 1506.2,612.0 1518.2,630.0 1506.2,648.0 1393.8,648.0 1381.8,630.0"/>
+<text x="1450" y="634.5" text-anchor="middle" font-size="12">Token hợp lệ?</text>
+<rect x="1125.4" y="696.0" width="109.2" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="1180" y="717.5" text-anchor="middle" font-size="12">HTTP 401</text>
+<text x="1180" y="731.5" text-anchor="middle" font-size="12">Unauthorized</text>
+<rect x="866.4" y="696.0" width="187.3" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="960" y="717.5" text-anchor="middle" font-size="12">Xóa token và báo</text>
+<text x="960" y="731.5" text-anchor="middle" font-size="12">phiên đăng nhập hết hạn</text>
+<rect x="1939.2" y="696.0" width="201.5" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="2040" y="717.5" text-anchor="middle" font-size="12">Truy vấn bảng users</text>
+<text x="2040" y="731.5" text-anchor="middle" font-size="12">theo sub (id trong token)</text>
+<polygon fill="#FFF8DC" stroke="#B8860B" stroke-width="0.8" points="1358.3,792.0 1541.7,792.0 1553.7,810.0 1541.7,828.0 1358.3,828.0 1346.3,810.0"/>
+<text x="1450" y="814.5" text-anchor="middle" font-size="12">Người dùng còn tồn tại?</text>
+<rect x="1356.3" y="876.0" width="187.3" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="1450" y="897.5" text-anchor="middle" font-size="12">Trả về HTTP 200 kèm id,</text>
+<text x="1450" y="911.5" text-anchor="middle" font-size="12">email, fullName</text>
+<rect x="600.2" y="959.0" width="279.6" height="62" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="740" y="980.5" text-anchor="middle" font-size="12">Khôi phục trạng thái đăng nhập [A2];</text>
+<text x="740" y="994.5" text-anchor="middle" font-size="12">nếu đang ở /login hoặc /register</text>
+<text x="740" y="1008.5" text-anchor="middle" font-size="12">thì chuyển về trang chủ [A4]</text>
+<polygon fill="#FFF8DC" stroke="#B8860B" stroke-width="0.8" points="156.8,1072.0 283.2,1072.0 295.2,1090.0 283.2,1108.0 156.8,1108.0 144.8,1090.0"/>
+<text x="220" y="1094.5" text-anchor="middle" font-size="12">Chọn Đăng xuất?</text>
+<rect x="625.0" y="1166.0" width="229.9" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="740" y="1187.5" text-anchor="middle" font-size="12">Xóa token, đặt lại trạng thái</text>
+<text x="740" y="1201.5" text-anchor="middle" font-size="12">đăng nhập; chuyển về /login</text>
+<rect x="112.2" y="1166.0" width="215.7" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="220" y="1187.5" text-anchor="middle" font-size="12">Tiếp tục dùng các chức năng</text>
+<text x="220" y="1201.5" text-anchor="middle" font-size="12">cần đăng nhập</text>
+<circle cx="740" cy="1270" r="11" fill="none" stroke="#222222"/><circle cx="740" cy="1270" r="6" fill="#222222" stroke="#222222"/>
+<circle cx="220" cy="1270" r="11" fill="none" stroke="#222222"/><circle cx="220" cy="1270" r="6" fill="#222222" stroke="#222222"/>
+<rect x="625.0" y="1363.0" width="229.9" height="34" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="740" y="1384.5" text-anchor="middle" font-size="12">Chuyển hướng tới trang /login</text>
+<polygon fill="#FFF8DC" stroke="#B8860B" stroke-width="0.8" points="153.2,1452.0 286.8,1452.0 298.8,1470.0 286.8,1488.0 153.2,1488.0 141.2,1470.0"/>
+<text x="220" y="1474.5" text-anchor="middle" font-size="12">Đã có tài khoản?</text>
+<rect x="108.6" y="1546.0" width="222.8" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="220" y="1567.5" text-anchor="middle" font-size="12">Điền email, mật khẩu, họ tên</text>
+<text x="220" y="1581.5" text-anchor="middle" font-size="12">và bấm "Đăng ký"</text>
+<rect x="600.2" y="1546.0" width="279.6" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="740" y="1567.5" text-anchor="middle" font-size="12">Validate email, mật khẩu &gt;= 8 ký tự;</text>
+<text x="740" y="1581.5" text-anchor="middle" font-size="12">khóa nút; gửi POST /auth/register</text>
+<polygon fill="#FFF8DC" stroke="#B8860B" stroke-width="0.8" points="676.8,1647.0 803.2,1647.0 815.2,1665.0 803.2,1683.0 676.8,1683.0 664.8,1665.0"/>
+<text x="740" y="1669.5" text-anchor="middle" font-size="12">Dữ liệu hợp lệ?</text>
+<rect x="437.6" y="1641.0" width="144.7" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="510" y="1662.5" text-anchor="middle" font-size="12">Báo lỗi theo từng</text>
+<text x="510" y="1676.5" text-anchor="middle" font-size="12">trường, chặn gửi</text>
+<circle cx="510" cy="1745" r="11" fill="none" stroke="#222222"/><circle cx="510" cy="1745" r="6" fill="#222222" stroke="#222222"/>
+<rect x="1367.0" y="1746.0" width="166.0" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="1450" y="1767.5" text-anchor="middle" font-size="12">Validate RegisterDto</text>
+<text x="1450" y="1781.5" text-anchor="middle" font-size="12">(class-validator)</text>
+<polygon fill="#FFF8DC" stroke="#B8860B" stroke-width="0.8" points="1401.0,1842.0 1499.0,1842.0 1511.0,1860.0 1499.0,1878.0 1401.0,1878.0 1389.0,1860.0"/>
+<text x="1450" y="1864.5" text-anchor="middle" font-size="12">DTO hợp lệ?</text>
+<rect x="1129.0" y="1836.0" width="102.1" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="1180" y="1857.5" text-anchor="middle" font-size="12">HTTP 400</text>
+<text x="1180" y="1871.5" text-anchor="middle" font-size="12">Bad Request</text>
+<rect x="845.7" y="1836.0" width="208.6" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="950" y="1857.5" text-anchor="middle" font-size="12">Hiển thị lỗi theo từng</text>
+<text x="950" y="1871.5" text-anchor="middle" font-size="12">trường, mở lại nút Đăng ký</text>
+<circle cx="950" cy="1945" r="11" fill="none" stroke="#222222"/><circle cx="950" cy="1945" r="6" fill="#222222" stroke="#222222"/>
+<rect x="1939.2" y="1926.0" width="201.5" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="2040" y="1947.5" text-anchor="middle" font-size="12">Kiểm tra email đã tồn tại</text>
+<text x="2040" y="1961.5" text-anchor="middle" font-size="12">trong bảng users</text>
+<polygon fill="#FFF8DC" stroke="#B8860B" stroke-width="0.8" points="1379.7,2022.0 1520.3,2022.0 1532.3,2040.0 1520.3,2058.0 1379.7,2058.0 1367.7,2040.0"/>
+<text x="1450" y="2044.5" text-anchor="middle" font-size="12">Email đã tồn tại?</text>
+<rect x="1104.1" y="2016.0" width="151.8" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="1180" y="2037.5" text-anchor="middle" font-size="12">HTTP 409 Conflict,</text>
+<text x="1180" y="2051.5" text-anchor="middle" font-size="12">không tạo bản ghi</text>
+<rect x="842.1" y="2016.0" width="215.7" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="950" y="2037.5" text-anchor="middle" font-size="12">Báo email đã đăng ký,</text>
+<text x="950" y="2051.5" text-anchor="middle" font-size="12">gợi ý chuyển sang Đăng nhập</text>
+<circle cx="950" cy="2125" r="11" fill="none" stroke="#222222"/><circle cx="950" cy="2125" r="6" fill="#222222" stroke="#222222"/>
+<rect x="1352.8" y="2106.0" width="194.4" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="1450" y="2127.5" text-anchor="middle" font-size="12">Băm mật khẩu bằng bcrypt</text>
+<text x="1450" y="2141.5" text-anchor="middle" font-size="12">(salt rounds 10-12)</text>
+<rect x="1918.0" y="2196.0" width="244.1" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="2040" y="2217.5" text-anchor="middle" font-size="12">Tạo bản ghi users</text>
+<text x="2040" y="2231.5" text-anchor="middle" font-size="12">(email, passwordHash, fullName)</text>
+<rect x="1342.2" y="2286.0" width="215.7" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="1450" y="2307.5" text-anchor="middle" font-size="12">HTTP 201 Created (không</text>
+<text x="1450" y="2321.5" text-anchor="middle" font-size="12">có mật khẩu, không có hash)</text>
+<rect x="625.0" y="2376.0" width="229.9" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="740" y="2397.5" text-anchor="middle" font-size="12">Thông báo đăng ký thành công;</text>
+<text x="740" y="2411.5" text-anchor="middle" font-size="12">chuyển về form Đăng nhập</text>
+<rect x="137.0" y="2466.0" width="166.0" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="220" y="2487.5" text-anchor="middle" font-size="12">Nhập email, mật khẩu</text>
+<text x="220" y="2501.5" text-anchor="middle" font-size="12">và bấm "Đăng nhập"</text>
+<rect x="614.4" y="2466.0" width="251.2" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="740" y="2487.5" text-anchor="middle" font-size="12">Validate email, trường bắt buộc;</text>
+<text x="740" y="2501.5" text-anchor="middle" font-size="12">khóa nút; gửi POST /auth/login</text>
+<polygon fill="#FFF8DC" stroke="#B8860B" stroke-width="0.8" points="669.6,2567.0 810.4,2567.0 822.4,2585.0 810.4,2603.0 669.6,2603.0 657.6,2585.0"/>
+<text x="740" y="2589.5" text-anchor="middle" font-size="12">Thông tin hợp lệ?</text>
+<rect x="437.6" y="2561.0" width="144.7" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="510" y="2582.5" text-anchor="middle" font-size="12">Báo lỗi theo từng</text>
+<text x="510" y="2596.5" text-anchor="middle" font-size="12">trường, chặn gửi</text>
+<circle cx="510" cy="2665" r="11" fill="none" stroke="#222222"/><circle cx="510" cy="2665" r="6" fill="#222222" stroke="#222222"/>
+<rect x="1377.7" y="2666.0" width="144.7" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="1450" y="2687.5" text-anchor="middle" font-size="12">Validate LoginDto</text>
+<text x="1450" y="2701.5" text-anchor="middle" font-size="12">(class-validator)</text>
+<polygon fill="#FFF8DC" stroke="#B8860B" stroke-width="0.8" points="1401.0,2762.0 1499.0,2762.0 1511.0,2780.0 1499.0,2798.0 1401.0,2798.0 1389.0,2780.0"/>
+<text x="1450" y="2784.5" text-anchor="middle" font-size="12">DTO hợp lệ?</text>
+<rect x="1129.0" y="2756.0" width="102.1" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="1180" y="2777.5" text-anchor="middle" font-size="12">HTTP 400</text>
+<text x="1180" y="2791.5" text-anchor="middle" font-size="12">Bad Request</text>
+<rect x="877.6" y="2756.0" width="144.7" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="950" y="2777.5" text-anchor="middle" font-size="12">Hiển thị lỗi, mở</text>
+<text x="950" y="2791.5" text-anchor="middle" font-size="12">lại nút Đăng nhập</text>
+<circle cx="950" cy="2860" r="11" fill="none" stroke="#222222"/><circle cx="950" cy="2860" r="6" fill="#222222" stroke="#222222"/>
+<rect x="1949.9" y="2846.0" width="180.2" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="2040" y="2867.5" text-anchor="middle" font-size="12">Tìm người dùng theo</text>
+<text x="2040" y="2881.5" text-anchor="middle" font-size="12">email trong bảng users</text>
+<polygon fill="#FFF8DC" stroke="#B8860B" stroke-width="0.8" points="1393.8,2935.0 1506.2,2935.0 1518.2,2960.0 1506.2,2985.0 1393.8,2985.0 1381.8,2960.0"/>
+<text x="1450" y="2957.5" text-anchor="middle" font-size="12">CSDL phản hồi</text>
+<text x="1450" y="2971.5" text-anchor="middle" font-size="12">bình thường?</text>
+<rect x="1114.8" y="2936.0" width="130.5" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="1180" y="2957.5" text-anchor="middle" font-size="12">HTTP 500,</text>
+<text x="1180" y="2971.5" text-anchor="middle" font-size="12">thông báo chung</text>
+<rect x="859.9" y="2936.0" width="180.2" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="950" y="2957.5" text-anchor="middle" font-size="12">Hiển thị lỗi hệ thống,</text>
+<text x="950" y="2971.5" text-anchor="middle" font-size="12">cho phép thử lại</text>
+<circle cx="950" cy="3045" r="11" fill="none" stroke="#222222"/><circle cx="950" cy="3045" r="6" fill="#222222" stroke="#222222"/>
+<rect x="1359.9" y="3026.0" width="180.2" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="1450" y="3047.5" text-anchor="middle" font-size="12">So sánh bcrypt.compare</text>
+<text x="1450" y="3061.5" text-anchor="middle" font-size="12">với passwordHash</text>
+<polygon fill="#FFF8DC" stroke="#B8860B" stroke-width="0.8" points="1376.1,3125.0 1523.9,3125.0 1535.9,3150.0 1523.9,3175.0 1376.1,3175.0 1364.1,3150.0"/>
+<text x="1450" y="3147.5" text-anchor="middle" font-size="12">Người dùng tồn tại</text>
+<text x="1450" y="3161.5" text-anchor="middle" font-size="12">và mật khẩu khớp?</text>
+<rect x="1089.9" y="3126.0" width="180.2" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="1180" y="3147.5" text-anchor="middle" font-size="12">HTTP 401, thông báo</text>
+<text x="1180" y="3161.5" text-anchor="middle" font-size="12">chung (không lộ email)</text>
+<rect x="852.8" y="3126.0" width="194.4" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="950" y="3147.5" text-anchor="middle" font-size="12">Hiển thị "Email hoặc mật</text>
+<text x="950" y="3161.5" text-anchor="middle" font-size="12">khẩu không đúng"</text>
+<circle cx="950" cy="3235" r="11" fill="none" stroke="#222222"/><circle cx="950" cy="3235" r="6" fill="#222222" stroke="#222222"/>
+<rect x="1328.0" y="3226.0" width="244.1" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="1450" y="3247.5" text-anchor="middle" font-size="12">Sinh JWT (sub, email, iat, exp)</text>
+<text x="1450" y="3261.5" text-anchor="middle" font-size="12">ký bằng JWT_SECRET</text>
+<rect x="1352.8" y="3316.0" width="194.4" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="1450" y="3337.5" text-anchor="middle" font-size="12">HTTP 200 kèm accessToken</text>
+<text x="1450" y="3351.5" text-anchor="middle" font-size="12">và thông tin người dùng</text>
+<polygon fill="#FFF8DC" stroke="#B8860B" stroke-width="0.8" points="680.3,3405.0 799.7,3405.0 811.7,3430.0 799.7,3455.0 680.3,3455.0 668.3,3430.0"/>
+<text x="740" y="3427.5" text-anchor="middle" font-size="12">Lưu được token</text>
+<text x="740" y="3441.5" text-anchor="middle" font-size="12">phía client?</text>
+<rect x="427.0" y="3406.0" width="166.0" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="510" y="3427.5" text-anchor="middle" font-size="12">Thông báo không giữ</text>
+<text x="510" y="3441.5" text-anchor="middle" font-size="12">được phiên đăng nhập</text>
+<circle cx="510" cy="3515" r="11" fill="none" stroke="#222222"/><circle cx="510" cy="3515" r="6" fill="#222222" stroke="#222222"/>
+<rect x="632.1" y="3496.0" width="215.7" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="740" y="3517.5" text-anchor="middle" font-size="12">Cập nhật auth state; chuyển</text>
+<text x="740" y="3531.5" text-anchor="middle" font-size="12">về returnUrl hoặc trang chủ</text>
+<rect x="98.0" y="3586.0" width="244.1" height="48" rx="12.5" ry="12.5" fill="#FFFFFF" stroke="#444444" stroke-width="0.8"/>
+<text x="220" y="3607.5" text-anchor="middle" font-size="12">Thấy trạng thái đã đăng nhập</text>
+<text x="220" y="3621.5" text-anchor="middle" font-size="12">(tên người dùng, nút Đăng xuất)</text>
+<circle cx="220" cy="3685" r="11" fill="none" stroke="#222222"/><circle cx="220" cy="3685" r="6" fill="#222222" stroke="#222222"/>
+<path d="M1790,2375 L1790,2417 L2068.7,2417 L2068.7,2385 L2058.7,2375 Z" fill="#FFFFE0" stroke="#B8860B" stroke-width="0.8"/>
+<path d="M2058.7,2375 L2058.7,2385 L2068.7,2385" fill="#FFFFE0" stroke="#B8860B" stroke-width="0.8"/>
+<text x="1798" y="2393" font-size="12">UNIQUE(email) chặn đăng ký song song:</text>
+<text x="1798" y="2407" font-size="12">khi vi phạm, trả HTTP 409 như E2.</text>
+<path d="M30,3740 L30,3796 L393.9,3796 L393.9,3750 L383.9,3740 Z" fill="#FFFFE0" stroke="#B8860B" stroke-width="0.8"/>
+<path d="M383.9,3740 L383.9,3750 L393.9,3750" fill="#FFFFE0" stroke="#B8860B" stroke-width="0.8"/>
+<text x="38" y="3758" font-size="12">Quy ước kết thúc: mọi nhánh lỗi/ngoại lệ kết thúc</text>
+<text x="38" y="3772" font-size="12">ở một điểm stop riêng; mã A1–A5, E1–E9 tham chiếu</text>
+<text x="38" y="3786" font-size="12">UC-AUTH-01 (Task 1.3).</text>
+<metadata><c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYTpiYmVkOGI4Zi1iMmNlLTRlM2QtOTBlZi1mY2JmOTc1MzE0ZTQAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaCTGBNv7Z5NFDy5M3nl0apsAAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDoxNmIxN2YwZi1lY2FjLTQxMjAtOWYyMS05MzdjNzYxMTM2M2RscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNoKTqHXR1XNqnutxfv7mJ6hQAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFggDTPS/UzCZtOUyHl7qqqWbokwUzmsLPHFkOqu6Uil9GekZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaBSzi2zwXyKJpsZUmfK2MV0AAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRMAAAAAAAAAAAAAAAAZGhhc2hYIDC4HUEhirm4pPHmKPIiJqLzqw9bpDNNyIFn5vICYAI2ZG5hbWVuanVtYmYgbWFuaWZlc3RqZXhjbHVzaW9uc4GiZXN0YXJ0GZW7Zmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOmJiZWQ4YjhmLWIyY2UtNGUzZC05MGVmLWZjYmY5NzUzMTRlNC9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOmFlZTVlZjg5LTkzNmYtNDhlYS1hMDllLWZjYzY3YmM2Y2FkN3JjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCANM9L9TMJm05TIeXuqqpZuiTBTOaws8cWQ6q7pSKX0Z6JjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFgg4X5FyyFOQkujghxRS22CwF9xWllmhKe5M4ppspJ3IBaiY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFggcaRgk4PG8ZcBbpRIpXUOq6O7ncM2P9tcqLjbM5EsXzp0Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQHAdzZcK349d1G7Co3SJcL4FEjKJPLtS4AmkVzgoSYU8/kRezuoYRW+glA4VjJ2M+oxu3WK+AcAkuRIQPFyPowQ=</c2pa:manifest></metadata></svg>
