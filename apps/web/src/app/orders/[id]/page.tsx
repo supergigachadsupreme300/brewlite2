@@ -245,9 +245,7 @@ export default function OrderDetailsPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <button
                 type="button"
-                onClick={() =>
-                  router.push(`/payment?orderId=${order.id}&amount=${order.total}`)
-                }
+                onClick={() => router.push(`/payments?orderId=${order.id}`)}
                 style={{
                   width: '100%',
                   padding: '0.75rem',
@@ -286,9 +284,7 @@ export default function OrderDetailsPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <button
                 type="button"
-                onClick={() =>
-                  router.push(`/payment?orderId=${order.id}&amount=${order.total}`)
-                }
+                onClick={() => router.push(`/payments?orderId=${order.id}`)}
                 style={{
                   width: '100%',
                   padding: '0.75rem',

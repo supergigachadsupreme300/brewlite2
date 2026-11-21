@@ -1,5 +1,5 @@
 @startuml class-domain
-title Class diagram mức domain – BrewLite (User, Product, Order, OrderItem, Payment, Promotion, LoyaltyTransaction)
+title Class diagram mức domain – tập trung Payment (các lớp khác chỉ thể hiện thuộc tính liên quan)
 
 skinparam defaultFontName "DejaVu Sans"
 skinparam defaultFontSize 12
@@ -7,21 +7,14 @@ skinparam shadowing false
 skinparam classAttributeIconSize 0
 skinparam ClassBackgroundColor #FFFFFF
 skinparam ClassBorderColor #444444
+skinparam class {
+  BackgroundColor<<payment>> #E3F2FD
+  BorderColor<<payment>> #1565C0
+  BackgroundColor<<context>> #F5F5F5
+}
 skinparam NoteBackgroundColor #FFFFE0
 skinparam NoteBorderColor #B8860B
 hide empty methods
-
-enum Role <<enumeration>> {
-  CUSTOMER
-  STAFF
-  MANAGER
-}
-
-enum OrderStatus <<enumeration>> {
-  PENDING_PAYMENT
-  PAID
-  CANCELLED
-}
 
 enum PaymentMethod <<enumeration>> {
   WALLET
@@ -32,6 +25,12 @@ enum PaymentStatus <<enumeration>> {
   PENDING
   SUCCESS
   FAILED
+}
+
+enum OrderStatus <<enumeration>> {
+  PENDING_PAYMENT
+  PAID
+  CANCELLED
 }
 
 enum DiscountType <<enumeration>> {
@@ -45,46 +44,9 @@ enum LoyaltyTransactionType <<enumeration>> {
   ADJUST
 }
 
-class User {
+class Payment <<payment>> {
   +id : UUID
-  +email : String {unique}
-  +passwordHash : String
-  +fullName : String
-  +phone : String
-  +role : Role
-  +loyaltyBalance : Integer
-  +createdAt : DateTime
-}
-
-class Product {
-  +id : UUID
-  +name : String
-  +description : String
-  +price : Decimal
-  +stockQuantity : Integer
-  +isAvailable : Boolean
-  +createdAt : DateTime
-}
-
-class Order {
-  +id : UUID
-  +status : OrderStatus
-  +subtotal : Decimal
-  +discountAmount : Decimal
-  +totalAmount : Decimal
-  +createdAt : DateTime
-  +paidAt : DateTime [0..1]
-}
-
-class OrderItem {
-  +id : UUID
-  +quantity : Integer
-  +unitPrice : Decimal
-  +lineTotal : Decimal
-}
-
-class Payment {
-  +id : UUID
+  +orderId : UUID
   +amount : Decimal
   +method : PaymentMethod
   +status : PaymentStatus
@@ -94,51 +56,60 @@ class Payment {
   +updatedAt : DateTime
 }
 
-class Promotion {
+class Order <<payment>> {
   +id : UUID
-  +code : String {unique}
-  +description : String
+  +status : OrderStatus
+  +totalAmount : Decimal
+  +paidAt : DateTime [0..1]
+}
+
+class User <<context>> {
+  +id : UUID
+  +email : String
+}
+
+class OrderItem <<context>> {
+  +quantity : Integer
+  +unitPrice : Decimal
+}
+
+class Product <<context>> {
+  +id : UUID
+  +name : String
+  +price : Decimal
+}
+
+class Promotion <<context>> {
+  +code : String
   +discountType : DiscountType
   +discountValue : Decimal
-  +minOrderAmount : Decimal
-  +startsAt : DateTime
-  +endsAt : DateTime
-  +isActive : Boolean
 }
 
-class LoyaltyTransaction {
-  +id : UUID
+class LoyaltyTransaction <<context>> {
   +type : LoyaltyTransactionType
   +points : Integer
-  +balanceAfter : Integer
-  +createdAt : DateTime
 }
 
+Order "1" -- "0..*" Payment : được thanh toán bởi >
 User "1" -- "0..*" Order : đặt >
 Order "1" *-- "1..*" OrderItem : gồm >
 OrderItem "0..*" --> "1" Product : tham chiếu >
-Order "1" -- "0..*" Payment : được thanh toán bởi >
 Promotion "0..1" <-- "0..*" Order : áp dụng
-User "1" -- "0..*" LoyaltyTransaction : tích lũy / sử dụng >
+User "1" -- "0..*" LoyaltyTransaction : tích lũy >
 Order "0..1" <-- "0..*" LoyaltyTransaction : phát sinh từ
 
-User ..> Role
-Order ..> OrderStatus
 Payment ..> PaymentMethod
 Payment ..> PaymentStatus
+Order ..> OrderStatus
 Promotion ..> DiscountType
 LoyaltyTransaction ..> LoyaltyTransactionType
 
 note bottom of Payment
-  Ràng buộc nghiệp vụ:
-  - amount luôn lấy từ Order.totalAmount (backend quyết định).
-  - Mỗi Order có tối đa 1 Payment ở trạng thái SUCCESS.
-  - Một Order có thể có nhiều Payment: các lần FAILED/PENDING trước đó (khác idempotencyKey).
-  - Không lưu số thẻ, CVV hay mật khẩu thanh toán.
-end note
-
-note bottom of Order
-  Order.status = PAID chỉ khi Payment SUCCESS.
-  Payment FAILED không đổi Order sang PAID.
+  Ràng buộc nghiệp vụ (UC-PAY-01, PAY-FR-03/07/10):
+  - amount luôn lấy từ Order.totalAmount, không nhận từ client.
+  - idempotencyKey là duy nhất: cùng key không tạo giao dịch logic mới.
+  - Mỗi Order có tối đa 1 Payment SUCCESS; các lần FAILED/PENDING trước đó dùng key khác.
+  - SUCCESS => Order = PAID; FAILED => Order không đổi sang PAID.
+  - Không lưu số thẻ, CVV hay mật khẩu thanh toán (PAY-NFR-06).
 end note
 @enduml

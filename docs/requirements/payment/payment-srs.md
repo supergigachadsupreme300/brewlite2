@@ -32,7 +32,13 @@ Chức năng cho phép khách hàng thanh toán một đơn hàng đã tạo b�
 | PAY-NFR-05 | Khả năng phục hồi trước request lặp: xử lý idempotency phải an toàn khi client retry. | Must | Integration test gửi nhiều request cùng idempotencyKey và xác nhận chỉ có một kết quả giao dịch logic. |
 | PAY-NFR-06 | Bảo vệ dữ liệu: hệ thống không lưu thông tin thẻ nhạy cảm trong MVP. | Must | Kiểm tra schema và payload/log không có số thẻ đầy đủ, CVV hoặc mật khẩu thanh toán. |
 
-## 4. Use-case tổng quát trong phạm vi Payment
+ ## 4. Trạng thái triển khai Payment
+
+ Bản hiện thực `POST /payments` nhận mã đơn thật, lấy tổng tiền từ `OrdersService`, hỗ trợ `WALLET`/`CARD`, mô phỏng `SUCCESS`/`FAILED` và xử lý `idempotencyKey`. Thanh toán thành công chuyển đơn sang `PAID`; thất bại chuyển đơn sang `PAYMENT_FAILED` và cho phép thử lại. Trang thanh toán nhận `orderId` từ trang chi tiết đơn và không yêu cầu thông tin thẻ thật.
+
+ Mock Payment và dữ liệu Order/Payment hiện vẫn lưu trong bộ nhớ; lịch sử thanh toán và idempotency không tồn tại sau khi API khởi động lại. Xác thực JWT/kiểm tra quyền sở hữu và lưu Order/Payment bền vững trong PostgreSQL vẫn cần tích hợp theo tiến độ chung của nhóm. Kết quả mô phỏng hiện được chọn từ UI demo và không đại diện cho giao dịch tiền thật.
+
+## 5. Use-case tổng quát trong phạm vi Payment
 
 Sơ đồ dưới đây mô tả phần chức năng Payment. Nhóm cần tích hợp nó vào use-case diagram tổng quát toàn hệ thống theo yêu cầu Task 1.2.
 
@@ -56,8 +62,7 @@ UC2 .> UC4 : <<include>>
 UC4 .> UC5 : <<include>>
 @enduml
 ```
-
-## 5. Quy tắc nghiệp vụ và điểm cần thống nhất
+## 6. Quy tắc nghiệp vụ và điểm cần thống nhất
 
 1. Backend là nguồn xác định số tiền phải thanh toán.
 2. Chỉ xử lý thanh toán cho đơn hàng tồn tại, hợp lệ và thuộc quyền truy cập của khách hàng.
@@ -66,7 +71,7 @@ UC4 .> UC5 : <<include>>
 5. `idempotencyKey` phải được kiểm tra ở backend; chỉ thêm unique constraint/transaction theo cách phù hợp với schema và database hiện có.
 6. Tên trạng thái Order sau thanh toán phải lấy theo quy ước module Order của nhóm, không tự tạo enum mới trong tài liệu Payment.
 
-## 6. Traceability sơ bộ
+## 7. Traceability sơ bộ
 
 | Yêu cầu | Use-case | API / thành phần dự kiến | Kiểm thử dự kiến |
 |---|---|---|---|
