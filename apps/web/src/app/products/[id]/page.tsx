@@ -25,6 +25,12 @@ const SIZE_OPTIONS: { key: 'S' | 'M' | 'L'; label: string; add: number }[] = [
 
 const SUGAR_OPTIONS = ['100%', '70%', '50%', '0%'];
 const ICE_OPTIONS = ['100%', '50%', '0%'];
+const TOPPING_OPTIONS: { key: string; label: string; add: number }[] = [
+  { key: 'pearl', label: 'Trân châu đen', add: 5000 },
+  { key: 'jelly', label: 'Thạch cà phê', add: 5000 },
+  { key: 'cheese', label: 'Kem cheese', add: 8000 },
+  { key: 'caramel', label: 'Siro caramel', add: 5000 },
+];
 
 export default function ProductDetailPage() {
   const params = useParams<{ id: string }>();
@@ -38,6 +44,7 @@ export default function ProductDetailPage() {
   const [size, setSize] = useState<'S' | 'M' | 'L'>('M');
   const [sugar, setSugar] = useState<string>('100%');
   const [ice, setIce] = useState<string>('100%');
+  const [toppings, setToppings] = useState<string[]>([]);
   const [quantity, setQuantity] = useState<number>(1);
   const [addedMessage, setAddedMessage] = useState<string | null>(null);
 
@@ -80,7 +87,11 @@ export default function ProductDetailPage() {
   const isOutOfStock = !product || product.stock <= 0;
 
   const sizeSurcharge = SIZE_OPTIONS.find((s) => s.key === size)?.add ?? 0;
-  const finalPrice = product ? product.price + sizeSurcharge : 0;
+  const toppingSurcharge = toppings.reduce(
+    (sum, t) => sum + (TOPPING_OPTIONS.find((o) => o.key === t)?.add ?? 0),
+    0,
+  );
+  const finalPrice = product ? product.price + sizeSurcharge + toppingSurcharge : 0;
 
   const handleQuantityChange = (delta: number) => {
     if (!product) return;
@@ -104,6 +115,7 @@ export default function ProductDetailPage() {
         size: 'S' | 'M' | 'L';
         sugar: string;
         ice: string;
+        toppings?: string[];
       }> = stored ? JSON.parse(stored) : [];
 
       const existingIndex = cart.findIndex(
@@ -111,7 +123,8 @@ export default function ProductDetailPage() {
           item.productId === product.id &&
           item.size === size &&
           item.sugar === sugar &&
-          item.ice === ice,
+          item.ice === ice &&
+          JSON.stringify(item.toppings ?? []) === JSON.stringify(toppings),
       );
 
       if (existingIndex >= 0) {
@@ -125,6 +138,7 @@ export default function ProductDetailPage() {
           size,
           sugar,
           ice,
+          toppings: toppings.length ? [...toppings] : undefined,
         });
       }
 
@@ -180,6 +194,10 @@ export default function ProductDetailPage() {
             <img
               src={product.imageUrl}
               alt={product.name}
+              onError={(e) => {
+                (e.target as HTMLImageElement).src =
+                  'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=500&auto=format&fit=crop&q=60';
+              }}
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
             <span
@@ -312,6 +330,50 @@ export default function ProductDetailPage() {
                   </option>
                 ))}
               </select>
+            </div>
+          </div>
+
+          {/* Toppings */}
+          <div>
+            <label
+              style={{
+                fontSize: '0.8125rem',
+                fontWeight: 700,
+                display: 'block',
+                marginBottom: '0.5rem',
+              }}
+            >
+              TOPPING (tùy chọn)
+            </label>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+              {TOPPING_OPTIONS.map((t) => {
+                const selected = toppings.includes(t.key);
+                return (
+                  <button
+                    key={t.key}
+                    type="button"
+                    onClick={() =>
+                      setToppings((prev) =>
+                        selected
+                          ? prev.filter((x) => x !== t.key)
+                          : [...prev, t.key],
+                      )
+                    }
+                    style={{
+                      padding: '0.4rem 0.75rem',
+                      borderRadius: '999px',
+                      fontSize: '0.8rem',
+                      border: `1.5px solid ${selected ? '#2e7d32' : '#ccc'}`,
+                      backgroundColor: selected ? '#e8f5e9' : '#fff',
+                      color: selected ? '#2e7d32' : '#333',
+                      fontWeight: selected ? 700 : 500,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {t.label} (+{t.add.toLocaleString('vi-VN')}đ)
+                  </button>
+                );
+              })}
             </div>
           </div>
 

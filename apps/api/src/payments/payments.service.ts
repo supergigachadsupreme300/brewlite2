@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable } from '@nestjs/common';
 import { OrderStatus } from '../orders/order.entity';
 import { OrdersService } from '../orders/orders.service';
 import { MockPaymentGateway } from './mock-payment.gateway';
@@ -18,8 +18,11 @@ export class PaymentsService {
     private readonly ordersService: OrdersService,
   ) {}
 
-  createPayment(input: CreatePaymentInput): PaymentResult {
-    const order = this.ordersService.findOne(input.orderId);
+  createPayment(input: CreatePaymentInput, userId?: string): PaymentResult {
+    const order = this.ordersService.findOne(input.orderId, userId);
+    if (userId && order.userId && order.userId !== userId) {
+      throw new ForbiddenException('Bạn không có quyền thanh toán đơn hàng này');
+    }
 
     const existingPayment = this.paymentsByKey.get(input.idempotencyKey);
     if (existingPayment) {

@@ -5,39 +5,50 @@ import {
   Param,
   Patch,
   Post,
+  Req,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+import { OptionalAuthGuard } from '../auth/optional-auth.guard';
 
 @Controller('orders')
+@UseGuards(OptionalAuthGuard)
+@UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
-  @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
-  create(@Body() createOrderDto: CreateOrderDto) {
+  create(@Body() createOrderDto: CreateOrderDto, @Req() req?: { user?: { id: string } }) {
+    if (req?.user?.id) {
+      createOrderDto.userId = req.user.id;
+    }
     return this.ordersService.createOrder(createOrderDto);
   }
 
   @Get()
-  findAll() {
-    return this.ordersService.findAll();
+  findAll(@Req() req?: { user?: { id: string } }) {
+    return this.ordersService.findAll(req?.user?.id);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.ordersService.findOne(id);
+  findOne(@Param('id') id: string, @Req() req?: { user?: { id: string } }) {
+    return this.ordersService.findOne(id, req?.user?.id);
   }
 
   @Patch(':id/status')
-  @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   updateStatus(
     @Param('id') id: string,
-    @Body() updateOrderStatusDto: UpdateOrderStatusDto
+    @Body() updateOrderStatusDto: UpdateOrderStatusDto,
+    @Req() req?: { user?: { id: string } },
   ) {
-    return this.ordersService.updateStatus(id, updateOrderStatusDto.status);
+    return this.ordersService.updateStatus(
+      id,
+      updateOrderStatusDto.status,
+      req?.user?.id,
+    );
   }
 }

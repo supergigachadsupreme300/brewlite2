@@ -1,0 +1,1451 @@
+\documentclass[a4paper]{article}
+\usepackage{vntex}
+%\usepackage[english,vietnam]{babel}
+%\usepackage[utf8]{inputenc}
+\usepackage{float}
+\usepackage{placeins}
+%\usepackage[utf8]{inputenc}
+%\usepackage[francais]{babel}
+\usepackage{a4wide,amssymb,epsfig,latexsym,multicol,array,hhline,fancyhdr}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{lastpage}
+\usepackage[lined,boxed,commentsnumbered]{algorithm2e}
+\usepackage{enumerate}
+\usepackage{color}
+\usepackage{graphicx}							% Standard graphics package
+\usepackage{svg}								% Support SVG images
+\usepackage{array}
+\usepackage{tabularx, caption}
+\usepackage{multirow}
+\usepackage[framemethod=tikz]{mdframed}% For highlighting paragraph backgrounds
+\usepackage{multicol}
+\usepackage{rotating}
+\usepackage{graphics}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{epsfig}
+\usepackage{tikz}
+\usepackage{listings}
+\usetikzlibrary{arrows,snakes,backgrounds}
+\usepackage{hyperref}
+\hypersetup{urlcolor=blue,linkcolor=black,citecolor=black,colorlinks=true} 
+%\usepackage{pstcol} 								% PSTricks with the standard color package
+
+\newtheorem{theorem}{{\bf Định lý}}
+\newtheorem{property}{{\bf Tính chất}}
+\newtheorem{proposition}{{\bf Mệnh đề}}
+\newtheorem{corollary}[proposition]{{\bf Hệ quả}}
+\newtheorem{lemma}[proposition]{{\bf Bổ đề}}
+
+\everymath{\color{blue}}
+%\usepackage{fancyhdr}
+\setlength{\headheight}{40pt}
+\pagestyle{fancy}
+\fancyhead{} % clear all header fields
+\fancyhead[L]{
+ \begin{tabular}{rl}
+    \begin{picture}(25,15)(0,0)
+    \put(0,-8){\includegraphics[width=8mm, height=8mm]{logoITSGUsmall.png}}
+    %\put(0,-8){\epsfig{width=10mm,figure=hcmut.eps}}
+   \end{picture}&
+	%\includegraphics[width=8mm, height=8mm]{hcmut.png} & %
+	\begin{tabular}{l}
+		\textbf{\bf \ttfamily Trường Đại học Sài Gòn}\\
+		\textbf{\bf \ttfamily Khoa Công Nghệ Thông Tin}
+	\end{tabular} 	
+ \end{tabular}
+}
+\fancyhead[R]{
+	\begin{tabular}{l}
+		\tiny \bf \\
+		\tiny \bf 
+	\end{tabular}  }
+\fancyfoot{} % clear all footer fields
+\fancyfoot[L]{\scriptsize \ttfamily Bài tập lớn môn Phát triển phần mềm mã nguồn mở - Niên khóa 2023-2024}
+\fancyfoot[R]{\scriptsize \ttfamily Trang {\thepage}/\pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.3pt}
+\renewcommand{\footrulewidth}{0.3pt}
+
+
+%%%
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{3}
+\makeatletter
+\newcounter {subsubsubsection}[subsubsection]
+\renewcommand\thesubsubsubsection{\thesubsubsection .\@alph\c@subsubsubsection}
+\newcommand\subsubsubsection{\@startsection{subsubsubsection}{4}{\z@}%
+                                     {-3.25ex\@plus -1ex \@minus -.2ex}%
+                                     {1.5ex \@plus .2ex}%
+                                     {\normalfont\normalsize\bfseries}}
+\newcommand*\l@subsubsubsection{\@dottedtocline{3}{10.0em}{4.1em}}
+\newcommand*{\subsubsubsectionmark}[1]{}
+\makeatother
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+	language=Matlab,
+	aboveskip=3mm,
+	belowskip=3mm,
+	showstringspaces=false,
+	columns=flexible,
+	basicstyle={\small\ttfamily},
+	numbers=none,
+	numberstyle=\tiny\color{gray},
+	keywordstyle=\color{blue},
+	commentstyle=\color{dkgreen},
+	stringstyle=\color{mauve},
+	breaklines=true,
+	breakatwhitespace=true,
+	tabsize=3,
+	numbers=left,
+	stepnumber=1,
+	numbersep=1pt,    
+	firstnumber=1,
+	numberfirstline=true
+}
+
+\begin{document}
+
+\begin{titlepage}
+\begin{center}
+TRƯỜNG ĐẠI HỌC SÀI GÒN \\
+KHOA CÔNG NGHỆ THÔNG TIN
+\end{center}
+\vspace{1cm}
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=3cm]{logoITSGU.png}
+\end{center}
+\end{figure}
+
+\vspace{1cm}
+
+
+\begin{center}
+\begin{tabular}{c}
+	\multicolumn{1}{l}{\textbf{{\Large CÔNG NGHỆ PHẦN MỀM}}}\\
+	~~\\
+	\hline
+	\\
+	\multicolumn{1}{l}{\textbf{{\Large Xử lý bài toán }}}\\
+	\\
+	
+	\textbf{{\Huge Ứng dụng Đặt hàng \& Nhà hàng}}\\
+	\\
+	\hline
+\end{tabular}
+\end{center}
+
+\begin{table}[h]
+\begin{tabular}{rrl}
+\hspace{5 cm} & GVHD: &Từ Lãng Phiêu\\
+& &\textbf{Nhóm 2}\\
+& SV: & Trần Văn Quý - 3124410296\\
+& & Nguyễn Thị Ngọc Huyền - 3124410127 \\
+& & Phạm Trần Quang Huy - 3124410120 \\
+& & Võ Nhựt Luân - 3124410205 \\
+& & Nguyễn Văn Phước - 3122410328 \\
+& & Nguyễn Đặng Mỹ Huyền - 3124410126 \\
+& & Tạ Thanh Sinh - 3123410305 \\
+\end{tabular}
+\vspace{1.5 cm}
+\end{table}
+
+\begin{center}
+
+{\footnotesize TP. HỒ CHÍ MINH, THÁNG 10/2025}
+\end{center}
+\end{titlepage}
+
+
+\thispagestyle{empty}
+
+\newpage
+\tableofcontents
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{Phân công}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|p{5cm}|c|}
+        \hline
+        \textbf{STT} & \textbf{Mssv}& \textbf{Thành viên} & \textbf{Công việc} & \textbf{tỉ lệ đóng góp}\\
+        \hline
+        \textbf{1} & \textbf{3124410296}& \textbf{Trần Văn Quý} & \textbf{product detail:trang,chức năng hiển thị chi tiết sản phẩm;phân công công việc;viết báo cáo} & \textbf{16}\\
+        \hline
+        \textbf{2} & \textbf{3124410127} &\textbf{Nguyễn Thị Ngọc Huyền} &\textbf{cart: trang,chức năng giỏ hàng} & \textbf{14}\\
+        \hline
+        \textbf{3} & \textbf{3124410120} & \textbf{Phạm Trần Quang Huy} & \textbf{payment: trang,chức năng thanh toán qua mock payment} & \textbf{14}\\
+        \hline
+        \textbf{4} & \textbf{3124410205} & \textbf{Võ Nhựt Luân} & \textbf{order: chức năng, trang tạo/review đơn, checkout} & \textbf{14}\\
+        \hline
+        \textbf{5} & \textbf{3122410328} & \textbf{Nguyễn Văn Phước} &\textbf{user: login, register, jwt, bcrypt, quản lí trạng thái đăng nhập} & \textbf{14}\\
+        \hline
+        \textbf{6} & \textbf{3124410126 } & \textbf{Nguyễn Đặng Mỹ Huyền} & \textbf{order history:trang xem lịch sử đơn hàng, chi tiết mã đơn,tìm theo mã đơn, lọc theo trạng thái } & \textbf{14}\\
+        \hline
+        \textbf{7} & \textbf{3123410305} &\textbf{Tạ Thanh Sinh} &\textbf{product:trang menu xem sản phẩm} & \textbf{14}\\
+        \hline
+    \end{tabular}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|p{8cm}|}
+        \hline
+        \textbf{STT} & \textbf{Thời gian} & \textbf{Công việc} \\
+        \hline
+        \textbf{1} & \textbf{01/10/2026} &
+        \parbox[t]{8cm}{
+            \textbf{Phân công công việc theo từng chức năng}\\
+            Login\\
+            Product menu\\
+            Product detail\\
+            Cart\\
+            Order\\
+            Order history\\
+            Payment
+        } \\
+        \hline
+        \textbf{2} & \textbf{02/10/2026} &\textbf{tạo repository và thêm thành viên vào làm collaborator}\\
+        \hline
+        \textbf{3} & \textbf{3/10/2026} & \textbf{giao task viết user story}\\
+        \hline
+        \textbf{4} & \textbf{11/10/2026} & \textbf{yêu cầu hoàn thiện các chức năng}\\
+        \hline
+        \textbf{5} & \textbf{11/10/2026} & \textbf{liên kết các chức năng tạo thành web hoàn chỉnh}\\
+        \hline
+        \textbf{6} & \textbf{25/10/2026} & \textbf{kiểm thử các chức năng sau đó viết báo cáo}\\
+        \hline
+    \end{tabular}
+\end{table}
+
+\lstdefinelanguage{PlantUML}{
+  morekeywords={@startuml,@enduml,actor,participant,database,activate,deactivate,alt,else,end,autonumber,skinparam,class,enum,note,right,bottom,hide,start,stop,if,then,while,repeat,partition},
+  sensitive=false,
+  morecomment=[l]{'},
+  morestring=[b]"
+}
+
+% ============================================================
+% NOI DUNG ASSIGNMENT 2 - BAT DAU SAU PHAN PHAN CONG
+% Trang bia, phan mo dau va bang Phan cong duoc giu nguyen.
+% ============================================================
+
+\section{Tổng quan Assignment 2}
+
+Assignment 2 tiếp tục sử dụng đề tài BrewLite của Assignment 1. Mục tiêu của giai đoạn này là hoàn thiện chuỗi công việc từ khai thác yêu cầu, đặc tả hệ thống, mô hình hóa nghiệp vụ đến thiết kế kiến trúc và định hướng triển khai.
+
+BrewLite là ứng dụng đặt đồ uống không dùng tiền mặt. Luồng nghiệp vụ cốt lõi gồm: xem menu, chọn sản phẩm và tùy chọn, quản lý giỏ hàng, đặt đơn, thanh toán và theo dõi trạng thái đơn hàng.
+
+\subsection{Mục tiêu sản phẩm}
+
+BrewLite hướng đến việc giúp khách hàng lựa chọn đồ uống, tùy chỉnh kích cỡ và topping, đặt hàng trước và thanh toán không tiền mặt. Hệ thống cần giảm thời gian chờ tại quầy, cung cấp thông tin đơn hàng rõ ràng và hỗ trợ cửa hàng quản lý đơn hàng.
+
+\subsection{Công nghệ và phạm vi kỹ thuật}
+
+\begin{itemize}
+    \item Frontend: Next.js, thiết kế mobile-first và hỗ trợ định hướng PWA.
+    \item Backend: NestJS, cung cấp REST API.
+    \item Cơ sở dữ liệu: PostgreSQL, quản lý cấu trúc dữ liệu bằng migration.
+    \item Thanh toán: Mock Payment Service, chỉ mô phỏng kết quả thanh toán, không thực hiện giao dịch tài chính thật.
+    \item Đóng gói và chạy cục bộ: Docker/Docker Compose.
+\end{itemize}
+
+\section{Task 1 -- Khai thác và đặc tả yêu cầu}
+
+\subsection{Task 1.1 -- Bối cảnh, stakeholder và phạm vi}
+
+\subsubsection{Bối cảnh nghiệp vụ}
+
+Khách hàng tại cửa hàng đồ uống thường phải xem thực đơn, lựa chọn món, chờ đến lượt gọi món và thanh toán tại quầy. Khi số lượng khách tăng, quy trình này có thể làm thời gian chờ kéo dài và gây khó khăn trong việc theo dõi thông tin đơn hàng.
+
+BrewLite giải quyết vấn đề bằng cách cung cấp giao diện đặt đồ uống trực tuyến. Khách hàng có thể xem menu, chọn size và topping, thêm sản phẩm vào giỏ hàng, cung cấp thông tin nhận nước và thanh toán mô phỏng. Hệ thống lưu đơn hàng và cho phép khách hàng xem lại trạng thái cũng như lịch sử đơn.
+
+\subsubsection{Các bên liên quan}
+
+\begin{table}[H]
+\centering
+\small
+\caption{Danh sách stakeholder của BrewLite}
+\begin{tabularx}{\textwidth}{|p{2.7cm}|X|X|}
+\hline
+\textbf{Stakeholder} & \textbf{Vai trò} & \textbf{Mục tiêu và kỳ vọng}\\
+\hline
+Khách hàng & Người sử dụng ứng dụng để đặt đồ uống & Xem menu, tùy chỉnh sản phẩm, đặt hàng, thanh toán và theo dõi đơn thuận tiện.\\
+\hline
+Nhân viên quầy/Barista & Tiếp nhận và chuẩn bị đồ uống & Nhận được thông tin đơn hàng chính xác, dễ xác định món và yêu cầu của khách. Chức năng cập nhật trạng thái pha chế được xem là phần mở rộng nếu chưa triển khai trong MVP.\\
+\hline
+Quản lý cửa hàng/Product Owner & Đại diện nghiệp vụ và ưu tiên yêu cầu & Kiểm soát phạm vi, xác định yêu cầu quan trọng và nghiệm thu sản phẩm.\\
+\hline
+Giảng viên/Người nghiệm thu & Đánh giá bài tập lớn & Kiểm tra khả năng đáp ứng yêu cầu, thiết kế, chất lượng mã nguồn và quy trình phát triển.\\
+\hline
+Nhóm phát triển & Phân tích, thiết kế, xây dựng và kiểm thử hệ thống & Có yêu cầu rõ ràng, có thể truy vết và có cấu trúc kỹ thuật dễ bảo trì.\\
+\hline
+Đơn vị thanh toán & Dịch vụ hỗ trợ thanh toán hoặc dịch vụ mô phỏng & Trả kết quả thành công/thất bại để hệ thống xử lý trạng thái thanh toán. Trong phạm vi bài tập, dịch vụ được mô phỏng.\\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsubsection{Phạm vi hệ thống}
+
+\textbf{Các chức năng thuộc MVP (In-scope):}
+\begin{itemize}
+    \item Hiển thị danh sách đồ uống và thông tin chi tiết sản phẩm.
+    \item Cho phép chọn kích cỡ, topping và thêm sản phẩm vào giỏ hàng.
+    \item Cho phép tăng, giảm số lượng hoặc xóa sản phẩm trong giỏ.
+    \item Đăng ký, đăng nhập và xác thực người dùng bằng JWT.
+    \item Tạo đơn hàng, kiểm tra tồn kho và lưu thông tin đơn.
+    \item Thanh toán thông qua Mock Payment Service.
+    \item Hiển thị xác nhận đơn, lịch sử đơn hàng và trạng thái đơn.
+    \item Kiểm soát các chuyển trạng thái đơn hàng hợp lệ ở backend.
+\end{itemize}
+
+\textbf{Các chức năng mở rộng (Out-of-scope hoặc Could-have):}
+\begin{itemize}
+    \item Tích hợp cổng thanh toán thật có phát sinh giao dịch tài chính.
+    \item Ứng dụng di động native riêng cho Android/iOS.
+    \item Quản lý nhân sự, ca làm việc và báo cáo doanh thu chuyên sâu.
+    \item Giao hàng đến địa chỉ bên ngoài cửa hàng.
+    \item Hệ thống khuyến mãi và điểm thưởng đầy đủ; mô hình domain có thể chuẩn bị để mở rộng.
+    \item Giao diện riêng cho Barista để cập nhật trạng thái pha chế nếu chưa nằm trong MVP.
+\end{itemize}
+
+\subsubsection{Giả định và ràng buộc}
+
+\begin{itemize}
+    \item Hệ thống phục vụ quy trình đặt và nhận đồ uống tại cửa hàng.
+    \item Dữ liệu sản phẩm, giá bán và tồn kho được quản lý trong PostgreSQL.
+    \item Backend là nơi xác định giá trị thanh toán cuối cùng; frontend không được tự quyết định tổng tiền hợp lệ.
+    \item Các thao tác đặt đơn và cập nhật tồn kho phải được xử lý có kiểm soát để tránh bán vượt số lượng còn lại.
+    \item Thanh toán chỉ được mô phỏng, không lưu thông tin thẻ thật và không kết nối giao dịch tài chính thật.
+    \item Next.js, NestJS và PostgreSQL là các công nghệ bắt buộc của đề bài.
+    \item Các chức năng yêu cầu đăng nhập phải gửi JWT hợp lệ đến backend.
+\end{itemize}
+
+\subsubsection{Rủi ro ban đầu}
+
+\begin{itemize}
+    \item Nếu nhiều khách đặt cùng một sản phẩm gần như đồng thời, hệ thống có thể bán vượt tồn kho nếu không dùng transaction và cập nhật có điều kiện.
+    \item Nếu client gửi lại yêu cầu thanh toán do timeout, hệ thống có thể xử lý trùng nếu thiếu cơ chế idempotency.
+    \item Nếu frontend và backend không thống nhất trạng thái đơn, lịch sử đơn có thể hiển thị sai.
+    \item Nếu cấu hình môi trường hoặc thông tin kết nối cơ sở dữ liệu không chính xác, hệ thống có thể không khởi động hoặc không truy cập được database.
+    \item Nếu không quản lý secret đúng cách, thông tin nhạy cảm có thể bị đưa vào repository hoặc log.
+\end{itemize}
+
+\subsection{Task 1.2 -- Yêu cầu chức năng và phi chức năng}
+
+\subsubsection{Yêu cầu chức năng (Functional Requirements)}
+
+Các yêu cầu chức năng được định danh theo mã FR để thuận tiện cho việc thiết kế, lập trình, kiểm thử và truy vết.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Danh sách yêu cầu chức năng}
+\begin{tabularx}{\textwidth}{|p{0.9cm}|p{2.7cm}|p{1.35cm}|X|}
+\hline
+\textbf{Mã} & \textbf{Tên yêu cầu} & \textbf{Ưu tiên} & \textbf{Mô tả và tiêu chí chấp nhận}\\
+\hline
+FR-01 & Xem menu & Must & Hệ thống gọi API lấy danh sách sản phẩm và hiển thị tên, hình ảnh, giá. Khi danh sách rỗng phải có thông báo phù hợp; khi đang tải phải thể hiện trạng thái loading.\\
+\hline
+FR-02 & Xem chi tiết sản phẩm & Must & Khi chọn một sản phẩm, hệ thống hiển thị tên, ảnh, mô tả và giá. Khách hàng có thể chọn size/topping được hỗ trợ; tổng giá được cập nhật theo lựa chọn.\\
+\hline
+FR-03 & Quản lý giỏ hàng & Must & Khách hàng có thể thêm, cập nhật số lượng và xóa sản phẩm. Số lượng phải là số nguyên dương. Thành tiền bằng đơn giá nhân số lượng; tổng tiền bằng tổng thành tiền của các dòng.\\
+\hline
+FR-04 & Đăng ký, đăng nhập & Must & Khách hàng đăng ký bằng email hợp lệ và mật khẩu đạt độ dài tối thiểu đã cấu hình. Mật khẩu được băm trước khi lưu. Đăng nhập thành công trả JWT; thông tin đăng nhập sai trả lỗi phù hợp.\\
+\hline
+FR-05 & Đặt đơn hàng & Must & Backend kiểm tra JWT, dữ liệu nhận nước, giỏ hàng và tồn kho. Tổng tiền được tính từ dữ liệu sản phẩm trong database. Khi hợp lệ, hệ thống tạo đơn PENDING và lưu các dòng OrderItem.\\
+\hline
+FR-06 & Thanh toán mô phỏng & Must & Khách hàng chọn Ví hoặc Thẻ và gửi yêu cầu thanh toán. Kết quả thành công cập nhật đơn sang PAID; thất bại cập nhật sang PAYMENT\_FAILED. Yêu cầu lặp với cùng Idempotency-Key không được xử lý thành giao dịch mới.\\
+\hline
+FR-07 & Xác nhận và lịch sử đơn & Must & Sau khi xử lý thanh toán, hệ thống hiển thị mã đơn và trạng thái. Người dùng đã đăng nhập có thể xem danh sách đơn của mình qua API lịch sử đơn.\\
+\hline
+FR-08 & Kiểm soát trạng thái đơn & Must & Backend chỉ cho phép chuyển trạng thái theo quy tắc nghiệp vụ: PENDING, PAID, PREPARING, READY, COMPLETED; PAYMENT\_FAILED có thể được thanh toán lại; COMPLETED và CANCELLED là trạng thái kết thúc.\\
+\hline
+FR-09 & Khuyến mãi và điểm thưởng & Could & Mô hình dữ liệu hỗ trợ mã khuyến mãi và giao dịch điểm thưởng. Chức năng áp mã và tích lũy điểm có thể được triển khai ở giai đoạn mở rộng.\\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsubsection{Yêu cầu phi chức năng (Non-functional Requirements)}
+
+\begin{table}[H]
+\centering
+\small
+\caption{Danh sách yêu cầu phi chức năng}
+\begin{tabularx}{\textwidth}{|p{0.9cm}|p{2.65cm}|p{1.35cm}|X|}
+\hline
+\textbf{Mã} & \textbf{Nhóm} & \textbf{Ưu tiên} & \textbf{Tiêu chí chấp nhận có thể kiểm chứng}\\
+\hline
+NFR-01 & Hiệu năng & Must & Thời gian phản hồi API mục tiêu dưới 500 ms với bộ dữ liệu mẫu và môi trường kiểm thử được thống nhất. Đo bằng công cụ kiểm thử API.\\
+\hline
+NFR-02 & Bảo mật & Must & Mật khẩu không được lưu dạng văn bản gốc; sử dụng bcrypt hoặc cơ chế băm tương đương. API bảo vệ phải từ chối JWT thiếu, sai chữ ký hoặc hết hạn. Dữ liệu đầu vào được validate ở backend.\\
+\hline
+NFR-03 & Tương thích & Should & Giao diện hoạt động trên các trình duyệt web phổ biến và không tràn nội dung ở kích thước màn hình di động thông dụng.\\
+\hline
+NFR-04 & Tính khả dụng & Should & Backend cung cấp GET /health. Endpoint trả HTTP 200 khi dịch vụ và kết nối database sẵn sàng; trạng thái lỗi phải được ghi nhận trong log.\\
+\hline
+NFR-05 & Tính tin cậy & Must & Yêu cầu thanh toán có Idempotency-Key; gửi lại cùng khóa không tạo kết quả thanh toán mới. Cập nhật tồn kho phải dùng transaction hoặc thao tác cập nhật có điều kiện để tránh tồn kho âm.\\
+\hline
+NFR-06 & Khả năng triển khai & Must & Có thể khởi động frontend, backend và PostgreSQL ở môi trường local bằng Docker Compose; database có migration và seed để tái tạo dữ liệu phục vụ kiểm thử.\\
+\hline
+NFR-07 & Khả năng bảo trì & Should & Backend được tổ chức theo module/domain; cấu hình môi trường nằm ngoài mã nguồn; các chức năng nghiệp vụ quan trọng có unit test hoặc integration test.\\
+\hline
+\end{tabularx}
+\end{table}
+
+
+\subsubsection{Yêu cầu theo phân hệ (Module-level requirements)}
+
+Ngoài các yêu cầu tổng quan FR-01..FR-09 và NFR-01..NFR-07, tài liệu theo phân hệ trong \texttt{docs/requirements/<phan-he>/} định nghĩa các yêu cầu chi tiết. Bảng dưới đây tổng hợp mã yêu cầu, phạm vi và tình trạng triển khai thực tế theo mã nguồn.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Yêu cầu theo phân hệ và tình trạng triển khai}
+\begin{tabularx}{\textwidth}{|p{2.0cm}|p{3.2cm}|X|}
+\hline
+\textbf{Phân hệ} & \textbf{Mã yêu cầu} & \textbf{Tình trạng triển khai thực tế}\\
+\hline
+Product & FR-PROD-01..07; NFR-PROD-01..04 & \texttt{GET /products}, \texttt{GET /products/:id} đã triển khai (FR-PROD-01, 03, 04, 07 seed). Tìm kiếm/lọc (FR-PROD-02) chưa có. Unit/integration test có (NFR-PROD-03).\\
+\hline
+Product Detail & FR-PD-01..03; NFR-PD-01..03 & \texttt{GET /products/:id} trả 200/404; frontend trang \texttt{/products/[id]} hiển thị tên, mô tả, giá, stock, trạng thái còn/hết hàng (FR-PD-01, 02, 03). NFR-PD-01 (<=300ms) chưa đo.\\
+\hline
+Cart & FR-CART-01..11; NFR-CART-01..06 & Chưa triển khai backend (placeholder); frontend giỏ hàng chưa có trong mã nguồn.\\
+\hline
+Login/Auth & FR-01..FR-11; NFR-01..NFR-07 (login) & Chưa triển khai (không có module auth trong mã nguồn).\\
+\hline
+Order & FR-06, FR-10 (state machine); NFR-01, NFR-03 & Chưa triển khai; machine trạng thái PENDING$\to$PAID$\to$PREPARING$\to$READY$\to$COMPLETED và PAYMENT\_FAILED/CANCELLED được đặc tả.\\
+\hline
+Order History & FR-OH-01..FR-OH-08; NFR-OH-01..05 & Frontend một phần (list/filter/search/detail + mock data); backend chưa giới hạn theo user (NFR-OH-01 not implemented).\\
+\hline
+Payment & PAY-FR-01..PAY-FR-10; PAY-NFR-01..06 & Chưa triển khai; đặc tả idempotency, mock service, SUCCESS/FAILED.\\
+\hline
+\end{tabularx}
+\end{table}
+
+Các sơ đồ theo phân hệ được lưu trong \texttt{docs/diagrams/<phan-he>/} (activity, class-domain, sequence). Sơ đồ tổng quan và class domain cấp hệ thống đã được trích dẫn trong Task 2.
+
+
+\subsubsection{Chi tiết use-case theo phân hệ}
+
+Các use-case trọng tâm được đặc tả trong \texttt{docs/requirements/<phan-he>/} và sơ đồ trong \texttt{docs/diagrams/<phan-he>/}:
+
+\begin{itemize}
+    \item \textbf{Order (UC-01):} Khách hàng xem lại giỏ tại \texttt{/checkout}, tùy chỉnh số lượng/xóa món, nhập Tên, SĐT 10 số, chọn Mang đi/Dine-in (bắt buộc Số bàn), chọn phương thức thanh toán không tiền mặt (MoMo, VietQR, Thẻ). Backend chạy \texttt{prisma.\$transaction}: kiểm tra tồn kho ($stock \ge quantity$), tính tổng tiền từ giá gốc trong DB, tạo \texttt{Order} trạng thái \texttt{PENDING} và \texttt{OrderItem}, trừ kho nguyên tử. Mã ưu đãi ví dụ \texttt{BREWLITE} khấu trừ 20.000đ. Vòng đời đơn: \texttt{PENDING} $\to$ \texttt{PAID} $\to$ \texttt{PREPARING} $\to$ \texttt{READY} $\to$ \texttt{COMPLETED}; ngoại lệ \texttt{PAYMENT\_FAILED} (cho phép thử lại sang \texttt{PAID} hoặc \texttt{CANCELLED}); \texttt{COMPLETED} và \texttt{CANCELLED} là trạng thái kết thúc. Kiểm thử: bộ 33 ca tự động đạt 100\% PASS.
+    \item \textbf{Login/Auth (UC-AUTH-01):} Đăng ký (bcrypt salt rounds 10--12, UNIQUE email), đăng nhập cấp JWT (sub, email, iat, exp=1 giờ, ký bằng JWT\_SECRET), \texttt{GET /auth/me}, bảo vệ route bằng JwtAuthGuard, khôi phục phiên khi F5, xử lý token hết hạn (401), đăng xuất (xóa token client). Idempotency: gửi lại đăng ký cùng email trả 409, không tạo bản ghi thứ hai.
+    \item \textbf{Cart (UC-CART-01):} Thêm/cộng dồn cùng productId+tùy chọn, cập nhật số lượng 1..stock, xóa dòng/toàn bộ, tính thành tiền và tổng tiền, lưu/khôi phục \texttt{localStorage}, chuyển danh sách productId/quantity sang Checkout; Cart không tự tạo Order, không trừ kho, không gọi Payment.
+    \item \textbf{Order History (UC-OH-01..05):} Xem danh sách (sắp xếp mới nhất trước), tìm kiếm theo mã (không phân biệt hoa thường, một phần), lọc theo trạng thái, xem chi tiết, thử tải lại; hỗ trợ API + mock data \texttt{brewlite\_mock\_orders} (API ưu tiên khi trùng mã); xử lý loading/empty/no-result/error.
+    \item \textbf{Payment (UC-PAY-01):} Chọn \texttt{WALLET}/\texttt{CARD}, kiểm tra đơn và số tiền từ DB, gọi Mock Payment Service, ghi nhận \texttt{SUCCESS}/\texttt{FAILED}, \texttt{idempotencyKey} (UNIQUE) chống xử lý trùng, không lưu thông tin thẻ/CVV.
+    \item \textbf{Product/Product Detail (UC-PROD/UC-PD):} \texttt{GET /products} (lọc isAvailable), \texttt{GET /products/:id} trả 200/404, kiểm tra tồn kho, cung cấp dữ liệu cho Cart/Order.
+\end{itemize}
+
+Các sơ đồ chi tiết theo phân hệ (activity, class-domain, sequence, use-case) nằm trong \texttt{docs/diagrams/<phan-he>/}; sơ đồ tổng quan và class domain cấp hệ thống đã được trích dẫn trong Task 2.
+
+\subsubsection{Phân loại ưu tiên MoSCoW}
+
+\begin{itemize}
+    \item \textbf{Must have:} các chức năng cốt lõi để khách hàng xem sản phẩm, tạo đơn và thanh toán mô phỏng; bảo mật, kiểm soát tồn kho và tính đúng đắn của trạng thái đơn.
+    \item \textbf{Should have:} giao diện tương thích tốt trên nhiều trình duyệt, health check và khả năng quan sát lỗi.
+    \item \textbf{Could have:} khuyến mãi, điểm thưởng và giao diện nghiệp vụ mở rộng cho nhân viên.
+    \item \textbf{Won't have trong MVP:} giao dịch tiền thật, ứng dụng native và giao hàng bên ngoài cửa hàng.
+\end{itemize}
+
+\subsubsection{Các tác nhân và nhóm chức năng use-case tổng quát}
+
+Ở mức tổng quan, hệ thống có các tác nhân và nhóm chức năng sau:
+
+\begin{table}[H]
+\centering
+\small
+\caption{Tác nhân và chức năng tương tác}
+\begin{tabularx}{\textwidth}{|p{2.6cm}|X|}
+\hline
+\textbf{Tác nhân} & \textbf{Chức năng có thể thực hiện}\\
+\hline
+Khách hàng & Xem menu; xem chi tiết; chọn size/topping; quản lý giỏ hàng; đăng ký/đăng nhập; đặt đơn; thanh toán; xem xác nhận và lịch sử đơn.\\
+\hline
+Nhân viên quầy/Barista & Tiếp nhận đơn và cập nhật trạng thái pha chế nếu chức năng này được đưa vào phạm vi triển khai.\\
+\hline
+Quản trị viên & Quản lý dữ liệu sản phẩm và hỗ trợ kiểm soát đơn hàng theo quyền được cấp.\\
+\hline
+Mock Payment Service & Tiếp nhận yêu cầu thanh toán mô phỏng và trả kết quả thành công hoặc thất bại.\\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsection{Task 1.3 -- Đặc tả use-case trọng tâm: Đặt và thanh toán đơn hàng}
+
+\subsubsection{Thông tin use-case}
+
+\begin{table}[H]
+\centering
+\small
+\caption{Đặc tả UC-01}
+\begin{tabularx}{\textwidth}{|p{3.0cm}|X|}
+\hline
+\textbf{Mã use-case} & UC-01\\
+\hline
+\textbf{Tên} & Đặt và thanh toán đơn hàng\\
+\hline
+\textbf{Tác nhân chính} & Khách hàng\\
+\hline
+\textbf{Tác nhân phụ} & Mock Payment Service; PostgreSQL là thành phần lưu trữ dữ liệu nội bộ.\\
+\hline
+\textbf{Mục tiêu} & Khách hàng xác nhận giỏ hàng, tạo đơn và thanh toán không tiền mặt để nhận mã đơn.\\
+\hline
+\textbf{Sự kiện kích hoạt} & Khách hàng chọn chức năng xác nhận đặt hàng tại trang Checkout.\\
+\hline
+\textbf{Tiền điều kiện} & Có ít nhất một sản phẩm trong giỏ; sản phẩm còn được kinh doanh; khách hàng có thể đăng nhập trước khi gửi yêu cầu tạo đơn; hệ thống và database hoạt động.\\
+\hline
+\textbf{Hậu điều kiện thành công} & Đơn được lưu với trạng thái PAID; thông tin thanh toán được lưu; giao diện hiển thị mã đơn và kết quả thành công.\\
+\hline
+\textbf{Hậu điều kiện thất bại} & Đơn ghi nhận trạng thái PAYMENT\_FAILED hoặc kết quả lỗi tương ứng; khách hàng được thông báo và có thể thực hiện lại thao tác thanh toán theo quy tắc idempotency.\\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsubsection{Luồng chính}
+
+\begin{enumerate}
+    \item Khách hàng mở trang Checkout và xem danh sách sản phẩm, số lượng, đơn giá và tổng tiền.
+    \item Khách hàng kiểm tra hoặc điều chỉnh số lượng sản phẩm.
+    \item Khách hàng nhập tên người nhận, số điện thoại và chọn hình thức nhận nước: mang đi hoặc tại bàn.
+    \item Khách hàng xác nhận đặt hàng.
+    \item Next.js gửi yêu cầu POST /orders kèm JWT đến NestJS.
+    \item NestJS xác thực JWT, kiểm tra dữ liệu nhận hàng và kiểm tra giỏ hàng không rỗng.
+    \item Backend lấy giá hiện tại từ database, tính lại tổng tiền và kiểm tra tồn kho từng sản phẩm.
+    \item Backend mở transaction, cập nhật tồn kho có điều kiện và tạo Order ở trạng thái PENDING cùng các OrderItem.
+    \item Backend commit transaction và trả về orderId cùng tổng tiền.
+    \item Khách hàng chọn phương thức thanh toán Ví hoặc Thẻ và xác nhận.
+    \item Frontend gửi POST /payments với orderId, phương thức thanh toán và Idempotency-Key.
+    \item NestJS kiểm tra khóa idempotency và gửi yêu cầu đến Mock Payment Service.
+    \item Khi thanh toán thành công, backend cập nhật Payment thành SUCCEEDED và Order thành PAID.
+    \item Frontend hiển thị mã đơn, trạng thái PAID và thông báo đặt hàng thành công.
+\end{enumerate}
+
+\subsubsection{Luồng thay thế và ngoại lệ}
+
+\begin{itemize}
+    \item \textbf{A1 -- Khách hàng chưa đăng nhập:} hệ thống chuyển đến màn hình đăng nhập. Sau khi đăng nhập thành công và nhận JWT, khách hàng quay lại quá trình Checkout. Nếu thông tin đăng nhập sai, hệ thống thông báo lỗi và không tạo đơn.
+    \item \textbf{A2 -- Khách hàng thay đổi giỏ hàng:} khách hàng tăng, giảm số lượng hoặc xóa sản phẩm. Frontend tính lại tổng tiền hiển thị; backend vẫn tự tính lại giá khi nhận yêu cầu tạo đơn.
+    \item \textbf{E1 -- Dữ liệu không hợp lệ:} thiếu tên người nhận, số điện thoại không hợp lệ, giỏ hàng rỗng hoặc số lượng không hợp lệ. Backend trả lỗi 400 và không tạo đơn.
+    \item \textbf{E2 -- JWT không hợp lệ:} backend trả lỗi 401 và từ chối yêu cầu tạo đơn.
+    \item \textbf{E3 -- Hết hàng:} thao tác cập nhật tồn kho không thành công; transaction bị rollback, không tạo đơn và không trừ kho một phần.
+    \item \textbf{E4 -- Thanh toán thất bại:} Payment được ghi nhận FAILED, Order chuyển sang PAYMENT\_FAILED. Giao diện thông báo thất bại và cho phép khách hàng thử thanh toán lại.
+    \item \textbf{E5 -- Client gửi lại yêu cầu thanh toán:} nếu Idempotency-Key đã được xử lý, backend trả về kết quả đã lưu thay vì tạo giao dịch mới.
+    \item \textbf{E6 -- Dịch vụ thanh toán timeout:} backend phải giữ khả năng tra cứu theo Idempotency-Key để xác định kết quả trước khi gửi một yêu cầu thanh toán mới, tránh xử lý trùng.
+\end{itemize}
+
+\subsubsection{Liên kết yêu cầu}
+
+UC-01 liên quan trực tiếp đến FR-03, FR-04, FR-05, FR-06, FR-07 và FR-08; đồng thời chịu ràng buộc bởi NFR-01, NFR-02, NFR-04 và NFR-05.
+
+\section{Task 2 -- Mô hình hóa hệ thống}
+
+Các biểu đồ trong Task 2 được cung cấp dưới dạng mã nguồn PlantUML. Mỗi biểu đồ được lưu thành một tệp .puml độc lập để nhóm có thể chỉnh sửa, quản lý phiên bản và kết xuất thành SVG/PNG khi cần đưa vào báo cáo.
+
+\subsection{Task 2.1 -- Activity Diagram}
+
+\begin{figure}[H]
+\centering
+\includesvg[width=\textwidth]{docs/diagrams/activity-end-to-end}
+\caption{Activity Diagram -- Luong dat hang va thanh toan BrewLite (SVG)}
+\label{fig:activity}
+\end{figure}
+
+Activity Diagram mô tả luồng từ lúc khách hàng mở menu đến khi nhận kết quả thanh toán. Sơ đồ thể hiện các lane của Khách hàng, Next.js UI, NestJS API, PostgreSQL và Mock Payment Service. Các nhánh ngoại lệ gồm chưa đăng nhập, dữ liệu không hợp lệ, hết hàng và thanh toán thất bại.
+
+\begin{lstlisting}[language=PlantUML,caption={Mã PlantUML -- Activity Diagram}]
+@startuml
+title Activity Diagram - Luong dat hang va thanh toan BrewLite
+skinparam shadowing false
+skinparam activity {
+  BackgroundColor White
+  BorderColor #333333
+  ArrowColor #333333
+}
+
+|Khach hang|
+start
+:Mo ung dung BrewLite;
+
+|Next.js UI|
+:Hien thi menu;
+
+|NestJS API|
+:Lay danh sach san pham;
+
+|PostgreSQL|
+:Tra ve san pham dang kinh doanh;
+
+|Next.js UI|
+:Hien thi menu cho khach hang;
+
+|Khach hang|
+:Chon san pham, size va topping;
+
+|Next.js UI|
+:Cap nhat gio hang;
+while (Muon them mon khac?) is (Co)
+  |Khach hang|
+  :Chon them san pham;
+  |Next.js UI|
+  :Cap nhat gio hang;
+endwhile (Khong)
+
+|Khach hang|
+:Xem gio hang va chon Dat hang;
+
+if (Da dang nhap?) then (Chua)
+  |Next.js UI|
+  :Hien thi yeu cau dang nhap;
+  |Khach hang|
+  :Nhap email va mat khau;
+  |Next.js UI|
+  :Gui yeu cau dang nhap;
+  |NestJS API|
+  :Xac thuc thong tin va cap JWT;
+  if (Dang nhap hop le?) then (Khong)
+    |Next.js UI|
+    :Thong bao loi dang nhap;
+    stop
+  else (Co)
+    |Next.js UI|
+    :Luu token va tiep tuc checkout;
+  endif
+else (Roi)
+  |Next.js UI|
+  :Tiep tuc checkout;
+endif
+
+|Khach hang|
+:Nhap thong tin nhan nuoc;
+:Chon mang di hoac nhap so ban;
+:Xac nhan dat hang;
+
+|Next.js UI|
+:Gui POST /orders kem JWT;
+
+|NestJS API|
+:Kiem tra JWT va validate du lieu;
+if (JWT va du lieu hop le?) then (Khong)
+  |Next.js UI|
+  :Hien thi loi 401/400;
+  stop
+else (Co)
+  :Tinh lai tong tien tu gia trong CSDL;
+  :Kiem tra san pham va so luong ton kho;
+endif
+
+|PostgreSQL|
+:Bat dau transaction;
+:Kiem tra va cap nhat ton kho;
+
+if (Du ton kho?) then (Khong)
+  :Rollback transaction;
+  |NestJS API|
+  :Tra loi het hang;
+  |Next.js UI|
+  :Thong bao san pham het hang;
+  stop
+else (Co)
+  :Tao Order trang thai PENDING;
+  :Luu cac OrderItem;
+  :Commit transaction;
+endif
+
+|NestJS API|
+:Tra ve orderId va tong tien;
+
+|Next.js UI|
+:Hien thi trang thanh toan;
+|Khach hang|
+:Chon Vi dien tu hoac The;
+:Xac nhan thanh toan;
+
+|Next.js UI|
+:Gui POST /payments kem Idempotency-Key;
+
+|NestJS API|
+:Kiem tra Idempotency-Key;
+:Gui yeu cau den Mock Payment Service;
+
+|Mock Payment Service|
+:Mo phong ket qua thanh toan;
+
+if (Thanh toan thanh cong?) then (Co)
+  |NestJS API|
+  :Cap nhat Payment = SUCCEEDED;
+  :Cap nhat Order = PAID;
+  |PostgreSQL|
+  :Luu ket qua thanh toan va trang thai don;
+  |Next.js UI|
+  :Hien thi ma don va xac nhan thanh cong;
+else (Khong)
+  |NestJS API|
+  :Cap nhat Payment = FAILED;
+  :Cap nhat Order = PAYMENT_FAILED;
+  |PostgreSQL|
+  :Luu ket qua that bai;
+  |Next.js UI|
+  :Thong bao thanh toan that bai;
+  :Giu gio hang va cho phep thu lai;
+endif
+
+|Khach hang|
+:Theo doi trang thai don hang;
+stop
+@enduml
+
+\end{lstlisting}
+
+\subsection{Task 2.2 -- Sequence Diagram}
+
+\begin{figure}[H]
+\centering
+\includesvg[width=\textwidth]{docs/diagrams/sequence-checkout}
+\caption{Sequence Diagram -- Use case dat va thanh toan don hang (SVG)}
+\label{fig:sequence}
+\end{figure}
+
+Sequence Diagram mô tả thứ tự trao đổi thông điệp trong use-case UC-01. Các lifeline gồm Customer, Next.js UI, NestJS API, PostgreSQL và Mock Payment Service. Sơ đồ thể hiện xác thực JWT, validate request, transaction tạo đơn/cập nhật tồn kho, hai nhánh thanh toán thành công/thất bại và xử lý Idempotency-Key khi request được gửi lại.
+
+\begin{lstlisting}[language=PlantUML,caption={Mã PlantUML -- Sequence Diagram}]
+@startuml
+title Sequence Diagram - Use case Dat va thanh toan don hang
+autonumber
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor #333333
+  LifeLineBorderColor #555555
+  ParticipantBorderColor #333333
+}
+
+actor Customer
+participant "Next.js UI" as UI
+participant "NestJS API" as API
+database "PostgreSQL" as DB
+participant "Mock Payment Service" as Pay
+
+Customer -> UI: Xac nhan dat hang
+UI -> API: POST /orders\nAuthorization: Bearer JWT
+activate API
+API -> API: Validate JWT va request body
+
+alt JWT khong hop le hoac du lieu sai
+  API --> UI: 401 Unauthorized / 400 Bad Request
+  UI --> Customer: Hien thi loi va yeu cau xu ly
+else JWT va du lieu hop le
+  API -> API: Tinh tong tien tu gia trong database
+  API -> DB: BEGIN TRANSACTION
+  activate DB
+  API -> DB: Kiem tra san pham va ton kho
+  alt Khong du ton kho
+    DB --> API: Ton kho khong du
+    API -> DB: ROLLBACK
+    DB --> API: Rollback completed
+    API --> UI: 400 Bad Request - Out of stock
+    UI --> Customer: Thong bao san pham het hang
+  else Du ton kho
+    API -> DB: Tru ton kho co dieu kien\n(stock >= quantity)
+    API -> DB: INSERT Order(status=PENDING)
+    API -> DB: INSERT OrderItem
+    API -> DB: COMMIT
+    DB --> API: orderId, totalAmount
+    deactivate DB
+    API --> UI: 201 Created\n(orderId, PENDING, totalAmount)
+    UI --> Customer: Hien thi thong tin don va buoc thanh toan
+
+    Customer -> UI: Chon phuong thuc va xac nhan
+    UI -> API: POST /payments\norderId, method, Idempotency-Key
+    API -> API: Validate JWT, order va payment request
+    API -> DB: Tim Payment theo Idempotency-Key
+    activate DB
+    alt Idempotency-Key da duoc xu ly
+      DB --> API: Tra ve ket qua da luu
+      API --> UI: Tra ve ket qua cu, khong tao giao dich moi
+    else Idempotency-Key moi
+      API -> DB: Tao Payment(status=PENDING, key)
+      DB --> API: Payment record
+      API -> Pay: Process payment(orderId, amount, method, key)
+      activate Pay
+      alt Thanh toan thanh cong
+        Pay --> API: SUCCESS, transactionRef
+        deactivate Pay
+        API -> DB: Payment = SUCCEEDED\nOrder = PAID
+        DB --> API: Commit ket qua
+        API --> UI: 200 OK (PAID, transactionRef)
+        UI --> Customer: Hien thi ma don va xac nhan thanh cong
+      else Thanh toan that bai
+        Pay --> API: FAILED
+        deactivate Pay
+        API -> DB: Payment = FAILED\nOrder = PAYMENT_FAILED
+        DB --> API: Commit ket qua that bai
+        API --> UI: 200/4xx theo quy uoc API\n(PAYMENT_FAILED)
+        UI --> Customer: Thong bao that bai va cho phep thu lai
+      end
+    end
+    deactivate DB
+  end
+end
+deactivate API
+@enduml
+
+\end{lstlisting}
+
+\subsection{Task 2.3 -- Class Diagram}
+
+\begin{figure}[H]
+\centering
+\includesvg[width=\textwidth]{docs/diagrams/class-domain}
+\caption{Class Diagram -- BrewLite Domain Model (SVG)}
+\label{fig:class}
+\end{figure}
+
+Class Diagram trình bày mô hình domain tối thiểu gồm User, Product, Order, OrderItem, Payment, Promotion và LoyaltyTransaction. Sơ đồ thể hiện thuộc tính chính, quan hệ, multiplicity và các enum trạng thái.
+
+\begin{lstlisting}[language=PlantUML,caption={Mã PlantUML -- Class Diagram}]
+@startuml
+title Class Diagram - BrewLite Domain Model
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+hide empty methods
+
+class User {
+  +id: UUID
+  +name: String
+  +email: String
+  +passwordHash: String
+  +role: UserRole
+  +loyaltyPoints: Integer
+  +createdAt: DateTime
+}
+
+class Product {
+  +id: UUID
+  +name: String
+  +description: String
+  +price: Decimal
+  +imageUrl: String
+  +stock: Integer
+  +isAvailable: Boolean
+}
+
+class Order {
+  +id: UUID
+  +orderCode: String
+  +status: OrderStatus
+  +totalAmount: Decimal
+  +pickupType: PickupType
+  +tableNumber: String
+  +recipientName: String
+  +recipientPhone: String
+  +note: String
+  +createdAt: DateTime
+}
+
+class OrderItem {
+  +id: UUID
+  +productNameSnapshot: String
+  +size: String
+  +quantity: Integer
+  +unitPrice: Decimal
+  +lineTotal: Decimal
+}
+
+class Payment {
+  +id: UUID
+  +amount: Decimal
+  +method: PaymentMethod
+  +status: PaymentStatus
+  +idempotencyKey: String
+  +transactionRef: String
+  +createdAt: DateTime
+}
+
+class Promotion {
+  +id: UUID
+  +code: String
+  +discountType: PromotionType
+  +discountValue: Decimal
+  +startAt: DateTime
+  +endAt: DateTime
+  +isActive: Boolean
+}
+
+class LoyaltyTransaction {
+  +id: UUID
+  +type: LoyaltyTransactionType
+  +points: Integer
+  +description: String
+  +createdAt: DateTime
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PREPARING
+  READY
+  COMPLETED
+  PAYMENT_FAILED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+}
+
+enum PaymentMethod {
+  WALLET
+  CARD
+}
+
+enum PickupType {
+  TAKEAWAY
+  DINE_IN
+}
+
+enum PromotionType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+enum LoyaltyTransactionType {
+  EARN
+  REDEEM
+  ADJUST
+}
+
+User "1" -- "0..*" Order : places
+Order "1" *-- "1..*" OrderItem : contains
+Product "1" -- "0..*" OrderItem : referenced by
+Order "1" -- "0..*" Payment : has attempts
+Order "0..*" -- "0..1" Promotion : applies
+User "1" -- "0..*" LoyaltyTransaction : owns
+Order "1" -- "0..*" LoyaltyTransaction : generates
+
+note right of Order
+  COMPLETED va CANCELLED la trang thai ket thuc.
+  PAYMENT_FAILED co the tao mot lan thanh toan moi.
+end note
+
+note bottom of Payment
+  idempotencyKey phai duoc unique
+  trong pham vi cac yeu cau thanh toan.
+end note
+@enduml
+
+\end{lstlisting}
+
+\subsection{Nhận xét về tính nhất quán của các biểu đồ}
+
+Các biểu đồ sử dụng cùng khái niệm và trạng thái với SRS và đặc tả UC-01:
+\begin{itemize}
+    \item Activity và Sequence đều thể hiện bước xác thực JWT trước khi tạo đơn.
+    \item Việc tạo đơn và cập nhật tồn kho được đặt trong transaction để tránh cập nhật không nhất quán.
+    \item Order bắt đầu ở trạng thái PENDING; thanh toán thành công chuyển sang PAID; thanh toán thất bại chuyển sang PAYMENT\_FAILED.
+    \item Payment có Idempotency-Key để hạn chế xử lý trùng yêu cầu.
+    \item Class Diagram có các lớp domain được yêu cầu và quan hệ giữa đơn hàng, sản phẩm, người dùng, thanh toán, khuyến mãi và điểm thưởng.
+\end{itemize}
+
+\section{Task 3 -- Thiết kế kiến trúc}
+
+\subsection{Task 3.1 -- Phương pháp và quyết định kiến trúc}
+
+\subsubsection{Phương pháp kiến trúc được lựa chọn}
+
+BrewLite sử dụng kiến trúc phân lớp (Layered Architecture) kết hợp Modular Monolith ở backend. Frontend và backend được tách thành hai ứng dụng độc lập, giao tiếp thông qua REST API sử dụng JSON. Bên trong backend NestJS, các chức năng được tổ chức theo module/domain nhưng vẫn được triển khai trong cùng một ứng dụng.
+
+Đối với môi trường AWS, nhóm lựa chọn Amazon EC2 làm máy chủ triển khai chính. Các thành phần Next.js, NestJS, PostgreSQL và Nginx được đóng gói bằng Docker và quản lý bằng Docker Compose trên EC2. Cách triển khai này phù hợp với quy mô bài tập lớn, giúp nhóm có thể trực tiếp quản trị máy chủ thông qua SSH và kiểm soát các container trên cùng một môi trường.
+
+\subsubsection{Kiến trúc frontend}
+
+Frontend sử dụng Next.js và React, được thiết kế theo hướng mobile-first và có thể hỗ trợ PWA. Ứng dụng Next.js được đóng gói thành Docker image và chạy thành một container trên Amazon EC2.
+
+Frontend chịu trách nhiệm:
+\begin{itemize}
+    \item Hiển thị giao diện, điều hướng và các trạng thái loading, empty, error.
+    \item Gọi REST API của NestJS để lấy sản phẩm, tạo đơn, thanh toán và xem lịch sử đơn.
+    \item Quản lý trạng thái giao diện và giỏ hàng ở phía client.
+    \item Gửi JWT trong các request yêu cầu xác thực.
+    \item Không tự quyết định giá thanh toán cuối cùng. Giá và tổng tiền hợp lệ phải do backend tính toán từ dữ liệu trong database.
+\end{itemize}
+
+Nginx được đặt phía trước các container ứng dụng để làm reverse proxy. Request truy cập đường dẫn gốc được chuyển đến Next.js; request API được chuyển đến NestJS. Các cổng nội bộ của Next.js và NestJS không được mở trực tiếp ra Internet.
+
+\subsubsection{Kiến trúc backend}
+
+Backend sử dụng NestJS, tổ chức theo module/domain. Backend được đóng gói thành Docker image, lưu trong Amazon Elastic Container Registry (Amazon ECR) và chạy trên Amazon EC2 thông qua Docker Compose.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Các module chính của NestJS}
+\begin{tabularx}{\textwidth}{|p{2.7cm}|X|}
+\hline
+\textbf{Module} & \textbf{Trách nhiệm}\\
+\hline
+AuthModule & Đăng ký, đăng nhập, băm mật khẩu, phát hành và xác thực JWT.\\
+\hline
+UsersModule & Quản lý thông tin người dùng và vai trò.\\
+\hline
+ProductsModule & Lấy danh sách sản phẩm, chi tiết sản phẩm, giá và thông tin tồn kho.\\
+\hline
+OrdersModule & Tạo đơn, tính tổng tiền phía server, kiểm tra tồn kho và quản lý trạng thái đơn.\\
+\hline
+PaymentsModule & Tạo yêu cầu thanh toán, quản lý Idempotency-Key và giao tiếp với Mock Payment Service thông qua adapter.\\
+\hline
+PromotionsModule & Quản lý mã giảm giá và quy tắc khuyến mãi khi chức năng được triển khai.\\
+\hline
+LoyaltyModule & Ghi nhận điểm thưởng và lịch sử thay đổi điểm khi chức năng được triển khai.\\
+\hline
+HealthModule & Cung cấp health check để kiểm tra tình trạng backend và các phụ thuộc cần thiết.\\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsubsection{Tầng dữ liệu và persistent storage}
+
+PostgreSQL được chạy trong một container riêng trên cùng EC2 instance để giảm số lượng dịch vụ AWS phải quản lý trong phạm vi bài tập. Dữ liệu PostgreSQL không được lưu chỉ trong writable layer của container mà được ánh xạ đến một thư mục nằm trên Amazon Elastic Block Store (Amazon EBS).
+
+Ví dụ, EBS data volume được mount vào máy chủ tại \texttt{/data/brewlite/postgres}; Docker Compose ánh xạ thư mục này vào đường dẫn dữ liệu PostgreSQL trong container. Nhờ đó, dữ liệu vẫn tồn tại khi container được tạo lại hoặc cập nhật image.
+
+Nhóm sử dụng Prisma ORM theo cấu hình dự án. Thay đổi cấu trúc database được quản lý bằng migration; seed data được sử dụng để tạo bộ dữ liệu mẫu phục vụ phát triển và kiểm thử.
+
+Các thao tác tạo đơn và cập nhật tồn kho cần nằm trong transaction. Backend phải kiểm tra điều kiện tồn kho tại thời điểm cập nhật, không chỉ dựa vào số liệu tồn kho frontend đã đọc trước đó.
+
+\textbf{Giới hạn kiến trúc:} PostgreSQL và ứng dụng cùng phụ thuộc vào một EC2 instance, vì vậy đây là phương án triển khai đơn giản, không phải kiến trúc có tính sẵn sàng cao. Nếu cần mở rộng hoặc yêu cầu độ tin cậy cao hơn, nhóm có thể chuyển PostgreSQL sang Amazon RDS for PostgreSQL.
+
+\subsubsection{Tích hợp thanh toán mô phỏng}
+
+PaymentsModule giao tiếp với Mock Payment Service thông qua một lớp adapter. Lớp adapter giúp tách nghiệp vụ đơn hàng khỏi chi tiết của dịch vụ thanh toán. Trong phạm vi bài tập, dịch vụ chỉ trả kết quả mô phỏng thành công hoặc thất bại; không xử lý tiền thật và không lưu thông tin thẻ ngân hàng thật.
+
+Mỗi yêu cầu thanh toán sử dụng Idempotency-Key. Backend lưu khóa này và kết quả xử lý để khi client gửi lại cùng yêu cầu, hệ thống có thể trả về kết quả đã lưu thay vì tạo một lần xử lý mới. Trường hợp timeout cần tra cứu kết quả theo khóa trước khi quyết định thử lại.
+
+\subsubsection{Bảo mật, logging, health check và cấu hình}
+
+\begin{itemize}
+    \item \textbf{SSH và Key Pair:} EC2 sử dụng Key Pair để xác thực khi quản trị máy chủ Linux qua SSH. Private key có định dạng \texttt{.pem} được tải về máy quản trị khi tạo Key Pair và phải được bảo vệ. Không commit private key vào repository hoặc gửi key cho người không có quyền truy cập.
+    \item \textbf{Security Group:} Chỉ cho phép SSH TCP 22 từ địa chỉ IP công cộng của người quản trị. Cổng HTTP 80 và HTTPS 443 được mở cho người dùng. Các cổng nội bộ như Next.js 3000, NestJS 3001 và PostgreSQL 5432 không được mở trực tiếp ra Internet.
+    \item \textbf{Xác thực ứng dụng:} Mật khẩu được băm bằng bcrypt trước khi lưu. API yêu cầu đăng nhập phải kiểm tra JWT, chữ ký và thời hạn token.
+    \item \textbf{Validate dữ liệu:} Backend kiểm tra dữ liệu request; validation ở frontend chỉ nhằm cải thiện trải nghiệm người dùng và không thay thế validation phía server.
+    \item \textbf{Quản lý secret:} Database password, JWT secret và các giá trị nhạy cảm được lưu trong AWS Secrets Manager hoặc file cấu hình riêng trên EC2 có quyền truy cập hạn chế. Không ghi secret trực tiếp trong mã nguồn, Docker image hoặc repository.
+    \item \textbf{IAM Instance Profile:} EC2 được gắn IAM Role với quyền tối thiểu cần thiết, ví dụ quyền đọc image từ ECR và đọc secret đã được cấp. Không lưu AWS Access Key dài hạn trực tiếp trên EC2.
+    \item \textbf{Logging:} Ứng dụng ghi log ra stdout/stderr hoặc file được quản lý. Có thể cài Amazon CloudWatch Agent để chuyển log máy chủ và log ứng dụng đến CloudWatch Logs. Không ghi mật khẩu, JWT hoặc dữ liệu nhạy cảm vào log.
+    \item \textbf{Health check:} Backend cung cấp GET /health. Nginx hoặc công cụ kiểm tra sau triển khai có thể gọi endpoint này để xác nhận backend đang hoạt động.
+    \item \textbf{HTTPS:} Nếu có tên miền, Nginx có thể kết thúc TLS bằng chứng chỉ được cấp và gia hạn thông qua Let's Encrypt/Certbot. HTTP cổng 80 được dùng để chuyển hướng sang HTTPS và phục vụ bước xác thực/gia hạn chứng chỉ khi cần.
+\end{itemize}
+
+\subsubsection{Ưu điểm, hạn chế và trade-off}
+
+\textbf{Ưu điểm:}
+\begin{itemize}
+    \item Một EC2 instance chạy Docker Compose giúp triển khai frontend, backend và database tương đối đơn giản.
+    \item Nhóm có thể sử dụng SSH để quản trị máy chủ, kiểm tra log, cập nhật cấu hình và điều khiển Docker Compose.
+    \item Amazon ECR lưu trữ Docker image tập trung, hỗ trợ gắn tag theo commit SHA hoặc phiên bản.
+    \item Amazon EBS cung cấp persistent block storage để lưu dữ liệu PostgreSQL ngoài vòng đời container.
+    \item Security Group cho phép kiểm soát truy cập theo cổng và địa chỉ nguồn.
+    \item Có thể mở rộng dần bằng cách chuyển database sang RDS hoặc tách frontend/backend thành các dịch vụ riêng khi quy mô tăng.
+\end{itemize}
+
+\textbf{Hạn chế và trade-off:}
+\begin{itemize}
+    \item EC2 là một điểm lỗi đơn. Khi instance gặp sự cố hoặc cần bảo trì, toàn bộ frontend, backend và database có thể bị gián đoạn.
+    \item Nhóm tự chịu trách nhiệm cập nhật hệ điều hành, Docker, Nginx, runtime và cấu hình bảo mật của máy chủ.
+    \item Việc đặt PostgreSQL cùng EC2 giúp giảm độ phức tạp và chi phí dịch vụ nhưng tăng trách nhiệm backup, phục hồi và giám sát database.
+    \item SSH Key Pair phải được bảo vệ nghiêm ngặt. Nếu private key bị lộ, người khác có thể thử truy cập các instance chấp nhận public key tương ứng; nếu mất private key, AWS không thể tải lại private key cũ.
+    \item Cập nhật ứng dụng qua SSH là cách triển khai thủ công, phù hợp với demo nhỏ nhưng chưa phải quy trình Continuous Deployment hoàn chỉnh.
+    \item HTTPS với Let's Encrypt cần tên miền trỏ về địa chỉ máy chủ và cần tự động gia hạn chứng chỉ. Nếu chưa có tên miền/chứng chỉ, chỉ được mô tả HTTP là môi trường thử nghiệm, không được ghi nhận HTTPS đã hoàn tất.
+    \item Một EC2 instance không cung cấp khả năng mở rộng ngang và tính sẵn sàng cao như kiến trúc nhiều instance sau load balancer.
+\end{itemize}
+
+\subsection{Quyết định kiến trúc (ADR)}
+
+\subsubsection{ADR-001: Sử dụng Layered Architecture kết hợp Modular Monolith}
+
+\textbf{Trạng thái:} Đề xuất áp dụng.
+
+\textbf{Bối cảnh:} BrewLite có quy mô vừa phải, số module nghiệp vụ rõ ràng. Nhóm phát triển cần chia việc song song nhưng vẫn muốn quy trình chạy, debug và triển khai đơn giản.
+
+\textbf{Quyết định:} Sử dụng Next.js làm frontend riêng; NestJS làm backend REST API theo Modular Monolith; bên trong backend phân lớp controller, service/domain và data access. PostgreSQL là nguồn dữ liệu chính.
+
+\textbf{Phương án thay thế:} Microservices cho từng domain hoặc triển khai frontend/backend trong cùng một ứng dụng.
+
+\textbf{Lý do lựa chọn:} Modular Monolith ít tốn công vận hành hơn microservices, vẫn giữ được ranh giới module. Việc tách frontend/backend phù hợp với công nghệ bắt buộc và cho phép phát triển độc lập.
+
+\textbf{Hệ quả:} Các module cần tuân thủ quy ước phụ thuộc và không truy cập dữ liệu nội bộ của module khác một cách tùy tiện. Khi quy mô tăng, nhóm có thể cân nhắc tách module có nhu cầu mở rộng riêng.
+
+\subsubsection{ADR-002: Sử dụng Amazon EC2 và Docker Compose}
+
+\textbf{Trạng thái:} Đề xuất áp dụng.
+
+\textbf{Bối cảnh:} Nhóm cần một môi trường AWS có thể truy cập và quản trị trực tiếp qua SSH, đồng thời có thể chạy frontend, backend và PostgreSQL bằng container.
+
+\textbf{Quyết định:} Sử dụng một Amazon EC2 Linux instance làm máy chủ triển khai. Docker Compose quản lý các container Nginx, Next.js, NestJS và PostgreSQL.
+
+\textbf{Phương án thay thế:} ECS Fargate kết hợp RDS hoặc tách từng thành phần thành các dịch vụ hosting độc lập.
+
+\textbf{Lý do lựa chọn:} EC2 cho phép nhóm thực hành tạo Key Pair, kết nối SSH, cài đặt môi trường và triển khai container trực tiếp. Docker Compose giúp định nghĩa các service và network trong một cấu hình thống nhất.
+
+\textbf{Hệ quả:} Nhóm phải tự bảo trì hệ điều hành và cấu hình máy chủ. Phương án này có một điểm lỗi đơn và cần kế hoạch backup dữ liệu.
+
+\subsubsection{ADR-003: Sử dụng SSH Key Pair để quản trị EC2}
+
+\textbf{Trạng thái:} Đề xuất áp dụng.
+
+\textbf{Bối cảnh:} Nhóm cần truy cập terminal của EC2 Linux để cài đặt Docker, lấy image từ ECR, cấu hình môi trường và vận hành ứng dụng.
+
+\textbf{Quyết định:} Tạo hoặc chọn một EC2 Key Pair khi khởi chạy instance. Private key được tải về máy quản trị dưới dạng \texttt{.pem}; public key tương ứng được EC2 cài vào tài khoản người dùng mặc định của AMI. Quản trị viên kết nối bằng SSH client.
+
+Ví dụ với Ubuntu Server:
+
+\begin{lstlisting}[language=bash,caption={Kết nối SSH đến EC2 Ubuntu}]
+ssh -i "brewlite-ec2.pem" ubuntu@<EC2-PUBLIC-IP-OR-DNS>
+\end{lstlisting}
+
+Nếu sử dụng Amazon Linux, tên người dùng mặc định thường là \texttt{ec2-user}. Tên người dùng phải phù hợp với AMI được chọn.
+
+\textbf{Lý do lựa chọn:} SSH Key Pair sử dụng cơ chế xác thực bằng cặp khóa thay vì đăng nhập bằng mật khẩu máy chủ.
+
+\textbf{Quy tắc bảo vệ khóa:}
+\begin{itemize}
+    \item Private key chỉ được tải xuống khi tạo Key Pair và phải lưu trong vị trí an toàn.
+    \item Không tải private key lên GitHub, không gửi qua nhóm chat và không đưa vào Docker image.
+    \item Chỉ người được phân quyền mới được sử dụng private key.
+    \item Security Group chỉ cho phép TCP 22 từ IP quản trị cụ thể, không mở SSH cho toàn Internet.
+    \item Nếu private key bị mất, AWS không cung cấp lại bản private key cũ; nhóm phải thực hiện quy trình khôi phục quyền truy cập hoặc thiết lập khóa mới.
+\end{itemize}
+
+\textbf{Hệ quả:} Việc quản trị máy chủ phụ thuộc vào việc bảo vệ và phân phối private key đúng cách. Key Pair chỉ dùng để đăng nhập SSH vào EC2, không phải AWS Access Key và không tự cấp quyền gọi các AWS API.
+
+\subsubsection{ADR-004: Sử dụng Amazon ECR và IAM Instance Profile}
+
+\textbf{Trạng thái:} Đề xuất áp dụng.
+
+\textbf{Bối cảnh:} Backend và frontend được đóng gói bằng Docker; image cần có nơi lưu trữ để máy chủ EC2 tải về khi triển khai phiên bản mới.
+
+\textbf{Quyết định:} Lưu Docker image trong Amazon ECR. EC2 sử dụng IAM Instance Profile với quyền đọc repository được cấp để xác thực và pull image. Pipeline build và push image bằng một IAM role riêng có quyền phù hợp.
+
+\textbf{Lý do lựa chọn:} ECR quản lý image tập trung, có thể gắn tag theo commit SHA; IAM Role tránh phải lưu AWS Access Key dài hạn trên máy chủ.
+
+\textbf{Hệ quả:} Cần cấu hình repository, IAM policy, vùng AWS (Region) và quy trình đăng nhập ECR trước khi pull image.
+
+\subsubsection{ADR-005: Sử dụng Amazon EBS cho dữ liệu PostgreSQL}
+
+\textbf{Trạng thái:} Đề xuất áp dụng.
+
+\textbf{Bối cảnh:} PostgreSQL chạy trong container nhưng dữ liệu cần tồn tại sau khi container bị thay thế hoặc cập nhật.
+
+\textbf{Quyết định:} Gắn một EBS data volume vào EC2, mount vào thư mục dữ liệu trên máy chủ và bind mount thư mục đó vào PostgreSQL container. Cấu hình \texttt{DeleteOnTermination} phù hợp để tránh xóa nhầm volume khi thay thế instance; thực hiện snapshot/backup định kỳ.
+
+\textbf{Lý do lựa chọn:} EBS là block storage có thể tồn tại độc lập với vòng đời instance tùy theo thiết lập xóa khi terminate, đồng thời hỗ trợ snapshot để sao lưu.
+
+\textbf{Hệ quả:} Nhóm phải giám sát dung lượng, quyền truy cập thư mục, snapshot và quy trình phục hồi volume. EBS cùng một EC2 instance không tương đương tính sẵn sàng của dịch vụ database được quản lý như RDS.
+
+\subsection{Task 3.2 -- Mô tả triển khai trên AWS}
+
+\subsubsection{Tổng quan các thành phần triển khai}
+
+\begin{table}[H]
+\centering
+\small
+\caption{Ánh xạ thành phần BrewLite sang dịch vụ AWS}
+\begin{tabularx}{\textwidth}{|p{3.0cm}|p{3.5cm}|X|}
+\hline
+\textbf{Thành phần} & \textbf{Dịch vụ/công nghệ} & \textbf{Vai trò}\\
+\hline
+Máy chủ triển khai & Amazon EC2 Linux & Chạy Docker Engine, Docker Compose và các container của BrewLite.\\
+\hline
+Truy cập quản trị & EC2 Key Pair và SSH & Quản trị viên kết nối an toàn đến terminal của instance.\\
+\hline
+Container registry & Amazon ECR & Lưu Docker image của frontend/backend và các image cần thiết.\\
+\hline
+Persistent storage & Amazon EBS & Lưu dữ liệu PostgreSQL bên ngoài vòng đời container.\\
+\hline
+Reverse proxy & Nginx container & Tiếp nhận HTTP/HTTPS và chuyển request đến Next.js hoặc NestJS.\\
+\hline
+Database & PostgreSQL container & Lưu dữ liệu người dùng, sản phẩm, đơn hàng, dòng đơn và thanh toán.\\
+\hline
+DNS và địa chỉ máy chủ & Elastic IP và DNS record (nếu có domain) & Giữ địa chỉ truy cập ổn định và trỏ tên miền về EC2.\\
+\hline
+TLS certificate & Let's Encrypt/Certbot & Cấp và gia hạn chứng chỉ HTTPS cho Nginx khi nhóm có tên miền hợp lệ.\\
+\hline
+Secret/config & AWS Secrets Manager hoặc file cấu hình riêng & Quản lý database password, JWT secret và biến môi trường nhạy cảm.\\
+\hline
+Log/monitoring & Amazon CloudWatch Agent/CloudWatch Logs & Thu thập log hệ điều hành và ứng dụng.\\
+\hline
+Backup & EBS Snapshot và/hoặc PostgreSQL backup lên Amazon S3 & Hỗ trợ phục hồi dữ liệu khi gặp sự cố.\\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsubsection{Khởi tạo EC2 và tạo Key Pair}
+
+Các bước cấu hình dự kiến:
+
+\begin{enumerate}
+    \item Mở Amazon EC2 Console và chọn Launch Instance.
+    \item Chọn AMI Linux, ví dụ Ubuntu Server LTS. Tên người dùng SSH mặc định phải tương ứng với AMI đã chọn.
+    \item Chọn instance type phù hợp với tải thử nghiệm và ngân sách của nhóm.
+    \item Tại phần Key Pair, tạo Key Pair mới hoặc chọn Key Pair đã có. Nếu tạo mới, chọn định dạng private key phù hợp với SSH client và tải file private key về máy quản trị.
+    \item Đặt tên file private key rõ ràng, ví dụ \texttt{brewlite-ec2.pem}; lưu ở vị trí an toàn và không đưa file này vào repository.
+    \item Cấu hình VPC, subnet, public IP và Security Group.
+    \item Cấu hình EBS root volume và bổ sung EBS data volume dành riêng cho dữ liệu PostgreSQL. Kiểm tra tùy chọn \texttt{Delete on termination} trước khi khởi chạy.
+    \item Khởi chạy instance và ghi nhận Instance ID, Public IPv4/DNS, Region và Security Group.
+\end{enumerate}
+
+Private key là phần bí mật của Key Pair; AWS lưu public key trên instance và không giữ bản private key để tải lại sau này. Vì vậy, nhóm cần sao lưu private key ở nơi an toàn ngay sau khi tạo.
+
+\subsubsection{Kết nối SSH đến EC2}
+
+Từ máy Windows có OpenSSH Client, quản trị viên mở PowerShell tại thư mục chứa file key và thực hiện:
+
+\begin{lstlisting}[language=bash,caption={SSH từ Windows PowerShell đến Ubuntu EC2}]
+ssh -i ".\brewlite-ec2.pem" ubuntu@<EC2-PUBLIC-IP-OR-DNS>
+\end{lstlisting}
+
+Với Amazon Linux, có thể sử dụng người dùng mặc định \texttt{ec2-user}:
+
+\begin{lstlisting}[language=bash,caption={SSH đến Amazon Linux EC2}]
+ssh -i ".\brewlite-ec2.pem" ec2-user@<EC2-PUBLIC-IP-OR-DNS>
+\end{lstlisting}
+
+Nếu SSH báo lỗi quyền truy cập private key, cần kiểm tra quyền đọc file key trên máy quản trị. Nếu báo \texttt{Permission denied (publickey)}, cần kiểm tra đúng file private key, đúng username theo AMI, đúng địa chỉ máy chủ và inbound rule của Security Group.
+
+\subsubsection{Security Group và các cổng kết nối}
+
+Security Group hoạt động như firewall ở cấp tài nguyên EC2. Các inbound rule tối thiểu dự kiến:
+
+\begin{table}[H]
+\centering
+\small
+\caption{Inbound rules của EC2 Security Group}
+\begin{tabularx}{\textwidth}{|p{2.3cm}|p{1.4cm}|p{3.0cm}|X|}
+\hline
+\textbf{Loại traffic} & \textbf{Cổng} & \textbf{Source} & \textbf{Mục đích}\\
+\hline
+SSH & TCP 22 & Public IP của quản trị viên/32 & Quản trị máy chủ từ xa. Không mở cho toàn Internet.\\
+\hline
+HTTP & TCP 80 & 0.0.0.0/0 và ::/0 nếu bật IPv6 & Truy cập HTTP và phục vụ xác thực/gia hạn chứng chỉ TLS.\\
+\hline
+HTTPS & TCP 443 & 0.0.0.0/0 và ::/0 nếu bật IPv6 & Người dùng truy cập ứng dụng qua HTTPS.\\
+\hline
+\end{tabularx}
+\end{table}
+
+Các cổng ứng dụng nội bộ như Next.js 3000, NestJS 3001 và PostgreSQL 5432 chỉ được sử dụng trong Docker network hoặc localhost khi thật sự cần thiết. Không tạo inbound rule public cho các cổng này.
+
+\subsubsection{Cài đặt môi trường và triển khai bằng Docker Compose}
+
+Sau khi SSH thành công, quản trị viên cài đặt các thành phần cần thiết trên EC2:
+\begin{itemize}
+    \item Docker Engine và Docker Compose plugin.
+    \item AWS CLI để xác thực và tải image từ ECR nếu chọn quy trình pull image bằng IAM Instance Profile.
+    \item Git hoặc cơ chế triển khai image tương đương.
+    \item Nginx và Certbot có thể chạy trong container hoặc cài đặt trực tiếp tùy cấu hình nhóm chọn.
+\end{itemize}
+
+Docker Compose quản lý các service dự kiến:
+
+\begin{table}[H]
+\centering
+\small
+\caption{Các container chạy trên EC2}
+\begin{tabularx}{\textwidth}{|p{2.3cm}|p{2.1cm}|p{2.4cm}|X|}
+\hline
+\textbf{Service} & \textbf{Container port} & \textbf{Vai trò} & \textbf{Kết nối}\\
+\hline
+nginx & 80, 443 & Reverse proxy và TLS termination & Là service duy nhất publish cổng web ra host.\\
+\hline
+web & 3000 & Next.js frontend & Chỉ nhận traffic nội bộ từ Nginx.\\
+\hline
+api & 3001 & NestJS REST API & Chỉ nhận traffic nội bộ từ Nginx; kết nối PostgreSQL.\\
+\hline
+db & 5432 & PostgreSQL & Chỉ nhận kết nối từ backend trong Docker network; dữ liệu bind mount từ EBS.\\
+\hline
+\end{tabularx}
+\end{table}
+
+Các bước triển khai một phiên bản mới:
+\begin{enumerate}
+    \item Pipeline hoặc máy phát hành build Docker image và gắn tag bằng commit SHA.
+    \item Push image lên Amazon ECR.
+    \item Quản trị viên SSH vào EC2 hoặc sử dụng một cơ chế triển khai đã được cấp quyền để kích hoạt cập nhật.
+    \item EC2 xác thực với ECR thông qua IAM Instance Profile và pull image theo tag đã phát hành.
+    \item Cập nhật image tag trong cấu hình Docker Compose và chạy \texttt{docker compose pull} rồi \texttt{docker compose up -d}.
+    \item Kiểm tra trạng thái container, log và endpoint \texttt{/health}.
+    \item Nếu phiên bản mới lỗi, quay lại image tag trước đó và khởi động lại service. Việc rollback ứng dụng không tự động đảo ngược migration database.
+\end{enumerate}
+
+\subsubsection{Persistent storage, backup và phục hồi}
+
+EBS data volume được mount vào EC2 tại thư mục, ví dụ \texttt{/data/brewlite/postgres}. Trong Docker Compose, thư mục dữ liệu PostgreSQL được ánh xạ vào volume này. Nhóm cần:
+\begin{itemize}
+    \item Dùng EBS data volume riêng cho PostgreSQL thay vì chỉ lưu dữ liệu trong container writable layer.
+    \item Kiểm tra cấu hình \texttt{DeleteOnTermination}; nếu cần giữ dữ liệu khi thay thế/terminate EC2, phải đặt chế độ bảo toàn volume và xác nhận lại trong EC2 Console.
+    \item Thực hiện PostgreSQL logical backup định kỳ, ví dụ dùng \texttt{pg_dump}, và lưu bản backup ở vị trí tách biệt như Amazon S3.
+    \item Tạo EBS snapshot theo lịch phù hợp và kiểm tra quy trình khôi phục volume.
+    \item Không coi snapshot là phương án duy nhất; cần thử restore để xác nhận dữ liệu có thể sử dụng.
+\end{itemize}
+
+EBS volume có thể tồn tại độc lập với EC2 instance tùy thuộc vào cấu hình \texttt{DeleteOnTermination}. Volume được giữ lại vẫn tiếp tục phát sinh chi phí lưu trữ.
+
+\subsubsection{HTTPS, DNS và chứng chỉ}
+
+Để cung cấp HTTPS, nhóm cần có tên miền và trỏ bản ghi DNS về Elastic IP của EC2. Nginx tiếp nhận kết nối tại cổng 443 bằng chứng chỉ TLS được cấp cho tên miền. Let's Encrypt/Certbot có thể được sử dụng để cấp và tự động gia hạn chứng chỉ.
+
+Nếu nhóm chưa cấu hình tên miền và chứng chỉ hợp lệ, hệ thống chỉ nên được mô tả là đang kiểm thử qua HTTP hoặc địa chỉ IP. Không ghi rằng HTTPS production đã hoàn tất khi chưa kiểm tra được chứng chỉ trên trình duyệt.
+
+\subsubsection{Logging, health check và vận hành}
+
+\begin{itemize}
+    \item NestJS và Next.js ghi log ứng dụng ra stdout/stderr; Docker logs có thể được kiểm tra trực tiếp trên EC2.
+    \item Cài Amazon CloudWatch Agent nếu cần chuyển log hệ điều hành và file log ứng dụng lên CloudWatch Logs.
+    \item Endpoint GET /health trả trạng thái backend; sau triển khai, quản trị viên hoặc pipeline gọi endpoint này để xác nhận service hoạt động.
+    \item Theo dõi CPU, memory, dung lượng EBS và dung lượng filesystem để phát hiện nguy cơ máy chủ hết tài nguyên.
+    \item Cập nhật bảo mật hệ điều hành và Docker định kỳ; giới hạn quyền SSH và IAM.
+\end{itemize}
+
+\subsubsection{Phân tách Local, CI và Production}
+
+\textbf{Local:}
+\begin{itemize}
+    \item Thành viên chạy Next.js, NestJS và PostgreSQL bằng Docker Compose trên máy cá nhân.
+    \item Sử dụng file \texttt{.env.example} để mô tả tên biến môi trường; không commit giá trị secret thật.
+    \item Chạy migration và seed để tạo dữ liệu phục vụ phát triển, kiểm thử.
+\end{itemize}
+
+\textbf{CI:}
+\begin{itemize}
+    \item Khi mở Pull Request hoặc push code, pipeline cài dependencies, chạy lint, unit test và build.
+    \item Pull Request không được merge nếu quality gate thất bại.
+    \item Với phiên bản phát hành, pipeline build Docker image, gắn tag theo commit SHA và push image lên ECR.
+    \item Pipeline sử dụng IAM role hoặc cơ chế credentials ngắn hạn được cấu hình an toàn. Không lưu private SSH key hoặc AWS access key trực tiếp trong repository.
+\end{itemize}
+
+\textbf{Production:}
+\begin{itemize}
+    \item Một EC2 Linux instance nhận request web từ Internet thông qua Nginx.
+    \item Quản trị viên sử dụng SSH Key Pair để kết nối và quản lý máy chủ.
+    \item Nginx chuyển request đến Next.js hoặc NestJS container qua Docker network.
+    \item NestJS truy cập PostgreSQL container; dữ liệu PostgreSQL được lưu trên EBS data volume.
+    \item Image được lấy từ ECR; log và backup được chuyển đến dịch vụ lưu trữ phù hợp khi đã cấu hình.
+\end{itemize}
+
+\subsubsection{Thông tin triển khai thực tế cần cập nhật}
+
+Sau khi nhóm tạo tài nguyên và triển khai thật, cần cập nhật các thông tin sau:
+\begin{itemize}
+    \item AWS Region và Instance ID.
+    \item AMI/OS và instance type.
+    \item Public IPv4 hoặc Elastic IP, tên miền frontend/API nếu có.
+    \item Tên Key Pair (chỉ ghi tên, tuyệt đối không đưa nội dung private key vào báo cáo).
+    \item Security Group ID và các inbound rule đã cấu hình.
+    \item ECR repository URI và tag image đang chạy.
+    \item EBS volume ID, dung lượng và cấu hình Delete on termination.
+    \item URL truy cập ứng dụng và kết quả health check.
+    \item Ảnh minh chứng SSH kết nối thành công, container đang chạy và ứng dụng truy cập được.
+\end{itemize}
+
+\subsubsection{Tài liệu tham khảo AWS}
+
+\begin{enumerate}
+    \item Amazon EC2 Key Pairs: \url{https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html}
+    \item Kết nối đến EC2 Linux instance: \url{https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/connect.html}
+    \item Tạo Security Group cho EC2: \url{https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/creating-security-group.html}
+    \item Quy tắc Security Group cho SSH: \url{https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-rules-reference.html}
+    \item Amazon EBS persistent storage: \url{https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/storage_ebs.html}
+    \item Bảo toàn EBS volume khi terminate EC2: \url{https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/preserving-volumes-on-termination.html}
+\end{enumerate}
+
+
+
+\section{Task 4 -- Triển khai Sprint 1}
+
+\subsection{Task 4.1 -- Thiết lập repository}
+
+Repository BrewLite được tổ chức theo monorepo với cấu trúc \texttt{apps/web} (Next.js), \texttt{apps/api} (NestJS), \texttt{docs}, \texttt{tests}. Có \texttt{README.md}, \texttt{.gitignore}, \texttt{.env.example}, \texttt{docker-compose.yml}, \texttt{jest.config.js} và GitHub Actions tại \texttt{.github/workflows/ci.yml}. Branch strategy và pull request được quản lý trên GitHub (có pull request template).
+
+\subsection{Task 4.2 -- Quản lý tài liệu}
+
+Toàn bộ tạo phẩm Task 1--3 được lưu trong \texttt{docs/}: \texttt{docs/requirements/} (context-and-scope, srs, use-case theo từng phân hệ), \texttt{docs/diagrams/} (activity, sequence, class, use-case theo phân hệ), \texttt{docs/architecture/} (architecture.md, deployment.puml, adr/001..005), \texttt{docs/deployment.md}, \texttt{docs/traceability-matrix.md}. Thay đổi đi qua commit/pull request.
+
+\subsection{Task 4.3 -- MVP Sprint 1}
+
+Hiện thực phiên bản đầu tiên:
+\begin{itemize}
+    \item API \texttt{GET /products} và \texttt{GET /products/:id} (NestJS, \texttt{ProductsController}, \texttt{ProductsService}) với dữ liệu seed 6 sản phẩm.
+    \item Màn hình chi tiết sản phẩm mobile-first bằng Next.js (\texttt{apps/web/src/app/products/[id]/page.tsx}) với trạng thái loading, empty (out of stock) và error.
+    \item Dữ liệu mẫu \texttt{PRODUCTS\_SEED} trong \texttt{apps/api/src/products/products.seed.ts}.
+    \item Kiểm thử: \texttt{apps/api/src/products/products.service.spec.ts}, \texttt{products.controller.spec.ts}, \texttt{app.service.spec.ts}, integration test \texttt{tests/integration/product-detail.spec.ts}.
+\end{itemize}
+
+\subsection{Task 4.4 -- Continuous Integration}
+
+Pipeline CI tại \texttt{.github/workflows/ci.yml} chạy tự động trên push/PR: Install $\to$ Lint $\to$ Unit Test $\to$ Build (Node.js 20). Pull request không được merge nếu lint/test/build thất bại.
+
+\section{Task 5 -- Triển khai Sprint 2, CI/CD và Delivery}
+
+\subsection{Task 5.1 -- Hoàn thiện MVP}
+
+Các chức năng đã hiện thực một phần (product detail, health check, container hóa). Các chức năng còn lại (giỏ hàng frontend/backend, đăng ký/đăng nhập JWT, tạo đơn, thanh toán mô phỏng, xác nhận/trạng thái/lịch sử đơn, validate frontend/backend) được đặc tả trong SRS theo phân hệ và là mục tiêu mở rộng; backend hiện chỉ có \texttt{ProductsModule} và health endpoint.
+
+\subsection{Task 5.2 -- Tích hợp và kiểm thử}
+
+Hệ thống có unit test cho nghiệp vụ sản phẩm, integration test cho \texttt{GET /products/:id} và \texttt{GET /health} (Jest + Supertest). \texttt{docker-compose.yml} chạy web (3000), api (3001), db (PostgreSQL 16, healthcheck). Health endpoint \texttt{GET /health} trả \texttt{\{status:"ok", service:"brewlite-api"\}}. Migration/seed mô tả trong README; seed thực tế là in-memory \texttt{PRODUCTS\_SEED}.
+
+\subsection{Task 5.3 -- Continuous Delivery/Deployment}
+
+Pipeline CD tại \texttt{.github/workflows/cd.yml}: quality gate (lint, test, build) $\to$ build/push Docker image lên Amazon ECR (tag = commit SHA) $\to$ deploy qua SSH tới EC2 $\to$ smoke test \texttt{GET /health} $\to$ rollback khi thất bại. Secret (AWS credentials, EC2 host/user/SSH key, ECR registry) lưu trong GitHub Secrets.
+
+\subsection{Task 5.4 -- Triển khai và bàn giao}
+
+Kế hoạch triển khai mục tiêu trên AWS EC2 (ECR, EBS, Nginx, CloudWatch) được mô tả trong \texttt{docs/deployment.md} và Task 3.2 của báo cáo. Hiện trạng: chưa provision resource AWS thực tế; không có private key/secret production trong repository. README hướng dẫn chạy local, test, build, deploy và rollback.
+
+\section{Truy vết}
+
+Ma trận truy vết yêu cầu được lưu tại \texttt{docs/traceability-matrix.md}, liên kết mã yêu cầu (FR-01..FR-11, NFR-01..NFR-05) với use-case, thiết kế/sơ đồ, Code/API và Test.
+
+\section{Hiện trạng triển khai (Implementation Status)}
+
+Dựa trên mã nguồn hiện có trong repository, các thành phần đã được triển khai ở mức skeleton MVP gồm:
+
+\begin{itemize}
+    \item Backend (NestJS): \texttt{AppModule} chỉ import \texttt{ProductsModule}; endpoint \texttt{GET /health} trả về \texttt{\{status: "ok", service: "brewlite-api"\}} (\texttt{AppController}, \texttt{AppService}).
+    \item Products API: \texttt{GET /products} trả về danh sách sản phẩm seed (6 món: Espresso, Americano, Cappuccino, Latte, Mocha, Croissant); \texttt{GET /products/:id} trả chi tiết một sản phẩm và \texttt{404} nếu không tồn tại (\texttt{ProductsController}, \texttt{ProductsService}).
+    \item Dữ liệu sản phẩm được lưu in-memory từ \texttt{PRODUCTS\_SEED} (\texttt{apps/api/src/products/products.seed.ts}); chưa kết nối PostgreSQL/Prisma ở mã nguồn hiện tại.
+    \item Frontend (Next.js): trang chủ placeholder và trang chi tiết sản phẩm \texttt{/products/[id]} gọi \texttt{GET /products/:id}, hiển thị tên, danh mục, mô tả, giá, tình trạng tồn kho; xử lý loading, 404 và lỗi mạng.
+    \item Kiểm thử: unit test cho \texttt{ProductsService}, \texttt{ProductsController}, \texttt{AppService}; integration test cho \texttt{GET /products/:id} và \texttt{GET /health} (Jest + Supertest).
+    \item Container hóa: Dockerfile cho web/api và \texttt{docker-compose.yml} chạy web (3000), api (3001), db (PostgreSQL 16) với healthcheck.
+    \item CI: GitHub Actions chạy install, lint, unit-test, build trên push/PR.
+    \item CD: pipeline build/push image lên Amazon ECR và deploy qua SSH tới EC2, có smoke test và rollback (kích hoạt bằng tag \texttt{v*} hoặc workflow\_dispatch).
+\end{itemize}
+
+Các module mô tả trong thiết kế (Auth, Users, Orders, Payments, Promotions, Loyalty) chưa có mã nguồn tương ứng; chúng là mục tiêu của giai đoạn mở rộng. Vì vậy báo cáo này trình bày thiết kế mục tiêu, và phần hiện trạng phản ánh đúng phạm vi đã triển khai.
+
+\section{Kết luận}
+
+Trong Task 3, BrewLite lựa chọn kiến trúc phân lớp kết hợp Modular Monolith để tổ chức mã nguồn, đồng thời đề xuất triển khai trên một Amazon EC2 Linux instance. Các thành phần Next.js, NestJS, PostgreSQL và Nginx được đóng gói bằng Docker và quản lý bằng Docker Compose. Amazon ECR lưu trữ image; Amazon EBS lưu dữ liệu PostgreSQL; SSH Key Pair được sử dụng để quản trị máy chủ.
+
+Phương án này phù hợp với quy mô demo và giúp nhóm thực hành các bước khởi tạo EC2, tạo Key Pair, cấu hình Security Group, kết nối SSH và triển khai Docker. Tuy nhiên, một EC2 instance là điểm lỗi đơn và nhóm phải tự chịu trách nhiệm cập nhật hệ điều hành, backup database và bảo mật máy chủ. Khi hệ thống cần độ sẵn sàng hoặc khả năng mở rộng cao hơn, có thể chuyển database sang RDS và tách backend thành dịch vụ container được quản lý.
+
+Đây là phương án triển khai dự kiến. Báo cáo chỉ nên ghi nhận địa chỉ truy cập, cấu hình và ảnh minh chứng sau khi nhóm thực sự triển khai và kiểm tra trên AWS.
+
+\end{document}

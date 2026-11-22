@@ -6,6 +6,7 @@ export type CartItem = {
   size?: 'S' | 'M' | 'L';
   sugar?: string;
   ice?: string;
+  toppings?: string[];
 };
 
 export function readCart(storage: { getItem: (key: string) => string | null } | null): CartItem[] {

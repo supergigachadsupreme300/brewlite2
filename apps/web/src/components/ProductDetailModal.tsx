@@ -13,14 +13,26 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
   const [size, setSize] = useState<'S' | 'M' | 'L'>('M');
   const [ice, setIce] = useState('100%');
   const [sugar, setSugar] = useState('100%');
+  const [toppings, setToppings] = useState<string[]>([]);
   const [quantity, setQuantity] = useState<number>(1);
   const [added, setAdded] = useState<boolean>(false);
+
+  const TOPPING_OPTIONS = [
+    { key: 'pearl', label: 'Trân châu đen', add: 5000 },
+    { key: 'jelly', label: 'Thạch cà phê', add: 5000 },
+    { key: 'cheese', label: 'Kem cheese', add: 8000 },
+    { key: 'caramel', label: 'Siro caramel', add: 5000 },
+  ];
 
   if (!product) return null;
 
   const isOutOfStock = product.stock <= 0;
   const sizeSurcharge = size === 'L' ? 8000 : size === 'M' ? 4000 : 0;
-  const finalPrice = product.price + sizeSurcharge;
+  const toppingSurcharge = toppings.reduce(
+    (sum, t) => sum + (TOPPING_OPTIONS.find((o) => o.key === t)?.add ?? 0),
+    0,
+  );
+  const finalPrice = product.price + sizeSurcharge + toppingSurcharge;
 
   const handleAddToCart = () => {
     if (isOutOfStock) return;
@@ -34,6 +46,7 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
         size: 'S' | 'M' | 'L';
         sugar: string;
         ice: string;
+        toppings?: string[];
       }> = stored ? JSON.parse(stored) : [];
 
       const existingIndex = cart.findIndex(
@@ -41,7 +54,8 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
           item.productId === product.id &&
           item.size === size &&
           item.sugar === sugar &&
-          item.ice === ice,
+          item.ice === ice &&
+          JSON.stringify(item.toppings ?? []) === JSON.stringify(toppings),
       );
       if (existingIndex >= 0) {
         cart[existingIndex].quantity += quantity;
@@ -54,6 +68,7 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
           size,
           sugar,
           ice,
+          toppings: toppings.length ? [...toppings] : undefined,
         });
       }
       window.localStorage.setItem('brewlite_cart', JSON.stringify(cart));
@@ -119,6 +134,10 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
           <img
             src={product.imageUrl}
             alt={product.name}
+            onError={(e) => {
+              (e.target as HTMLImageElement).src =
+                'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=500&auto=format&fit=crop&q=60';
+            }}
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
         </div>
@@ -227,6 +246,41 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
                 <option value="50%">Ít đá</option>
                 <option value="0%">Không đá</option>
               </select>
+            </div>
+          </div>
+
+          {/* Toppings */}
+          <div>
+            <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-main)', display: 'block', marginBottom: '0.5rem' }}>
+              TOPPING (tùy chọn)
+            </label>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+              {TOPPING_OPTIONS.map((t) => {
+                const selected = toppings.includes(t.key);
+                return (
+                  <button
+                    key={t.key}
+                    type="button"
+                    onClick={() =>
+                      setToppings((prev) =>
+                        selected ? prev.filter((x) => x !== t.key) : [...prev, t.key],
+                      )
+                    }
+                    style={{
+                      padding: '0.35rem 0.7rem',
+                      borderRadius: '999px',
+                      fontSize: '0.75rem',
+                      border: `1.5px solid ${selected ? 'var(--primary)' : 'var(--border)'}`,
+                      backgroundColor: selected ? '#fbf6f0' : '#fff',
+                      color: selected ? 'var(--primary)' : 'var(--text-main)',
+                      fontWeight: selected ? 700 : 500,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {t.label} (+{t.add.toLocaleString('vi-VN')}đ)
+                  </button>
+                );
+              })}
             </div>
           </div>
 

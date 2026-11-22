@@ -140,6 +140,9 @@ export default function CartPage() {
                       Size {item.size || 'M'}
                       {item.sugar ? ` • Đường ${item.sugar}` : ''}
                       {item.ice ? ` • Đá ${item.ice}` : ''}
+                      {item.toppings && item.toppings.length
+                        ? ` • Topping: ${item.toppings.join(', ')}`
+                        : ''}
                     </div>
                     <div style={{ fontSize: '0.85rem', color: '#2e7d32', marginTop: '0.25rem', fontWeight: 600 }}>
                       {item.price.toLocaleString('vi-VN')} đ

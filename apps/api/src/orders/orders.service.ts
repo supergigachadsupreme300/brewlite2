@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -99,6 +100,7 @@ export class OrdersService {
     const now = new Date().toISOString();
     const order: Order = {
       id: orderId,
+      userId: dto.userId,
       customerName: dto.customerName.trim(),
       customerPhone: dto.customerPhone.trim(),
       pickupType: dto.pickupType,
@@ -119,26 +121,31 @@ export class OrdersService {
     return order;
   }
 
-  findAll(): Order[] {
-    return [...this.orders].sort((a, b) => {
+  findAll(userId?: string): Order[] {
+    const filtered = userId
+      ? this.orders.filter((o) => !o.userId || o.userId === userId)
+      : this.orders;
+    return [...filtered].sort((a, b) => {
       const diff =
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       if (diff !== 0) return diff;
-      // Tie-break by insertion order so the most recently added comes first
       return this.orders.indexOf(b) - this.orders.indexOf(a);
     });
   }
 
-  findOne(id: string): Order {
+  findOne(id: string, userId?: string): Order {
     const order = this.orders.find((o) => o.id === id);
     if (!order) {
       throw new NotFoundException(`Đơn hàng với mã "${id}" không tồn tại`);
     }
+    if (userId && order.userId && order.userId !== userId) {
+      throw new ForbiddenException('Bạn không có quyền truy cập đơn hàng này');
+    }
     return order;
   }
 
-  updateStatus(id: string, newStatus: OrderStatus): Order {
-    const order = this.findOne(id);
+  updateStatus(id: string, newStatus: OrderStatus, userId?: string): Order {
+    const order = this.findOne(id, userId);
     this.assertTransition(order.status, newStatus);
 
     // Nếu đơn hàng bị hủy khi đang PENDING hoặc PREPARING -> hoàn lại tồn kho
