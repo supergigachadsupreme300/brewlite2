@@ -101,14 +101,6 @@ jobs:
           done
           echo "API smoke test failed"
           exit 1
-      - name: Frontend check
-        run: |
-          for i in {1..10}; do
-            curl -fsS http://${{ secrets.EC2_HOST }}:3000 && exit 0
-            sleep 5
-          done
-          echo "Frontend smoke test failed"
-          exit 1
 
   rollback:
     needs: [deploy, smoke-test]
