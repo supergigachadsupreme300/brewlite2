@@ -22,6 +22,8 @@ jobs:
   build-and-push-image:
     needs: quality-gate
     runs-on: ubuntu-latest
+    outputs:
+      ecr-password: ${{ steps.ecr-password.outputs.password }}
     steps:
       - uses: actions/checkout@v4
       - name: Configure AWS credentials
@@ -43,22 +45,34 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+      - name: Get ECR login password
+        id: ecr-password
+        run: |
+          echo "password=$(aws ecr get-login-password --region ${{ secrets.AWS_REGION }})" >> $GITHUB_OUTPUT
 
   deploy:
     needs: build-and-push-image
     runs-on: ubuntu-latest
+    env:
+      ECR_PASSWORD: ${{ needs.build-and-push-image.outputs.ecr-password }}
     steps:
       - name: Deploy to EC2 over SSH
         uses: appleboy/ssh-action@v1
+        env:
+          ECR_PASSWORD: ${{ needs.build-and-push-image.outputs.ecr-password }}
+          ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+          IMAGE_TAG: ${{ github.sha }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          envs: ECR_PASSWORD,ECR_REGISTRY,IMAGE_TAG
           script: |
-            docker pull ${{ secrets.ECR_REGISTRY }}/brewlite:${{ github.sha }}
+            echo "$ECR_PASSWORD" | docker login --username AWS --password-stdin "$ECR_REGISTRY"
+            docker pull "$ECR_REGISTRY/brewlite:$IMAGE_TAG"
             docker stop brewlite-api || true
             docker rm brewlite-api || true
-            docker run -d --name brewlite-api -p 3001:3001 --env-file /opt/brewlite/.env ${{ secrets.ECR_REGISTRY }}/brewlite:${{ github.sha }}
+            docker run -d --name brewlite-api -p 3001:3001 --env-file /opt/brewlite/.env "$ECR_REGISTRY/brewlite:$IMAGE_TAG"
 
   smoke-test:
     needs: deploy
@@ -77,14 +91,21 @@ jobs:
     needs: smoke-test
     if: failure()
     runs-on: ubuntu-latest
+    env:
+      ECR_PASSWORD: ${{ needs.build-and-push-image.outputs.ecr-password }}
     steps:
       - name: Roll back to previous image
         uses: appleboy/ssh-action@v1
+        env:
+          ECR_PASSWORD: ${{ needs.build-and-push-image.outputs.ecr-password }}
+          ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          envs: ECR_PASSWORD,ECR_REGISTRY
           script: |
+            echo "$ECR_PASSWORD" | docker login --username AWS --password-stdin "$ECR_REGISTRY"
             docker stop brewlite-api || true
             docker rm brewlite-api || true
-            docker run -d --name brewlite-api -p 3001:3001 --env-file /opt/brewlite/.env ${{ secrets.ECR_REGISTRY }}/brewlite:latest
+            docker run -d --name brewlite-api -p 3001:3001 --env-file /opt/brewlite/.env "$ECR_REGISTRY/brewlite:latest"
