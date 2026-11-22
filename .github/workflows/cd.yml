@@ -26,6 +26,15 @@ jobs:
       ecr-password: ${{ steps.ecr-password.outputs.password }}
     steps:
       - uses: actions/checkout@v4
+      - name: Debug secrets
+        run: |
+          echo "AKI length: ${#AWS_ACCESS_KEY_ID}"
+          echo "SAK length: ${#AWS_SECRET_ACCESS_KEY}"
+          echo "REGION: ${AWS_REGION}"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION || 'ap-southeast-2' }}
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
