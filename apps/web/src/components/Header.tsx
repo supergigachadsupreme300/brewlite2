@@ -1,13 +1,15 @@
 'use client';
 
+import Link from 'next/link';
 import React from 'react';
 
 interface HeaderProps {
   searchKeyword: string;
   onSearchChange: (keyword: string) => void;
+  cartCount?: number;
 }
 
-export function Header({ searchKeyword, onSearchChange }: HeaderProps) {
+export function Header({ searchKeyword, onSearchChange, cartCount = 0 }: HeaderProps) {
   return (
     <header
       style={{
@@ -96,6 +98,41 @@ export function Header({ searchKeyword, onSearchChange }: HeaderProps) {
             )}
           </div>
         </div>
+
+        {/* Cart badge */}
+        <Link
+          href="/cart"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            backgroundColor: '#fff',
+            border: '1px solid var(--border)',
+            borderRadius: '999px',
+            padding: '0.4rem 0.85rem',
+            textDecoration: 'none',
+            color: 'var(--text-main)',
+            fontSize: '0.875rem',
+            fontWeight: 600,
+            boxShadow: 'var(--shadow-sm)',
+          }}
+        >
+          🛒
+          {cartCount > 0 && (
+            <span
+              style={{
+                backgroundColor: 'var(--primary)',
+                color: '#fff',
+                borderRadius: '999px',
+                padding: '0.1rem 0.45rem',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+              }}
+            >
+              {cartCount}
+            </span>
+          )}
+        </Link>
       </div>
     </header>
   );

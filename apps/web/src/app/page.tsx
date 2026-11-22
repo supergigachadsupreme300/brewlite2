@@ -148,7 +148,7 @@ export default function MenuPage() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <Header searchKeyword={searchKeyword} onSearchChange={setSearchKeyword} />
+      <Header searchKeyword={searchKeyword} onSearchChange={setSearchKeyword} cartCount={cartCount} />
 
       {/* Banner */}
       <section
