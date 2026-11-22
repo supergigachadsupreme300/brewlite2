@@ -54,6 +54,7 @@ describe('E2E: Menu -> Order -> Payment -> Confirmation', () => {
     expect(res.body).toHaveProperty('name');
     expect(res.body).toHaveProperty('price');
     expect(res.body).toHaveProperty('stock');
+    expect(res.body).toHaveProperty('isAvailable');
   });
 
   it('order: creates an order from cart items', async () => {
@@ -65,7 +66,7 @@ describe('E2E: Menu -> Order -> Payment -> Confirmation', () => {
         customerPhone: '0901234567',
         pickupType: 'TAKEAWAY',
         paymentMethod: 'MOMO',
-        items: [{ productId: '1', quantity: 1, size: 'M' }],
+        items: [{ productId: '1', quantity: 1, size: 'L', toppings: ['Extra shot'] }],
       })
       .expect(201);
 
@@ -102,6 +103,8 @@ describe('E2E: Menu -> Order -> Payment -> Confirmation', () => {
 
     expect(res.body.id).toBe(orderId);
     expect(res.body.status).toBe('PAID');
+    expect(res.body.items[0].size).toBe('L');
+    expect(res.body.items[0].toppings).toContain('Extra shot');
   });
 
   it('order history: GET /orders includes the new order', async () => {
