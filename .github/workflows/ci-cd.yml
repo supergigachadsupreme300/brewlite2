@@ -64,37 +64,13 @@ jobs:
         run: |
           echo "password=$(aws ecr get-login-password --region ${{ secrets.AWS_REGION || 'ap-southeast-2' }})" >> $GITHUB_OUTPUT
 
-  docker-image-web:
-    needs: build
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION || 'ap-southeast-2' }}
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-      - name: Build and push Web image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          docker build --build-arg NEXT_PUBLIC_API_URL=http://localhost:3001 -t $ECR_REGISTRY/brewlite2-web:$IMAGE_TAG ./apps/web
-          docker push $ECR_REGISTRY/brewlite2-web:$IMAGE_TAG
-          docker tag $ECR_REGISTRY/brewlite2-web:$IMAGE_TAG $ECR_REGISTRY/brewlite2-web:latest
-          docker push $ECR_REGISTRY/brewlite2-web:latest
 
   deploy:
-    needs: [docker-image-api, docker-image-web]
+    needs: docker-image-api
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy full stack to EC2 over SSH
+      - name: Deploy API to EC2 over SSH
         uses: appleboy/ssh-action@v1
         env:
           ECR_PASSWORD: ${{ needs.docker-image-api.outputs.ecr-password }}
@@ -108,11 +84,9 @@ jobs:
           script: |
             echo "$ECR_PASSWORD" | docker login --username AWS --password-stdin "$ECR_REGISTRY"
             docker pull "$ECR_REGISTRY/brewlite2-api:$IMAGE_TAG"
-            docker pull "$ECR_REGISTRY/brewlite2-web:$IMAGE_TAG"
-            docker stop brewlite-api brewlite-web || true
-            docker rm brewlite-api brewlite-web || true
+            docker stop brewlite-api || true
+            docker rm brewlite-api || true
             docker run -d --name brewlite-api -p 3001:3001 --env-file /opt/brewlite/.env "$ECR_REGISTRY/brewlite2-api:$IMAGE_TAG"
-            docker run -d --name brewlite-web -p 3000:3000 -e NEXT_PUBLIC_API_URL=http://localhost:3001 "$ECR_REGISTRY/brewlite2-web:$IMAGE_TAG"
 
   smoke-test:
     needs: deploy
@@ -153,7 +127,6 @@ jobs:
           envs: ECR_PASSWORD,ECR_REGISTRY
           script: |
             echo "$ECR_PASSWORD" | docker login --username AWS --password-stdin "$ECR_REGISTRY"
-            docker stop brewlite-api brewlite-web || true
-            docker rm brewlite-api brewlite-web || true
+            docker stop brewlite-api || true
+            docker rm brewlite-api || true
             docker run -d --name brewlite-api -p 3001:3001 --env-file /opt/brewlite/.env "$ECR_REGISTRY/brewlite2-api:latest"
-            docker run -d --name brewlite-web -p 3000:3000 -e NEXT_PUBLIC_API_URL=http://localhost:3001 "$ECR_REGISTRY/brewlite2-web:latest"
