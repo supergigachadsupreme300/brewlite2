@@ -37,7 +37,9 @@ describe('Payments API (mock)', () => {
     return { Authorization: `Bearer ${token}` };
   }
 
-  async function createOrder() {
+  async function createOrder(
+    paymentMethod: OrderPaymentMethod = OrderPaymentMethod.MOMO,
+  ) {
     const response = await request(app.getHttpServer())
       .post('/orders')
       .set(auth())
@@ -45,19 +47,23 @@ describe('Payments API (mock)', () => {
         customerName: 'Payment Integration User',
         customerPhone: '0901234567',
         pickupType: PickupType.TAKEAWAY,
-        paymentMethod: OrderPaymentMethod.CARD,
+        paymentMethod,
         items: [{ productId: '1', quantity: 1 }],
       })
       .expect(201);
 
-    return response.body as { id: string; total: number };
+    return response.body as {
+      id: string;
+      total: number;
+      paymentMethod: OrderPaymentMethod;
+    };
   }
 
-  it('pays a real order using its server-side total and reuses an identical request', async () => {
+  it('uses the method selected on the order and reuses an identical payment request', async () => {
     const order = await createOrder();
     const payment = {
       orderId: order.id,
-      method: PaymentMethod.WALLET,
+      method: order.paymentMethod,
       idempotencyKey: 'integration-key-0001',
       mockOutcome: PaymentStatus.SUCCESS,
     };
@@ -74,6 +80,7 @@ describe('Payments API (mock)', () => {
       .expect(201);
 
     expect(first.body.status).toBe(PaymentStatus.SUCCESS);
+    expect(first.body.method).toBe(order.paymentMethod);
     expect(first.body.amount).toBe(order.total);
     expect(retry.body.paymentId).toBe(first.body.paymentId);
 
@@ -84,6 +91,26 @@ describe('Payments API (mock)', () => {
     expect(updatedOrder.body.status).toBe(OrderStatus.PAID);
   });
 
+  it.each([
+    OrderPaymentMethod.MOMO,
+    OrderPaymentMethod.BANK_TRANSFER,
+    OrderPaymentMethod.CARD,
+  ])('accepts the order-selected method %s', async (method) => {
+    const order = await createOrder(method);
+    const payment = await request(app.getHttpServer())
+      .post('/payments')
+      .set(auth())
+      .send({
+        orderId: order.id,
+        method: order.paymentMethod,
+        idempotencyKey: `integration-method-${method}`,
+        mockOutcome: PaymentStatus.SUCCESS,
+      })
+      .expect(201);
+
+    expect(payment.body.method).toBe(method);
+  });
+
   it('records a failed payment on the order and permits a successful retry', async () => {
     const order = await createOrder();
     const failed = await request(app.getHttpServer())
@@ -91,7 +118,7 @@ describe('Payments API (mock)', () => {
       .set(auth())
       .send({
         orderId: order.id,
-        method: PaymentMethod.CARD,
+        method: order.paymentMethod,
         idempotencyKey: 'integration-key-0002',
         mockOutcome: PaymentStatus.FAILED,
       })
@@ -110,7 +137,7 @@ describe('Payments API (mock)', () => {
       .set(auth())
       .send({
         orderId: order.id,
-        method: PaymentMethod.CARD,
+        method: order.paymentMethod,
         idempotencyKey: 'integration-key-0003',
         mockOutcome: PaymentStatus.SUCCESS,
       })
@@ -142,6 +169,17 @@ describe('Payments API (mock)', () => {
       .send({
         orderId: order.id,
         method: PaymentMethod.CARD,
+        idempotencyKey: 'integration-key-method-mismatch',
+        mockOutcome: PaymentStatus.SUCCESS,
+      })
+      .expect(409);
+
+    await request(app.getHttpServer())
+      .post('/payments')
+      .set(auth())
+      .send({
+        orderId: order.id,
+        method: PaymentMethod.CARD,
         idempotencyKey: 'integration-key-0004',
         mockOutcome: PaymentStatus.SUCCESS,
         amount: 1,
@@ -157,7 +195,7 @@ describe('Payments API (mock)', () => {
       .set(auth())
       .send({
         orderId: order.id,
-        method: PaymentMethod.WALLET,
+        method: order.paymentMethod,
         mockOutcome: PaymentStatus.SUCCESS,
         idempotencyKey: 'integration-key-0005',
       })
@@ -168,7 +206,7 @@ describe('Payments API (mock)', () => {
       .set(auth())
       .send({
         orderId: order.id,
-        method: PaymentMethod.WALLET,
+        method: order.paymentMethod,
         mockOutcome: PaymentStatus.SUCCESS,
         idempotencyKey: 'integration-key-0006',
       })
@@ -181,7 +219,7 @@ describe('Payments API (mock)', () => {
       .set(auth())
       .send({
         orderId: 'missing-order',
-        method: PaymentMethod.CARD,
+        method: PaymentMethod.MOMO,
         idempotencyKey: 'integration-key-0007',
         mockOutcome: PaymentStatus.SUCCESS,
       })

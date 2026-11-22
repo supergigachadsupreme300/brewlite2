@@ -1,7 +1,6 @@
-export enum PaymentMethod {
-  WALLET = 'WALLET',
-  CARD = 'CARD',
-}
+import { PaymentMethod } from '../orders/order.entity';
+
+export { PaymentMethod } from '../orders/order.entity';
 
 export enum PaymentStatus {
   SUCCESS = 'SUCCESS',

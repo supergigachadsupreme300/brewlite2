@@ -8,6 +8,7 @@ import styles from './payment.module.css';
 type PaymentOrder = {
   id: string;
   total: number;
+  paymentMethod: 'MOMO' | 'BANK_TRANSFER' | 'CARD';
   status:
     | 'PENDING'
     | 'PAYMENT_FAILED'
@@ -23,7 +24,7 @@ type PaymentOrder = {
   }>;
 };
 
-type PaymentMethod = 'WALLET' | 'CARD';
+type PaymentMethod = PaymentOrder['paymentMethod'];
 type PaymentStatus = 'SUCCESS' | 'FAILED';
 
 type PaymentResult = {
@@ -39,6 +40,13 @@ type PaymentResult = {
 const API_BASE_URL = (
   process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 ).replace(/\/$/, '');
+
+function getAccessToken(): string | null {
+  return (
+    window.localStorage.getItem('token') ||
+    window.localStorage.getItem('brewlite_jwt')
+  );
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -63,6 +71,9 @@ function isPaymentOrder(value: unknown): value is PaymentOrder {
   return (
     typeof value.id === 'string' &&
     typeof value.total === 'number' &&
+    (value.paymentMethod === 'MOMO' ||
+      value.paymentMethod === 'BANK_TRANSFER' ||
+      value.paymentMethod === 'CARD') &&
     (value.status === 'PENDING' ||
       value.status === 'PAYMENT_FAILED' ||
       value.status === 'PAID' ||
@@ -83,7 +94,9 @@ function isPaymentResult(value: unknown): value is PaymentResult {
   return (
     typeof value.paymentId === 'string' &&
     typeof value.orderId === 'string' &&
-    (value.method === 'WALLET' || value.method === 'CARD') &&
+    (value.method === 'MOMO' ||
+      value.method === 'BANK_TRANSFER' ||
+      value.method === 'CARD') &&
     typeof value.amount === 'number' &&
     (value.status === 'SUCCESS' || value.status === 'FAILED') &&
     typeof value.idempotencyKey === 'string' &&
@@ -101,17 +114,12 @@ function formatAmount(amount: number): string {
 export default function PaymentsPage() {
   const router = useRouter();
   useEffect(() => {
-    const token =
-      typeof window !== 'undefined'
-        ? localStorage.getItem('token') || localStorage.getItem('brewlite_jwt')
-        : null;
-    if (!token) {
+    if (!getAccessToken()) {
       router.replace('/login');
     }
   }, [router]);
 
   const [order, setOrder] = useState<PaymentOrder | null>(null);
-  const [method, setMethod] = useState<PaymentMethod>('WALLET');
   const [mockOutcome, setMockOutcome] = useState<PaymentStatus>('SUCCESS');
   const [isLoadingOrder, setIsLoadingOrder] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -131,10 +139,20 @@ export default function PaymentsPage() {
         return;
       }
 
+      const token = getAccessToken();
+      if (!token) {
+        router.replace('/login');
+        setIsLoadingOrder(false);
+        return;
+      }
+
       try {
         const response = await fetch(
           `${API_BASE_URL}/orders/${encodeURIComponent(orderId)}`,
-          { signal: controller.signal },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            signal: controller.signal,
+          },
         );
         if (!response.ok) {
           throw new Error(
@@ -167,7 +185,7 @@ export default function PaymentsPage() {
 
     void loadOrder();
     return () => controller.abort();
-  }, []);
+  }, [router]);
 
   function resetAttempt() {
     setResult(null);
@@ -180,6 +198,12 @@ export default function PaymentsPage() {
       return;
     }
 
+    const token = getAccessToken();
+    if (!token) {
+      router.replace('/login');
+      return;
+    }
+
     setIsSubmitting(true);
     setPaymentError(null);
     idempotencyKey.current ??= crypto.randomUUID();
@@ -187,10 +211,13 @@ export default function PaymentsPage() {
     try {
       const response = await fetch(`${API_BASE_URL}/payments`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
           orderId: order.id,
-          method,
+          method: order.paymentMethod,
           idempotencyKey: idempotencyKey.current,
           mockOutcome,
         }),
@@ -244,7 +271,7 @@ export default function PaymentsPage() {
             Thanh toán đơn hàng
           </h1>
           <p className={styles.description}>
-            Chọn phương thức và kết quả để thử thanh toán mô phỏng cho đơn hàng.
+            Xác nhận thanh toán bằng phương thức đã chọn khi đặt hàng.
           </p>
 
           <section className={styles.section} aria-labelledby="order-heading">
@@ -266,6 +293,14 @@ export default function PaymentsPage() {
                     .join(', ')}
                 </div>
                 <strong>{formatAmount(order.total)}</strong>
+                <span>
+                  Phương thức đã chọn:{' '}
+                  {order.paymentMethod === 'MOMO'
+                    ? 'Ví điện tử MoMo'
+                    : order.paymentMethod === 'BANK_TRANSFER'
+                      ? 'Chuyển khoản VietQR'
+                      : 'Thẻ quốc tế (Visa / Mastercard)'}
+                </span>
                 {!canPay && (
                   <p className={styles.muted}>
                     Đơn hàng không còn ở trạng thái chờ thanh toán.
@@ -273,34 +308,6 @@ export default function PaymentsPage() {
                 )}
               </div>
             )}
-          </section>
-
-          <section className={styles.section} aria-labelledby="method-heading">
-            <h2 className={styles.sectionTitle} id="method-heading">
-              Phương thức thanh toán
-            </h2>
-            <div className={styles.choices} role="group" aria-label="Phương thức">
-              {([
-                ['WALLET', 'Ví điện tử'],
-                ['CARD', 'Thẻ'],
-              ] as const).map(([value, label]) => (
-                <button
-                  className={`${styles.choice} ${
-                    method === value ? styles.choiceSelected : ''
-                  }`}
-                  key={value}
-                  type="button"
-                  disabled={isSubmitting}
-                  aria-pressed={method === value}
-                  onClick={() => {
-                    setMethod(value);
-                    resetAttempt();
-                  }}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
           </section>
 
           <section className={styles.section} aria-labelledby="outcome-heading">
