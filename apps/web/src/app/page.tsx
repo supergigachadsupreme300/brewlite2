@@ -95,7 +95,8 @@ const INITIAL_PRODUCTS: Product[] = [
 ];
 
 export default function MenuPage() {
-  const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('ALL');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -129,8 +130,9 @@ export default function MenuPage() {
         }
       })
       .catch(() => {
-        // Fallback danh sách ban đầu nếu API chưa chạy
-      });
+        // API chưa chạy: giữ danh sách rỗng
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const filteredProducts = useMemo(() => {
@@ -212,7 +214,11 @@ export default function MenuPage() {
           </p>
         </div>
 
-        {filteredProducts.length > 0 ? (
+        {loading ? (
+          <p role="status" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+            Đang tải thực đơn...
+          </p>
+        ) : filteredProducts.length > 0 ? (
           <div
             style={{
               display: 'grid',
