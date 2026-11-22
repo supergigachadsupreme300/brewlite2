@@ -24,4 +24,8 @@ describe('ProductsController', () => {
     const result = controller.findOne('2');
     expect(result.id).toBe('2');
   });
+
+  it('throws when findOne is called with empty id', () => {
+    expect(() => controller.findOne('')).toThrow();
+  });
 });

@@ -120,7 +120,13 @@ export class OrdersService {
   }
 
   findAll(): Order[] {
-    return this.orders;
+    return [...this.orders].sort((a, b) => {
+      const diff =
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      if (diff !== 0) return diff;
+      // Tie-break by insertion order so the most recently added comes first
+      return this.orders.indexOf(b) - this.orders.indexOf(a);
+    });
   }
 
   findOne(id: string): Order {

@@ -168,6 +168,31 @@ describe('OrdersService (Unit Tests)', () => {
     });
   });
 
+  describe('findAll sorting (Order History)', () => {
+    it('returns orders sorted by createdAt descending', () => {
+      const first = ordersService.createOrder({
+        customerName: 'First',
+        customerPhone: '0900000001',
+        pickupType: PickupType.TAKEAWAY,
+        paymentMethod: PaymentMethod.MOMO,
+        items: [{ productId: '1', quantity: 1 }],
+      });
+      // ensure distinct timestamps
+      const second = ordersService.createOrder({
+        customerName: 'Second',
+        customerPhone: '0900000002',
+        pickupType: PickupType.TAKEAWAY,
+        paymentMethod: PaymentMethod.CARD,
+        items: [{ productId: '2', quantity: 1 }],
+      });
+
+      const all = ordersService.findAll();
+      expect(all.length).toBe(2);
+      expect(all[0].id).toBe(second.id);
+      expect(all[1].id).toBe(first.id);
+    });
+  });
+
   describe('updateStatus & Order State Machine (FR-10)', () => {
     it('executes the full happy-path: PENDING -> PAID -> PREPARING -> READY -> COMPLETED', () => {
       const order = ordersService.createOrder({

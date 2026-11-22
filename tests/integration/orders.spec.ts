@@ -63,6 +63,12 @@ describe('Orders API (integration)', () => {
     expect(response.body.message).toMatch(/không đủ số lượng/);
   });
 
+  it('GET /orders returns a list of orders', async () => {
+    const response = await request(app.getHttpServer()).get('/orders');
+    expect(response.status).toBe(200);
+    expect(Array.isArray(response.body)).toBe(true);
+  });
+
   it('GET /orders/:id returns existing order and PATCH /orders/:id/status updates status', async () => {
     // 1. Create order
     const createRes = await request(app.getHttpServer())
