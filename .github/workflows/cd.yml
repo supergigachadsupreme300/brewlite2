@@ -88,8 +88,8 @@ jobs:
           exit 1
 
   rollback:
-    needs: smoke-test
-    if: failure()
+    needs: [deploy, smoke-test]
+    if: failure() && needs.deploy.result == 'failure'
     runs-on: ubuntu-latest
     env:
       ECR_PASSWORD: ${{ needs.build-and-push-image.outputs.ecr-password }}
