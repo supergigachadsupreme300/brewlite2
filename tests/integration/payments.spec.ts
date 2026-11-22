@@ -11,6 +11,7 @@ import { PaymentMethod, PaymentStatus } from '../../apps/api/src/payments/paymen
 
 describe('Payments API (mock)', () => {
   let app: INestApplication;
+  let token: string;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -19,15 +20,25 @@ describe('Payments API (mock)', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
+
+    const reg = await request(app.getHttpServer())
+      .post('/auth/register')
+      .send({ name: 'Pay Tester', email: 'pay-tester@example.com', password: 'secret123' });
+    token = reg.body.accessToken;
   });
 
   afterAll(async () => {
     await app.close();
   });
 
+  function auth() {
+    return { Authorization: `Bearer ${token}` };
+  }
+
   async function createOrder() {
     const response = await request(app.getHttpServer())
       .post('/orders')
+      .set(auth())
       .send({
         customerName: 'Payment Integration User',
         customerPhone: '0901234567',
@@ -51,10 +62,12 @@ describe('Payments API (mock)', () => {
 
     const first = await request(app.getHttpServer())
       .post('/payments')
+      .set(auth())
       .send(payment)
       .expect(201);
     const retry = await request(app.getHttpServer())
       .post('/payments')
+      .set(auth())
       .send(payment)
       .expect(201);
 
@@ -64,6 +77,7 @@ describe('Payments API (mock)', () => {
 
     const updatedOrder = await request(app.getHttpServer())
       .get(`/orders/${order.id}`)
+      .set(auth())
       .expect(200);
     expect(updatedOrder.body.status).toBe(OrderStatus.PAID);
   });
@@ -72,6 +86,7 @@ describe('Payments API (mock)', () => {
     const order = await createOrder();
     const failed = await request(app.getHttpServer())
       .post('/payments')
+      .set(auth())
       .send({
         orderId: order.id,
         method: PaymentMethod.CARD,
@@ -84,11 +99,13 @@ describe('Payments API (mock)', () => {
 
     const failedOrder = await request(app.getHttpServer())
       .get(`/orders/${order.id}`)
+      .set(auth())
       .expect(200);
     expect(failedOrder.body.status).toBe(OrderStatus.PAYMENT_FAILED);
 
     await request(app.getHttpServer())
       .post('/payments')
+      .set(auth())
       .send({
         orderId: order.id,
         method: PaymentMethod.CARD,
@@ -99,6 +116,7 @@ describe('Payments API (mock)', () => {
 
     const paidOrder = await request(app.getHttpServer())
       .get(`/orders/${order.id}`)
+      .set(auth())
       .expect(200);
     expect(paidOrder.body.status).toBe(OrderStatus.PAID);
   });
@@ -107,6 +125,7 @@ describe('Payments API (mock)', () => {
     const order = await createOrder();
     await request(app.getHttpServer())
       .post('/payments')
+      .set(auth())
       .send({
         orderId: order.id,
         method: 'CASH',
@@ -117,6 +136,7 @@ describe('Payments API (mock)', () => {
 
     await request(app.getHttpServer())
       .post('/payments')
+      .set(auth())
       .send({
         orderId: order.id,
         method: PaymentMethod.CARD,
@@ -132,6 +152,7 @@ describe('Payments API (mock)', () => {
 
     await request(app.getHttpServer())
       .post('/payments')
+      .set(auth())
       .send({
         orderId: order.id,
         method: PaymentMethod.WALLET,
@@ -142,6 +163,7 @@ describe('Payments API (mock)', () => {
 
     await request(app.getHttpServer())
       .post('/payments')
+      .set(auth())
       .send({
         orderId: order.id,
         method: PaymentMethod.WALLET,
@@ -154,6 +176,7 @@ describe('Payments API (mock)', () => {
   it('rejects a payment for an order that does not exist', async () => {
     await request(app.getHttpServer())
       .post('/payments')
+      .set(auth())
       .send({
         orderId: 'missing-order',
         method: PaymentMethod.CARD,

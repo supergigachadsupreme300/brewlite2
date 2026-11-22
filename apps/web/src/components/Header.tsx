@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface HeaderProps {
   searchKeyword: string;
@@ -10,6 +10,19 @@ interface HeaderProps {
 }
 
 export function Header({ searchKeyword, onSearchChange, cartCount = 0 }: HeaderProps) {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const token = window.localStorage.getItem('token') || window.localStorage.getItem('brewlite_jwt');
+    setIsLoggedIn(!!token);
+  }, []);
+
+  const handleLogout = () => {
+    window.localStorage.removeItem('token');
+    window.localStorage.removeItem('brewlite_jwt');
+    setIsLoggedIn(false);
+    window.location.href = '/';
+  };
   return (
     <header
       style={{
@@ -97,6 +110,54 @@ export function Header({ searchKeyword, onSearchChange, cartCount = 0 }: HeaderP
               </button>
             )}
           </div>
+        </div>
+
+        {/* Nav links */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <Link
+            href="/orders"
+            style={{
+              fontSize: '0.85rem',
+              color: 'var(--text-main)',
+              textDecoration: 'none',
+              fontWeight: 600,
+            }}
+          >
+            Lịch sử đơn
+          </Link>
+          {isLoggedIn ? (
+            <button
+              type="button"
+              onClick={handleLogout}
+              style={{
+                fontSize: '0.85rem',
+                color: '#b00020',
+                background: 'transparent',
+                border: '1px solid #ccc',
+                borderRadius: '999px',
+                padding: '0.35rem 0.75rem',
+                cursor: 'pointer',
+                fontWeight: 600,
+              }}
+            >
+              Đăng xuất
+            </button>
+          ) : (
+            <Link
+              href="/login"
+              style={{
+                fontSize: '0.85rem',
+                color: '#fff',
+                backgroundColor: 'var(--primary)',
+                textDecoration: 'none',
+                fontWeight: 600,
+                borderRadius: '999px',
+                padding: '0.35rem 0.75rem',
+              }}
+            >
+              Đăng nhập
+            </Link>
+          )}
         </div>
 
         {/* Cart badge */}

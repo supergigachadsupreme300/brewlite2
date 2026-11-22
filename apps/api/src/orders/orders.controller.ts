@@ -13,10 +13,10 @@ import {
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
-import { OptionalAuthGuard } from '../auth/optional-auth.guard';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('orders')
-@UseGuards(OptionalAuthGuard)
+@UseGuards(AuthGuard)
 @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}

@@ -10,6 +10,7 @@ import {
 
 describe('Orders API (integration)', () => {
   let app: INestApplication;
+  let token: string;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -19,11 +20,20 @@ describe('Orders API (integration)', () => {
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
     await app.init();
+
+    const reg = await request(app.getHttpServer())
+      .post('/auth/register')
+      .send({ name: 'Order Tester', email: 'order-tester@example.com', password: 'secret123' });
+    token = reg.body.accessToken;
   });
 
   afterAll(async () => {
     await app.close();
   });
+
+  function auth() {
+    return { Authorization: `Bearer ${token}` };
+  }
 
   it('POST /orders creates a new order successfully (HTTP 201)', async () => {
     const payload = {
@@ -36,6 +46,7 @@ describe('Orders API (integration)', () => {
 
     const response = await request(app.getHttpServer())
       .post('/orders')
+      .set(auth())
       .send(payload);
 
     expect(response.status).toBe(201);
@@ -57,6 +68,7 @@ describe('Orders API (integration)', () => {
 
     const response = await request(app.getHttpServer())
       .post('/orders')
+      .set(auth())
       .send(payload);
 
     expect(response.status).toBe(400);
@@ -64,7 +76,7 @@ describe('Orders API (integration)', () => {
   });
 
   it('GET /orders returns a list of orders', async () => {
-    const response = await request(app.getHttpServer()).get('/orders');
+    const response = await request(app.getHttpServer()).get('/orders').set(auth());
     expect(response.status).toBe(200);
     expect(Array.isArray(response.body)).toBe(true);
   });
@@ -73,6 +85,7 @@ describe('Orders API (integration)', () => {
     // 1. Create order
     const createRes = await request(app.getHttpServer())
       .post('/orders')
+      .set(auth())
       .send({
         customerName: 'Lifecycle Test',
         customerPhone: '0988776655',
@@ -85,7 +98,9 @@ describe('Orders API (integration)', () => {
     const orderId = createRes.body.id;
 
     // 2. Fetch order
-    const getRes = await request(app.getHttpServer()).get(`/orders/${orderId}`);
+    const getRes = await request(app.getHttpServer())
+      .get(`/orders/${orderId}`)
+      .set(auth());
     expect(getRes.status).toBe(200);
     expect(getRes.body.id).toBe(orderId);
     expect(getRes.body.tableNumber).toBe('Table 3');
@@ -93,6 +108,7 @@ describe('Orders API (integration)', () => {
     // 3. Update status PENDING -> PAID
     const patchRes = await request(app.getHttpServer())
       .patch(`/orders/${orderId}/status`)
+      .set(auth())
       .send({ status: OrderStatus.PAID });
 
     expect(patchRes.status).toBe(200);

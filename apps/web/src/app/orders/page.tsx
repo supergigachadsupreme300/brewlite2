@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 type OrderStatus =
@@ -101,6 +102,18 @@ function formatDate(value: string): string {
 }
 
 export default function OrderHistoryPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const token =
+      typeof window !== 'undefined'
+        ? localStorage.getItem('token') || localStorage.getItem('brewlite_jwt')
+        : null;
+    if (!token) {
+      router.replace('/login');
+    }
+  }, [router]);
+
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);

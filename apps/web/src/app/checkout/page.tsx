@@ -22,6 +22,16 @@ const SAMPLE_ITEMS: CartItem[] = [
 export default function CheckoutPage() {
   const router = useRouter();
 
+  useEffect(() => {
+    const token =
+      typeof window !== 'undefined'
+        ? localStorage.getItem('token') || localStorage.getItem('brewlite_jwt')
+        : null;
+    if (!token) {
+      router.replace('/login');
+    }
+  }, [router]);
+
   const [cart, setCart] = useState<CartItem[]>([]);
   const [customerName, setCustomerName] = useState<string>('');
   const [customerPhone, setCustomerPhone] = useState<string>('');

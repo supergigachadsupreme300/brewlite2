@@ -10,10 +10,10 @@ import {
 import { CreatePaymentDto } from './create-payment.dto';
 import { PaymentResult } from './payment.types';
 import { PaymentsService } from './payments.service';
-import { OptionalAuthGuard } from '../auth/optional-auth.guard';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('payments')
-@UseGuards(OptionalAuthGuard)
+@UseGuards(AuthGuard)
 @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}

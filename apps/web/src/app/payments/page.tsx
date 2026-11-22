@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import styles from './payment.module.css';
 
@@ -98,6 +99,17 @@ function formatAmount(amount: number): string {
 }
 
 export default function PaymentsPage() {
+  const router = useRouter();
+  useEffect(() => {
+    const token =
+      typeof window !== 'undefined'
+        ? localStorage.getItem('token') || localStorage.getItem('brewlite_jwt')
+        : null;
+    if (!token) {
+      router.replace('/login');
+    }
+  }, [router]);
+
   const [order, setOrder] = useState<PaymentOrder | null>(null);
   const [method, setMethod] = useState<PaymentMethod>('WALLET');
   const [mockOutcome, setMockOutcome] = useState<PaymentStatus>('SUCCESS');
