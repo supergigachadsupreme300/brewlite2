@@ -56,6 +56,11 @@ describe('ProductsService', () => {
     it('should throw NotFoundException when product is not found', () => {
       expect(() => service.findOne('invalid-id-999')).toThrow(NotFoundException);
     });
+
+    it('should throw BadRequestException when id is empty', () => {
+      expect(() => service.findOne('')).toThrow(BadRequestException);
+      expect(() => service.findOne('   ')).toThrow(BadRequestException);
+    });
   });
 
   describe('create', () => {

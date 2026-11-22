@@ -13,12 +13,56 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
   const [size, setSize] = useState<'S' | 'M' | 'L'>('M');
   const [ice, setIce] = useState('100%');
   const [sugar, setSugar] = useState('100%');
+  const [quantity, setQuantity] = useState<number>(1);
+  const [added, setAdded] = useState<boolean>(false);
 
   if (!product) return null;
 
   const isOutOfStock = product.stock <= 0;
   const sizeSurcharge = size === 'L' ? 8000 : size === 'M' ? 4000 : 0;
   const finalPrice = product.price + sizeSurcharge;
+
+  const handleAddToCart = () => {
+    if (isOutOfStock) return;
+    try {
+      const stored = window.localStorage.getItem('brewlite_cart');
+      const cart: Array<{
+        productId: string;
+        name: string;
+        price: number;
+        quantity: number;
+        size: 'S' | 'M' | 'L';
+        sugar: string;
+        ice: string;
+      }> = stored ? JSON.parse(stored) : [];
+
+      const existingIndex = cart.findIndex(
+        (item) =>
+          item.productId === product.id &&
+          item.size === size &&
+          item.sugar === sugar &&
+          item.ice === ice,
+      );
+      if (existingIndex >= 0) {
+        cart[existingIndex].quantity += quantity;
+      } else {
+        cart.push({
+          productId: product.id,
+          name: product.name,
+          price: finalPrice,
+          quantity,
+          size,
+          sugar,
+          ice,
+        });
+      }
+      window.localStorage.setItem('brewlite_cart', JSON.stringify(cart));
+      setAdded(true);
+      setTimeout(() => setAdded(false), 2000);
+    } catch {
+      // ignore
+    }
+  };
 
   return (
     <div
@@ -186,7 +230,49 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
             </div>
           </div>
 
-          {/* Price Summary and Close */}
+          {/* Quantity */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <span style={{ fontSize: '0.8125rem', fontWeight: 700 }}>SỐ LƯỢNG</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <button
+                type="button"
+                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                disabled={quantity <= 1}
+                style={{
+                  width: '30px',
+                  height: '30px',
+                  borderRadius: '50%',
+                  border: '1px solid var(--border)',
+                  background: '#fff',
+                  cursor: quantity <= 1 ? 'not-allowed' : 'pointer',
+                  fontWeight: 700,
+                }}
+              >
+                -
+              </button>
+              <span style={{ minWidth: '2rem', textAlign: 'center', fontWeight: 700 }}>
+                {quantity}
+              </span>
+              <button
+                type="button"
+                onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
+                disabled={quantity >= product.stock || isOutOfStock}
+                style={{
+                  width: '30px',
+                  height: '30px',
+                  borderRadius: '50%',
+                  border: '1px solid var(--border)',
+                  background: '#fff',
+                  cursor: quantity >= product.stock || isOutOfStock ? 'not-allowed' : 'pointer',
+                  fontWeight: 700,
+                }}
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          {/* Price Summary and actions */}
           <div
             style={{
               display: 'flex',
@@ -194,6 +280,8 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
               justifyContent: 'space-between',
               paddingTop: '1rem',
               borderTop: '1px solid var(--border)',
+              gap: '0.75rem',
+              flexWrap: 'wrap',
             }}
           >
             <div>
@@ -203,20 +291,41 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
               </strong>
             </div>
 
-            <button
-              type="button"
-              onClick={onClose}
-              style={{
-                backgroundColor: 'var(--primary)',
-                color: '#fff',
-                padding: '0.625rem 1.5rem',
-                borderRadius: 'var(--radius-sm)',
-                fontWeight: 600,
-                fontSize: '0.875rem',
-              }}
-            >
-              Đóng
-            </button>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                disabled={isOutOfStock}
+                style={{
+                  backgroundColor: isOutOfStock ? '#cccccc' : 'var(--primary)',
+                  color: '#fff',
+                  padding: '0.625rem 1.25rem',
+                  borderRadius: 'var(--radius-sm)',
+                  fontWeight: 600,
+                  fontSize: '0.875rem',
+                  border: 'none',
+                  cursor: isOutOfStock ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {added ? 'Đã thêm ✓' : 'Thêm vào giỏ'}
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                style={{
+                  backgroundColor: '#f0f0f0',
+                  color: '#333',
+                  padding: '0.625rem 1rem',
+                  borderRadius: 'var(--radius-sm)',
+                  fontWeight: 600,
+                  fontSize: '0.875rem',
+                  border: '1px solid var(--border)',
+                  cursor: 'pointer',
+                }}
+              >
+                Đóng
+              </button>
+            </div>
           </div>
         </div>
       </div>

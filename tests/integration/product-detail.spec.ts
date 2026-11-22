@@ -33,6 +33,25 @@ describe('Product Detail API (integration)', () => {
     expect(response.status).toBe(404);
   });
 
+  it('GET /products/:id returns 400 for empty id', async () => {
+    const response = await request(app.getHttpServer()).get('/products/%20');
+    expect(response.status).toBe(400);
+  });
+
+  it('GET /products/:id returns product with stock status fields', async () => {
+    const response = await request(app.getHttpServer()).get('/products/prod-001');
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('id', 'prod-001');
+    expect(response.body).toHaveProperty('name');
+    expect(response.body).toHaveProperty('price');
+    expect(response.body).toHaveProperty('stock');
+    expect(response.body).toHaveProperty('imageUrl');
+    expect(response.body).toHaveProperty('description');
+    expect(response.body).toHaveProperty('isAvailable');
+    expect(typeof response.body.stock).toBe('number');
+    expect(response.body.stock).toBeGreaterThanOrEqual(0);
+  });
+
   it('GET /health returns ok', async () => {
     const response = await request(app.getHttpServer()).get('/health');
     expect(response.status).toBe(200);

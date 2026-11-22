@@ -93,7 +93,10 @@ export class ProductsService {
   }
 
   findOne(id: string): Product {
-    const product = this.products.find((p) => p.id === id);
+    if (!id || typeof id !== 'string' || id.trim() === '') {
+      throw new BadRequestException('Product id is required and cannot be empty');
+    }
+    const product = this.products.find((p) => p.id === id.trim());
     if (!product) {
       throw new NotFoundException(`Product with id "${id}" was not found`);
     }

@@ -1,6 +1,8 @@
 @startuml
 left to right direction
 skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam defaultFontName "DejaVu Sans"
 
 actor "Khách hàng" as Customer
 actor "Nhân viên quầy" as Staff
@@ -9,26 +11,57 @@ actor "Nhóm phát triển" as Dev
 actor "Đơn vị thanh toán" as Payment
 
 rectangle BrewLite {
+  ' --- Product & Menu ---
   usecase "Xem menu" as UC1
   usecase "Xem chi tiết sản phẩm" as UC2
+  usecase "Tìm kiếm / lọc sản phẩm" as UC2a
+
+  ' --- Cart ---
   usecase "Thêm vào giỏ hàng" as UC3
   usecase "Quản lý giỏ hàng" as UC4
+
+  ' --- Auth ---
+  usecase "Đăng ký" as UC5a
   usecase "Đăng nhập" as UC5
+  usecase "Đăng xuất" as UC5b
+
+  ' --- Order ---
   usecase "Đặt đơn hàng" as UC6
-  usecase "Thanh toán" as UC7
-  usecase "Xem lịch sử đơn hàng" as UC8
+  usecase "Xác nhận đơn hàng" as UC6a
   usecase "Theo dõi trạng thái đơn" as UC9
+
+  ' --- Payment ---
+  usecase "Thanh toán" as UC7
+  usecase "Chọn phương thức thanh toán" as UC7a
+  usecase "Xem kết quả thanh toán" as UC7b
+
+  ' --- Order history ---
+  usecase "Xem lịch sử đơn hàng" as UC8
+  usecase "Tìm kiếm đơn theo mã" as UC8a
+  usecase "Lọc đơn theo trạng thái" as UC8b
+  usecase "Xem chi tiết đơn hàng" as UC8c
+
+  ' --- System ---
   usecase "Health check" as UC10
 }
 
 Customer --> UC1
 Customer --> UC2
+Customer --> UC2a
 Customer --> UC3
 Customer --> UC4
 Customer --> UC5
+Customer --> UC5a
+Customer --> UC5b
 Customer --> UC6
+Customer --> UC6a
 Customer --> UC7
+Customer --> UC7a
+Customer --> UC7b
 Customer --> UC8
+Customer --> UC8a
+Customer --> UC8b
+Customer --> UC8c
 Customer --> UC9
 
 Staff --> UC6
@@ -36,4 +69,16 @@ Staff --> UC9
 Manager --> UC9
 Dev --> UC10
 Payment --> UC7
+
+UC3 ..> UC1 : <<include>>
+UC2 ..> UC1 : <<include>>
+UC6 ..> UC4 : <<include>>
+UC6 ..> UC5 : <<include>>
+UC7 ..> UC6 : <<include>>
+UC7 ..> UC7a : <<include>>
+UC7 ..> UC7b : <<include>>
+UC8a ..> UC8 : <<extend>>
+UC8b ..> UC8 : <<extend>>
+UC8c ..> UC8 : <<include>>
+
 @enduml

@@ -1,5 +1,5 @@
 @startuml class-domain
-title Class diagram mức domain – BrewLite (User, Product, Order, OrderItem, Payment, Promotion, LoyaltyTransaction)
+title Class diagram mức domain – BrewLite (User, Product, Cart, Order, OrderItem, Payment, Promotion, LoyaltyTransaction, Auth)
 
 skinparam defaultFontName "DejaVu Sans"
 skinparam defaultFontSize 12
@@ -15,23 +15,33 @@ enum Role <<enumeration>> {
   CUSTOMER
   STAFF
   MANAGER
+  ADMIN
 }
 
 enum OrderStatus <<enumeration>> {
   PENDING_PAYMENT
   PAID
   CANCELLED
+  PENDING
+  PROCESSING
+  PREPARING
+  READY
+  COMPLETED
+  PAYMENT_FAILED
 }
 
 enum PaymentMethod <<enumeration>> {
   WALLET
   CARD
+  MOMO
+  BANK_TRANSFER
 }
 
 enum PaymentStatus <<enumeration>> {
   PENDING
   SUCCESS
   FAILED
+  REFUNDED
 }
 
 enum DiscountType <<enumeration>> {
@@ -45,6 +55,14 @@ enum LoyaltyTransactionType <<enumeration>> {
   ADJUST
 }
 
+enum ProductCategory <<enumeration>> {
+  COFFEE
+  TEA
+  FREEZE
+  PASTRY
+  OTHER
+}
+
 class User {
   +id : UUID
   +email : String {unique}
@@ -54,6 +72,8 @@ class User {
   +role : Role
   +loyaltyBalance : Integer
   +createdAt : DateTime
+  +updatedAt : DateTime
+  +lastLoginAt : DateTime [0..1]
 }
 
 class Product {
@@ -63,7 +83,41 @@ class Product {
   +price : Decimal
   +stockQuantity : Integer
   +isAvailable : Boolean
+  +imageUrl : String
+  +category : ProductCategory
   +createdAt : DateTime
+  +updatedAt : DateTime
+  +checkAvailability(quantity : Integer) : Boolean
+  +hasSufficientStock(quantity : Integer) : Boolean
+  +decrementStock(quantity : Integer) : void
+}
+
+class ProductOption <<value object>> {
+  +size : String
+  +sugarLevel : String
+  +iceLevel : String
+  +extraToppings : String[]
+}
+
+class Cart {
+  +id : UUID
+  +clientId : String
+  +createdAt : DateTime
+  +updatedAt : DateTime
+  +getTotalItems() : Integer
+  +getTotalPrice() : Decimal
+}
+
+class CartItem {
+  +id : UUID
+  +cartId : UUID
+  +productId : UUID
+  +quantity : Integer
+  +size : String
+  +toppings : String
+  +createdAt : DateTime
+  +updatedAt : DateTime
+  +getLineTotal() : Decimal
 }
 
 class Order {
@@ -72,8 +126,16 @@ class Order {
   +subtotal : Decimal
   +discountAmount : Decimal
   +totalAmount : Decimal
+  +customerName : String
+  +customerPhone : String
+  +pickupType : String
+  +tableNumber : String
+  +note : String
+  +paymentMethod : PaymentMethod
   +createdAt : DateTime
+  +updatedAt : DateTime
   +paidAt : DateTime [0..1]
+  +calculateTotal() : Decimal
 }
 
 class OrderItem {
@@ -81,6 +143,8 @@ class OrderItem {
   +quantity : Integer
   +unitPrice : Decimal
   +lineTotal : Decimal
+  +size : String
+  +toppings : String
 }
 
 class Payment {
@@ -90,6 +154,7 @@ class Payment {
   +status : PaymentStatus
   +idempotencyKey : String {unique}
   +transactionRef : String [0..1]
+  +transactionCode : String
   +createdAt : DateTime
   +updatedAt : DateTime
 }
@@ -114,6 +179,13 @@ class LoyaltyTransaction {
   +createdAt : DateTime
 }
 
+class JwtPayload <<value object>> {
+  +sub : String
+  +email : String
+  +iat : Integer
+  +exp : Integer
+}
+
 User "1" -- "0..*" Order : đặt >
 Order "1" *-- "1..*" OrderItem : gồm >
 OrderItem "0..*" --> "1" Product : tham chiếu >
@@ -121,13 +193,18 @@ Order "1" -- "0..*" Payment : được thanh toán bởi >
 Promotion "0..1" <-- "0..*" Order : áp dụng
 User "1" -- "0..*" LoyaltyTransaction : tích lũy / sử dụng >
 Order "0..1" <-- "0..*" LoyaltyTransaction : phát sinh từ
-
+User "1" -- "0..1" Cart : sở hữu >
+Cart "1" *-- "0..*" CartItem : chứa >
+Product "1" -- "0..*" CartItem : được chọn >
+Product "1" *-- "0..*" ProductOption : hỗ trợ >
+User ..> JwtPayload : sinh ra khi đăng nhập
 User ..> Role
 Order ..> OrderStatus
 Payment ..> PaymentMethod
 Payment ..> PaymentStatus
 Promotion ..> DiscountType
 LoyaltyTransaction ..> LoyaltyTransactionType
+Product ..> ProductCategory
 
 note bottom of Payment
   Ràng buộc nghiệp vụ:
@@ -141,4 +218,5 @@ note bottom of Order
   Order.status = PAID chỉ khi Payment SUCCESS.
   Payment FAILED không đổi Order sang PAID.
 end note
+
 @enduml
