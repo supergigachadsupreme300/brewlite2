@@ -39,6 +39,13 @@ type Order = {
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
+function getAccessToken(): string | null {
+  return (
+    window.localStorage.getItem('token') ||
+    window.localStorage.getItem('brewlite_jwt')
+  );
+}
+
 const STATUS_MAP: Record<
   Order['status'],
   { label: string; bg: string; color: string; desc: string }
@@ -99,10 +106,19 @@ export default function OrderDetailsPage() {
 
   const fetchOrder = useCallback(async () => {
     if (!id) return;
+    const token = getAccessToken();
+    if (!token) {
+      router.replace('/login');
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch(`${API_BASE_URL}/orders/${id}`);
+      const res = await fetch(`${API_BASE_URL}/orders/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (res.status === 404) {
         throw new Error('Không tìm thấy thông tin đơn hàng này.');
       }
@@ -116,7 +132,7 @@ export default function OrderDetailsPage() {
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, router]);
 
   useEffect(() => {
     fetchOrder();
@@ -127,11 +143,20 @@ export default function OrderDetailsPage() {
     const confirmed = window.confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?');
     if (!confirmed) return;
 
+    const token = getAccessToken();
+    if (!token) {
+      router.replace('/login');
+      return;
+    }
+
     setCancelling(true);
     try {
       const res = await fetch(`${API_BASE_URL}/orders/${id}/status`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ status: 'CANCELLED' }),
       });
       const data = await res.json();

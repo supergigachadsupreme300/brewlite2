@@ -124,7 +124,27 @@ export default function OrderHistoryPage() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${API_BASE_URL}/orders`);
+      const token =
+        localStorage.getItem('token') || localStorage.getItem('brewlite_jwt');
+      if (!token) {
+        router.replace('/login');
+        setOrders([]);
+        setError('Vui lòng đăng nhập để xem lịch sử đơn hàng.');
+        return;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/orders`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('brewlite_jwt');
+        router.replace('/login');
+        setOrders([]);
+        setError('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+        return;
+      }
+
       let apiOrders: Order[] = [];
       if (response.ok) {
         const data = await response.json();
@@ -165,7 +185,7 @@ export default function OrderHistoryPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     loadOrders();
