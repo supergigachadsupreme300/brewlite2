@@ -160,3 +160,16 @@ end note
 BrewLite nên được triển khai theo kiến trúc modular monolith phân lớp, với frontend Next.js, backend NestJS theo module/domain, dữ liệu PostgreSQL với migration rõ ràng, và dịch vụ thanh toán mô phỏng ở tầng nghiệp vụ. Đây là lựa chọn phù hợp với phạm vi dự án, dễ triển khai, dễ kiểm thử và đủ mạnh để phát triển thêm trong tương lai.
 
 Deployment diagram phía trên phản ánh kiến trúc triển khai mục tiêu của hệ thống, với các thành phần chính, ranh giới bảo mật, connection và health check. Nó là bản mô tả thiết kế cho deployment, chứ không phải hiện trạng AWS đã được provision trong assignment này.
+
+
+## 6. Trạng thái hiện tại của hệ thống
+
+- Backend NestJS cung cấp các module: auth, products, orders, payments, health check.
+- Frontend Next.js cung cấp các trang: menu, chi tiết sản phẩm, giỏ hàng, đăng nhập, đặt đơn, thanh toán, lịch sử đơn.
+- Unit tests, integration tests và E2E tests được đặt trong 	ests/.
+- CI/CD pipeline: quality gate (lint, test, build), build Docker image, push lên Amazon ECR, deploy lên Amazon EC2, smoke test và rollback.
+- Database sử dụng PostgreSQL với Prisma; seed dữ liệu sản phẩm có sẵn.
+- Health endpoint: GET /health.
+- Frontend production: Vercel (https://brewlite2.vercel.app).
+- Backend production: Amazon EC2 + Nginx + Let's Encrypt (https://brewlite2.duckdns.org).
+

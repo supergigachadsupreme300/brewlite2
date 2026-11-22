@@ -1405,19 +1405,19 @@ Pipeline CI tại \texttt{.github/workflows/ci.yml} chạy tự động trên pu
 
 \subsection{Task 5.1 -- Hoàn thiện MVP}
 
-Các chức năng đã hiện thực một phần (product detail, health check, container hóa). Các chức năng còn lại (giỏ hàng frontend/backend, đăng ký/đăng nhập JWT, tạo đơn, thanh toán mô phỏng, xác nhận/trạng thái/lịch sử đơn, validate frontend/backend) được đặc tả trong SRS theo phân hệ và là mục tiêu mở rộng; backend hiện chỉ có \texttt{ProductsModule} và health endpoint.
+Các chức năng end-to-end đã hiện thực: product detail, cart (thêm/xóa/cập nhật, tổng tiền), đăng ký/đăng nhập JWT, tạo đơn từ giỏ hàng, thanh toán mô phỏng (MOMO/BANK_TRANSFER/CARD) với idempotency, xác nhận/trạng thái/lịch sử đơn, validate frontend/backend. Frontend có các trang: menu, chi tiết sản phẩm, giỏ hàng, đăng nhập, đặt đơn, thanh toán, lịch sử đơn.
 
 \subsection{Task 5.2 -- Tích hợp và kiểm thử}
 
-Hệ thống có unit test cho nghiệp vụ sản phẩm, integration test cho \texttt{GET /products/:id} và \texttt{GET /health} (Jest + Supertest). \texttt{docker-compose.yml} chạy web (3000), api (3001), db (PostgreSQL 16, healthcheck). Health endpoint \texttt{GET /health} trả \texttt{\{status:"ok", service:"brewlite-api"\}}. Migration/seed mô tả trong README; seed thực tế là in-memory \texttt{PRODUCTS\_SEED}.
+Hệ thống có unit test, integration test (Jest + Supertest) và E2E test tests/e2e/order-flow.spec.ts (menu to order to payment to confirmation, bao gồm sizing/toppings). docker-compose.yml chạy web (3000), api (3001), db (PostgreSQL 16, healthcheck, seed docker/postgres/init.sql). Health endpoint GET /health trả {status:"ok", service:"brewlite-api"}. Seed script npm run seed trong apps/api.
 
 \subsection{Task 5.3 -- Continuous Delivery/Deployment}
 
-Pipeline CD tại \texttt{.github/workflows/cd.yml}: quality gate (lint, test, build) $\to$ build/push Docker image lên Amazon ECR (tag = commit SHA) $\to$ deploy qua SSH tới EC2 $\to$ smoke test \texttt{GET /health} $\to$ rollback khi thất bại. Secret (AWS credentials, EC2 host/user/SSH key, ECR registry) lưu trong GitHub Secrets.
+Pipeline CI/CD tại .github/workflows/ci-cd.yml: quality gate (lint, test, build) to build Docker image to push lên Amazon ECR to deploy qua SSH tới EC2 to smoke test GET /health to rollback khi thất bại. Secret lưu trong GitHub Secrets. Production: Frontend Vercel (https://brewlite2.vercel.app), Backend Amazon EC2 + Nginx + Let's Encrypt (https://brewlite2.duckdns.org).
 
 \subsection{Task 5.4 -- Triển khai và bàn giao}
 
-Kế hoạch triển khai mục tiêu trên AWS EC2 (ECR, EBS, Nginx, CloudWatch) được mô tả trong \texttt{docs/deployment.md} và Task 3.2 của báo cáo. Hiện trạng: chưa provision resource AWS thực tế; không có private key/secret production trong repository. README hướng dẫn chạy local, test, build, deploy và rollback.
+Sản phẩm đã deploy production với URL frontend và API/health. README hướng dẫn chạy local, test, build, deploy và rollback. Demo video và Sprint Review/Retrospective là tài liệu bàn giao.
 
 \section{Truy vết}
 
@@ -1425,20 +1425,22 @@ Ma trận truy vết yêu cầu được lưu tại \texttt{docs/traceability-ma
 
 \section{Hiện trạng triển khai (Implementation Status)}
 
-Dựa trên mã nguồn hiện có trong repository, các thành phần đã được triển khai ở mức skeleton MVP gồm:
+Dựa trên mã nguồn hiện có trong repository, các thành phần đã được triển khai đầy đủ cho luồng end-to-end gồm:
 
 \begin{itemize}
-    \item Backend (NestJS): \texttt{AppModule} chỉ import \texttt{ProductsModule}; endpoint \texttt{GET /health} trả về \texttt{\{status: "ok", service: "brewlite-api"\}} (\texttt{AppController}, \texttt{AppService}).
-    \item Products API: \texttt{GET /products} trả về danh sách sản phẩm seed (6 món: Espresso, Americano, Cappuccino, Latte, Mocha, Croissant); \texttt{GET /products/:id} trả chi tiết một sản phẩm và \texttt{404} nếu không tồn tại (\texttt{ProductsController}, \texttt{ProductsService}).
-    \item Dữ liệu sản phẩm được lưu in-memory từ \texttt{PRODUCTS\_SEED} (\texttt{apps/api/src/products/products.seed.ts}); chưa kết nối PostgreSQL/Prisma ở mã nguồn hiện tại.
-    \item Frontend (Next.js): trang chủ placeholder và trang chi tiết sản phẩm \texttt{/products/[id]} gọi \texttt{GET /products/:id}, hiển thị tên, danh mục, mô tả, giá, tình trạng tồn kho; xử lý loading, 404 và lỗi mạng.
-    \item Kiểm thử: unit test cho \texttt{ProductsService}, \texttt{ProductsController}, \texttt{AppService}; integration test cho \texttt{GET /products/:id} và \texttt{GET /health} (Jest + Supertest).
-    \item Container hóa: Dockerfile cho web/api và \texttt{docker-compose.yml} chạy web (3000), api (3001), db (PostgreSQL 16) với healthcheck.
-    \item CI: GitHub Actions chạy install, lint, unit-test, build trên push/PR.
-    \item CD: pipeline build/push image lên Amazon ECR và deploy qua SSH tới EC2, có smoke test và rollback (kích hoạt bằng tag \texttt{v*} hoặc workflow\_dispatch).
+    \item Backend (NestJS): các module AuthModule, ProductsModule, OrdersModule, PaymentsModule, health endpoint GET /health; JWT guard bảo vệ các route cần xác thực.
+    \item Products API: GET /products, GET /products/:id với dữ liệu seed; Product model có stock, isAvailable.
+    \item Cart: service và controller quản lý giỏ hàng; frontend /cart với thêm/xóa/cập nhật số lượng và tổng tiền.
+    \item Auth: đăng ký, đăng nhập, cấp JWT, lưu token phía client; trang /login.
+    \item Orders: tạo đơn từ giỏ hàng, cập nhật trạng thái, lịch sử và chi tiết đơn; trang /orders và /orders/[id].
+    \item Payments: thanh toán mô phỏng (MOMO/BANK_TRANSFER/CARD) với idempotency; trang /payments.
+    \item Frontend (Next.js): các trang menu, chi tiết sản phẩm, giỏ hàng, đăng nhập, đặt đơn, thanh toán, lịch sử đơn; xử lý loading, empty, error.
+    \item Kiểm thử: unit test, integration test (Jest + Supertest) và E2E test tests/e2e/order-flow.spec.ts (menu to order to payment to confirmation, bao gồm sizing/toppings).
+    \item Container hóa: Dockerfile cho web/api và docker-compose.yml chạy web (3000), api (3001), db (PostgreSQL 16) với healthcheck và seed docker/postgres/init.sql.
+    \item CI: GitHub Actions chạy install, lint, test, build trên push/PR.
+    \item CD: pipeline build/push image lên Amazon ECR và deploy qua SSH tới EC2, có smoke test GET /health và rollback.
+    \item Production: Frontend trên Vercel (https://brewlite2.vercel.app), Backend trên Amazon EC2 + Nginx + Let's Encrypt (https://brewlite2.duckdns.org), health check https://brewlite2.duckdns.org/health.
 \end{itemize}
-
-Các module mô tả trong thiết kế (Auth, Users, Orders, Payments, Promotions, Loyalty) chưa có mã nguồn tương ứng; chúng là mục tiêu của giai đoạn mở rộng. Vì vậy báo cáo này trình bày thiết kế mục tiêu, và phần hiện trạng phản ánh đúng phạm vi đã triển khai.
 
 \section{Kết luận}
 
