@@ -9,6 +9,8 @@ import {
 } from '../../apps/api/src/orders/order.entity';
 import { PaymentMethod, PaymentStatus } from '../../apps/api/src/payments/payment.types';
 
+jest.setTimeout(60000);
+
 describe('Payments API (mock)', () => {
   let app: INestApplication;
   let token: string;

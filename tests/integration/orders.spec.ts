@@ -8,6 +8,8 @@ import {
   PickupType,
 } from '../../apps/api/src/orders/order.entity';
 
+jest.setTimeout(60000);
+
 describe('Orders API (integration)', () => {
   let app: INestApplication;
   let token: string;

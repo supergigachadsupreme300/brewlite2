@@ -80,6 +80,7 @@ export class OrdersService {
         productName: product.name,
         quantity: itemDto.quantity,
         size: itemDto.size || 'M',
+        toppings: itemDto.toppings && itemDto.toppings.length ? [...itemDto.toppings] : undefined,
         unitPrice,
         lineTotal,
       });

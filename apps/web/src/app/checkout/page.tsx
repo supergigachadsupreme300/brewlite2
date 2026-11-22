@@ -9,6 +9,7 @@ type CartItem = {
   price: number;
   quantity: number;
   size?: 'S' | 'M' | 'L';
+  toppings?: string[];
 };
 
 const API_BASE_URL =
@@ -156,6 +157,7 @@ export default function CheckoutPage() {
         productId: item.productId,
         quantity: item.quantity,
         size: item.size || 'M',
+        toppings: item.toppings && item.toppings.length ? [...item.toppings] : undefined,
       })),
     };
 

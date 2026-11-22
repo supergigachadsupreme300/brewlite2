@@ -23,6 +23,11 @@ export class CreateOrderItemDto {
   @IsOptional()
   @IsString()
   size?: 'S' | 'M' | 'L';
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  toppings?: string[];
 }
 
 export class CreateOrderDto {

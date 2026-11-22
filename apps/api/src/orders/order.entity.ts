@@ -26,6 +26,7 @@ export interface OrderItem {
   productName: string;
   quantity: number;
   size?: 'S' | 'M' | 'L';
+  toppings?: string[];
   unitPrice: number;
   lineTotal: number;
 }

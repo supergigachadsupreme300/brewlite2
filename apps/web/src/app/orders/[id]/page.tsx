@@ -9,6 +9,7 @@ type OrderItem = {
   productName: string;
   quantity: number;
   size?: 'S' | 'M' | 'L';
+  toppings?: string[];
   unitPrice: number;
   lineTotal: number;
 };
@@ -385,7 +386,11 @@ export default function OrderDetailsPage() {
                 <div>
                   <strong>{item.productName}</strong> x {item.quantity}{' '}
                   <span style={{ color: '#666' }}>
-                    (Size {item.size || 'M'})
+                     (Size {item.size || 'M'}
+                     {item.toppings && item.toppings.length
+                       ? ` • Topping: ${item.toppings.join(', ')}`
+                       : ''}
+                     )
                   </span>
                 </div>
                 <div style={{ fontWeight: 600 }}>${item.lineTotal.toFixed(2)}</div>
