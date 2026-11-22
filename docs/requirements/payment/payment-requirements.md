@@ -4,7 +4,7 @@
 
 ## 1. Bối cảnh nghiệp vụ
 
-BrewLite hỗ trợ khách hàng đặt đồ uống trực tuyến. Sau khi khách hàng chọn sản phẩm và tạo đơn, hệ thống cần cung cấp bước thanh toán không tiền mặt bằng phương thức Ví hoặc Thẻ. Trong phạm vi MVP của Assignment 2, việc xử lý thanh toán sử dụng **Mock Payment Service** để mô phỏng kết quả, không kết nối ngân hàng hoặc cổng thanh toán thật.
+BrewLite hỗ trợ khách hàng đặt đồ uống trực tuyến. Khi tạo đơn, khách hàng chọn MoMo, chuyển khoản VietQR hoặc thẻ; bước thanh toán dùng lại phương thức đã lưu trên đơn. Trong phạm vi MVP của Assignment 2, **Mock Payment Service** mô phỏng kết quả và không kết nối ngân hàng hoặc cổng thanh toán thật.
 
 Chức năng thanh toán cần giúp khách hàng biết giao dịch thành công hay thất bại, đồng thời giúp hệ thống lưu lại kết quả để quản lý trạng thái đơn hàng và hỗ trợ kiểm tra lịch sử giao dịch.
 
@@ -21,7 +21,7 @@ Chức năng thanh toán cần giúp khách hàng biết giao dịch thành côn
 
 ## 3. Mục tiêu
 
-- Cho phép khách hàng chọn một trong hai phương thức mô phỏng: `WALLET` hoặc `CARD`.
+- Cho phép khách hàng chọn một phương thức tại bước đặt đơn: `MOMO`, `BANK_TRANSFER` hoặc `CARD`.
 - Kiểm tra đơn hàng và số tiền trước khi gửi yêu cầu thanh toán.
 - Gọi Mock Payment Service để nhận kết quả mô phỏng.
 - Lưu kết quả giao dịch và cập nhật trạng thái liên quan của đơn hàng theo quy tắc thống nhất của nhóm.
@@ -32,7 +32,7 @@ Chức năng thanh toán cần giúp khách hàng biết giao dịch thành côn
 
 ### 4.1 In-scope – Trong phạm vi MVP
 
-- Chọn phương thức thanh toán Ví (`WALLET`) hoặc Thẻ (`CARD`).
+- Chọn MoMo (`MOMO`), chuyển khoản VietQR (`BANK_TRANSFER`) hoặc thẻ (`CARD`) khi đặt đơn; trang thanh toán hiển thị và dùng lại lựa chọn đó.
 - Xác nhận thanh toán cho một đơn hàng đã được tạo.
 - Kiểm tra đơn hàng tồn tại, quyền truy cập đơn hàng và số tiền phải thanh toán.
 - Gửi yêu cầu đến Mock Payment Service.

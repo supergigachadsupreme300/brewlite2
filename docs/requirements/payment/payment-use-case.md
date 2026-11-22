@@ -9,8 +9,8 @@
 | Phạm vi | BrewLite – Payment |
 | Actor chính | Customer |
 | Actor / hệ thống phụ | Mock Payment Service |
-| Mục tiêu | Khách hàng thanh toán đơn hàng bằng Ví hoặc Thẻ mô phỏng và nhận kết quả giao dịch |
-| Trigger | Khách hàng chọn phương thức thanh toán và nhấn xác nhận thanh toán |
+| Mục tiêu | Khách hàng thanh toán bằng phương thức đã chọn khi tạo đơn và nhận kết quả giao dịch mô phỏng |
+| Trigger | Khách hàng nhấn xác nhận thanh toán trên trang đơn hàng |
 | Mức ưu tiên | Must |
 
 ## 2. Tiền điều kiện
@@ -39,9 +39,9 @@
 
 | Bước | Actor / thành phần | Mô tả |
 |---|---|---|
-| 1 | Customer | Chọn Ví (`WALLET`) hoặc Thẻ (`CARD`). |
-| 2 | Customer | Nhấn xác nhận thanh toán. |
-| 3 | Next.js UI | Gửi yêu cầu thanh toán đến backend, gồm `orderId`, `method` và `idempotencyKey`. |
+| 1 | Next.js UI | Hiển thị phương thức thanh toán đã lưu trên đơn (`MOMO`, `BANK_TRANSFER` hoặc `CARD`). |
+| 2 | Customer | Nhấn xác nhận thanh toán, không cần chọn lại phương thức. |
+| 3 | Next.js UI | Gửi yêu cầu thanh toán đến backend, gồm `orderId`, phương thức từ đơn và `idempotencyKey`. |
 | 4 | NestJS API | Xác thực JWT, kiểm tra dữ liệu đầu vào và quyền truy cập đơn hàng. |
 | 5 | NestJS API | Đọc đơn hàng từ database và xác định số tiền cần thanh toán. |
 | 6 | NestJS API | Kiểm tra `idempotencyKey` để xác định request đã được xử lý hay chưa. |
@@ -53,18 +53,23 @@
 
 ## 5. Luồng thay thế
 
-### A1 – Khách hàng chọn phương thức Ví
+### A1 – Đơn dùng MoMo
 
-- Tại bước 1, khách hàng chọn `WALLET`.
-- Hệ thống tiếp tục từ bước 2 của luồng chính.
+- Đơn hàng đã lưu phương thức `MOMO` ở bước checkout.
+- Trang thanh toán hiển thị MoMo và gửi `MOMO` khi xác nhận.
 
-### A2 – Khách hàng chọn phương thức Thẻ
+### A2 – Đơn dùng chuyển khoản VietQR
 
-- Tại bước 1, khách hàng chọn `CARD`.
-- Hệ thống tiếp tục từ bước 2 của luồng chính.
+- Đơn hàng đã lưu phương thức `BANK_TRANSFER` ở bước checkout.
+- Trang thanh toán hiển thị VietQR và gửi `BANK_TRANSFER` khi xác nhận.
+
+### A3 – Đơn dùng thẻ
+
+- Đơn hàng đã lưu phương thức `CARD` ở bước checkout.
+- Trang thanh toán hiển thị thẻ và gửi `CARD` khi xác nhận.
 - MVP chỉ mô phỏng phương thức thẻ, không thu thập hoặc lưu số thẻ/CVV thật.
 
-### A3 – Mock Payment Service trả về thất bại
+### A4 – Mock Payment Service trả về thất bại
 
 - Tại bước 8, Mock Payment Service trả kết quả thất bại.
 - Backend ghi nhận Payment là `FAILED` nếu có thể lưu kết quả.
@@ -72,7 +77,7 @@
 - Backend trả response thất bại.
 - Frontend hiển thị thông báo thanh toán thất bại.
 
-### A4 – Client gửi lại request với cùng `idempotencyKey`
+### A5 – Client gửi lại request với cùng `idempotencyKey`
 
 - Tại bước 6, backend phát hiện key đã được xử lý.
 - Backend không tạo thêm giao dịch logic cho cùng yêu cầu.
@@ -122,7 +127,7 @@ actor "Mock Payment Service" as Mock
 
 rectangle "BrewLite Payment" {
   usecase "UC-PAY-01\nThanh toán đơn hàng" as Pay
-  usecase "Chọn phương thức\nWALLET / CARD" as Method
+  usecase "Dùng phương thức\nđã chọn trong đơn" as Method
   usecase "Xác thực và kiểm tra\nđơn hàng" as Validate
   usecase "Kiểm tra idempotencyKey" as Idem
   usecase "Xử lý thanh toán" as Process
@@ -158,8 +163,8 @@ Mock --> Process
 
 ## 9. Tiêu chí chấp nhận
 
-1. Khách hàng có thể chọn `WALLET` hoặc `CARD`.
-2. Request thiếu trường bắt buộc hoặc có method không hợp lệ bị từ chối.
+1. Khách hàng chọn `MOMO`, `BANK_TRANSFER` hoặc `CARD` khi tạo đơn; trang thanh toán dùng lại đúng phương thức đó.
+2. Request thiếu trường bắt buộc, method không hợp lệ hoặc không khớp với phương thức trên đơn bị từ chối.
 3. Request không có JWT hợp lệ hoặc không có quyền với order bị từ chối.
 4. Backend sử dụng số tiền từ Order trong database.
 5. Mock Payment Service trả thành công thì Payment được ghi nhận `SUCCESS`.

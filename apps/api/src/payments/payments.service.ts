@@ -24,6 +24,12 @@ export class PaymentsService {
       throw new ForbiddenException('Bạn không có quyền thanh toán đơn hàng này');
     }
 
+    if (input.method !== order.paymentMethod) {
+      throw new ConflictException(
+        'Phương thức thanh toán phải khớp với phương thức đã chọn cho đơn hàng',
+      );
+    }
+
     const existingPayment = this.paymentsByKey.get(input.idempotencyKey);
     if (existingPayment) {
       if (

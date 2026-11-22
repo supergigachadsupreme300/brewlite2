@@ -83,7 +83,7 @@ describe('E2E: Menu -> Order -> Payment -> Confirmation', () => {
       .set(auth())
       .send({
         orderId,
-        method: 'WALLET',
+        method: 'MOMO',
         idempotencyKey: `e2e-key-${Date.now()}`,
         mockOutcome: 'SUCCESS',
       })

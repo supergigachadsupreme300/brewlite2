@@ -4,13 +4,13 @@
 
 ## 1. Mô tả
 
-Chức năng cho phép khách hàng thanh toán một đơn hàng đã tạo bằng phương thức Ví hoặc Thẻ mô phỏng. Backend xác thực yêu cầu, lấy số tiền từ đơn hàng, gọi Mock Payment Service, lưu kết quả và trả phản hồi cho frontend.
+Chức năng cho phép khách hàng thanh toán một đơn hàng đã tạo bằng phương thức MoMo, chuyển khoản VietQR hoặc thẻ mô phỏng đã chọn khi đặt đơn. Backend xác thực yêu cầu, lấy phương thức và số tiền từ đơn hàng, gọi Mock Payment Service, lưu kết quả và trả phản hồi cho frontend.
 
 ## 2. Yêu cầu chức năng
 
 | Mã | Yêu cầu | Ưu tiên | Tiêu chí chấp nhận có thể kiểm chứng |
 |---|---|---|---|
-| PAY-FR-01 | Hệ thống phải cho phép khách hàng chọn phương thức `WALLET` hoặc `CARD`. | Must | Gửi request với `WALLET` hoặc `CARD` được chấp nhận; phương thức không nằm trong danh sách bị từ chối validation. |
+| PAY-FR-01 | Hệ thống phải dùng phương thức thanh toán khách hàng đã chọn khi tạo đơn (`MOMO`, `BANK_TRANSFER` hoặc `CARD`). | Must | Trang thanh toán hiển thị phương thức đã chọn và gửi đúng giá trị đó; backend từ chối request có method khác với phương thức được lưu trên đơn. |
 | PAY-FR-02 | Hệ thống phải tiếp nhận yêu cầu thanh toán cho một đơn hàng đã tồn tại và thuộc quyền truy cập của khách hàng. | Must | Với orderId hợp lệ và đúng chủ sở hữu, request được xử lý; orderId không tồn tại hoặc không thuộc quyền truy cập bị từ chối. |
 | PAY-FR-03 | Backend phải xác định số tiền thanh toán từ dữ liệu đơn hàng đã lưu. | Must | Thay đổi hoặc giả mạo amount ở phía client không làm thay đổi số tiền backend xử lý. |
 | PAY-FR-04 | Hệ thống phải gửi yêu cầu hợp lệ đến Mock Payment Service. | Must | Khi request hợp lệ, mock service được gọi với thông tin đơn hàng, số tiền và phương thức cần thiết. |
@@ -34,9 +34,9 @@ Chức năng cho phép khách hàng thanh toán một đơn hàng đã tạo b�
 
  ## 4. Trạng thái triển khai Payment
 
- Bản hiện thực `POST /payments` nhận mã đơn thật, lấy tổng tiền từ `OrdersService`, hỗ trợ `WALLET`/`CARD`, mô phỏng `SUCCESS`/`FAILED` và xử lý `idempotencyKey`. Thanh toán thành công chuyển đơn sang `PAID`; thất bại chuyển đơn sang `PAYMENT_FAILED` và cho phép thử lại. Trang thanh toán nhận `orderId` từ trang chi tiết đơn và không yêu cầu thông tin thẻ thật.
+ Bản hiện thực `POST /payments` nhận mã đơn thật, lấy tổng tiền và phương thức từ `OrdersService`, hỗ trợ `MOMO`/`BANK_TRANSFER`/`CARD`, mô phỏng `SUCCESS`/`FAILED` và xử lý `idempotencyKey`. Thanh toán thành công chuyển đơn sang `PAID`; thất bại chuyển đơn sang `PAYMENT_FAILED` và cho phép thử lại. Trang thanh toán hiển thị và gửi lại đúng phương thức đã chọn trong checkout; không yêu cầu thông tin thẻ thật.
 
- Mock Payment và dữ liệu Order/Payment hiện vẫn lưu trong bộ nhớ; lịch sử thanh toán và idempotency không tồn tại sau khi API khởi động lại. Xác thực JWT/kiểm tra quyền sở hữu và lưu Order/Payment bền vững trong PostgreSQL vẫn cần tích hợp theo tiến độ chung của nhóm. Kết quả mô phỏng hiện được chọn từ UI demo và không đại diện cho giao dịch tiền thật.
+ Mock Payment và dữ liệu Order/Payment hiện vẫn lưu trong bộ nhớ; lịch sử thanh toán và idempotency không tồn tại sau khi API khởi động lại. JWT và kiểm tra quyền sở hữu đã được tích hợp ở API; lưu Order/Payment bền vững trong PostgreSQL vẫn cần triển khai. Kết quả mô phỏng hiện được chọn từ UI demo và không đại diện cho giao dịch tiền thật.
 
 ## 5. Use-case tổng quát trong phạm vi Payment
 
@@ -66,7 +66,7 @@ UC4 .> UC5 : <<include>>
 
 1. Backend là nguồn xác định số tiền phải thanh toán.
 2. Chỉ xử lý thanh toán cho đơn hàng tồn tại, hợp lệ và thuộc quyền truy cập của khách hàng.
-3. `WALLET` và `CARD` là hai giá trị phương thức được hỗ trợ trong MVP.
+3. `MOMO`, `BANK_TRANSFER` và `CARD` là các phương thức được hỗ trợ; Payment phải khớp với phương thức đã lưu trên Order.
 4. `SUCCESS` và `FAILED` là kết quả nghiệp vụ mô phỏng. Nếu code đang dùng enum khác, phải dùng đúng enum thực tế khi tích hợp.
 5. `idempotencyKey` phải được kiểm tra ở backend; chỉ thêm unique constraint/transaction theo cách phù hợp với schema và database hiện có.
 6. Tên trạng thái Order sau thanh toán phải lấy theo quy ước module Order của nhóm, không tự tạo enum mới trong tài liệu Payment.

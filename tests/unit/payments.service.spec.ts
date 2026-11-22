@@ -28,7 +28,7 @@ describe('PaymentsService', () => {
     overrides: Partial<CreatePaymentInput> = {},
   ): CreatePaymentInput => ({
     orderId,
-    method: PaymentMethod.WALLET,
+    method: PaymentMethod.CARD,
     idempotencyKey: 'request-key-0001',
     mockOutcome: PaymentStatus.SUCCESS,
     ...overrides,
@@ -51,7 +51,7 @@ describe('PaymentsService', () => {
     expect(result).toMatchObject({
       orderId: order.id,
       amount: order.total,
-      method: PaymentMethod.WALLET,
+      method: PaymentMethod.CARD,
       status: PaymentStatus.SUCCESS,
     });
     expect(ordersService.findOne(order.id).status).toBe(OrderStatus.PAID);
@@ -88,9 +88,23 @@ describe('PaymentsService', () => {
 
     expect(() =>
       service.createPayment(
-        paymentInput(order.id, { method: PaymentMethod.CARD }),
+        paymentInput(order.id, { method: PaymentMethod.MOMO }),
       ),
     ).toThrow(ConflictException);
+  });
+
+  it('rejects a payment method different from the one selected on the order', () => {
+    const order = createOrder();
+
+    expect(() =>
+      service.createPayment(
+        paymentInput(order.id, {
+          method: PaymentMethod.MOMO,
+          idempotencyKey: 'request-key-0002',
+        }),
+      ),
+    ).toThrow(ConflictException);
+    expect(ordersService.findOne(order.id).status).toBe(OrderStatus.PENDING);
   });
 
   it('prevents a second successful payment for the same order', () => {
