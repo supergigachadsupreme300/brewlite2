@@ -147,9 +147,77 @@ The repository includes a CI workflow at `.github/workflows/ci.yml` that runs in
 
 This workflow runs on push and pull request events with a standard Node.js 20 setup.
 
-## AWS EC2 Deployment Preparation
+## Full stack with Docker (recommended)
 
-This repository is set up for deployment preparation, not for direct production deployment. The accompanying deployment plan is documented in `docs/deployment.md` and includes the EC2 + ECR + EBS + Nginx + CloudWatch approach described in the assignment.
+Run the complete stack (web + API + PostgreSQL, with seeded data):
+
+```bash
+docker compose up --build -d
+```
+
+Services:
+- Web: http://localhost:3000
+- API: http://localhost:3001 (health: http://localhost:3001/health)
+- Database: localhost:5432 (user: brewlite, password: brewlite, db: brewlite)
+
+The database is seeded automatically on first run with 9 products via `docker/postgres/init.sql`.
+
+Stop the stack:
+
+```bash
+docker compose down
+```
+
+Reset the database (remove volume):
+
+```bash
+docker compose down -v
+```
+
+## Authentication
+
+- Register/login at http://localhost:3000/login
+- JWT is stored in `localStorage` (`token` / `brewlite_jwt`) and sent as `Bearer` token.
+- Required for: placing orders, viewing order history, payments.
+- Menu and product detail remain public.
+
+## Tests
+
+```bash
+npm run test          # all backend tests (unit + integration)
+npm run lint          # lint web + api
+npm run build         # build web + api
+```
+
+## Deploy (AWS EC2 + ECR)
+
+See `docs/deployment.md` for the full plan. Summary:
+
+1. Build & push image:
+   ```bash
+   docker build -t <ecr_registry>/brewlite:<sha> ./apps/api
+   docker push <ecr_registry>/brewlite:<sha>
+   ```
+2. On EC2 (SSH):
+   ```bash
+   docker pull <ecr_registry>/brewlite:<sha>
+   docker stop brewlite-api || true
+   docker rm brewlite-api || true
+   docker run -d --name brewlite-api -p 3001:3001 --env-file /opt/brewlite/.env <ecr_registry>/brewlite:<sha>
+   ```
+3. Verify: `curl http://<host>:3001/health`
+
+CI/CD: `.github/workflows/ci.yml` (install → lint → test → build) and `.github/workflows/cd.yml` (quality gate → build/push image → deploy → smoke test → rollback).
+
+## Rollback
+
+- Re-deploy a previous image tag from ECR:
+  ```bash
+  docker stop brewlite-api && docker rm brewlite-api
+  docker run -d --name brewlite-api -p 3001:3001 --env-file /opt/brewlite/.env <ecr_registry>/brewlite:<previous_sha>
+  ```
+- Or revert to the last known good Git commit and rebuild.
+- Restore PostgreSQL from EBS snapshot if needed.
 
 ## Update and Rollback
 
