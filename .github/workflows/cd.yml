@@ -47,7 +47,7 @@ jobs:
       - name: Build and push Docker image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: brewlite
+          ECR_REPOSITORY: brewlite2
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./apps/api
@@ -78,10 +78,10 @@ jobs:
           envs: ECR_PASSWORD,ECR_REGISTRY,IMAGE_TAG
           script: |
             echo "$ECR_PASSWORD" | docker login --username AWS --password-stdin "$ECR_REGISTRY"
-            docker pull "$ECR_REGISTRY/brewlite:$IMAGE_TAG"
+            docker pull "$ECR_REGISTRY/brewlite2:$IMAGE_TAG"
             docker stop brewlite-api || true
             docker rm brewlite-api || true
-            docker run -d --name brewlite-api -p 3001:3001 --env-file /opt/brewlite/.env "$ECR_REGISTRY/brewlite:$IMAGE_TAG"
+            docker run -d --name brewlite-api -p 3001:3001 --env-file /opt/brewlite/.env "$ECR_REGISTRY/brewlite2:$IMAGE_TAG"
 
   smoke-test:
     needs: deploy
@@ -117,4 +117,4 @@ jobs:
             echo "$ECR_PASSWORD" | docker login --username AWS --password-stdin "$ECR_REGISTRY"
             docker stop brewlite-api || true
             docker rm brewlite-api || true
-            docker run -d --name brewlite-api -p 3001:3001 --env-file /opt/brewlite/.env "$ECR_REGISTRY/brewlite:latest"
+            docker run -d --name brewlite-api -p 3001:3001 --env-file /opt/brewlite/.env "$ECR_REGISTRY/brewlite2:latest"
