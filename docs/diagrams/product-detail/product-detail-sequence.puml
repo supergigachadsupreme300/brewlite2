@@ -12,7 +12,7 @@ activate UI
 UI -> API : GET /products/:id
 activate API
 API -> API : Validate id sản phẩm
-(Không yêu cầu JWT - endpoint công khai)
+' Không yêu cầu JWT - endpoint công khai
 
 alt id không hợp lệ
   API --> UI : 400 Bad Request

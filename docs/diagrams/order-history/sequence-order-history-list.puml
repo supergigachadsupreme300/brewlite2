@@ -69,7 +69,7 @@
    end
  else Không tải được danh sách
    note over UI, Customer: Thông báo lỗi và lựa chọn thử lại
-   đã được hiển thị trong quá trình tải.
+   ' đã được hiển thị trong quá trình tải.
  end
 
  opt Khách hàng tìm kiếm theo mã đơn hàng (UC-OH-02)
