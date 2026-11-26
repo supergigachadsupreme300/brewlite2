@@ -41,7 +41,7 @@ describe('OrdersService (Unit Tests)', () => {
       expect(order.items.length).toBe(1);
       expect(order.items[0].productName).toBe('Espresso');
       expect(order.items[0].quantity).toBe(2);
-      expect(order.total).toBe(5.0); // 2.5 * 2 = 5.0
+      expect(order.total).toBe(50000); // 25000 * 2 = 50000
 
       // Stock must be decremented
       const updatedStock = productsService.findOne('1').stock;

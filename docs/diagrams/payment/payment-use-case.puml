@@ -1,0 +1,30 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+actor "Khách hàng" as Customer
+actor "Mock Payment Service" as Mock
+
+rectangle "BrewLite - Thanh toán" {
+  usecase "UC-PAY-01\nThanh toán đơn hàng" as Pay
+  usecase "Xác nhận thanh toán" as Confirm
+  usecase "Thực hiện thanh toán\n(Mock Payment Service)" as Process
+  usecase "Ghi nhận kết quả\nthanh toán" as Save
+}
+
+Customer --> Pay
+Pay .> Confirm : <<include>>
+Pay .> Process : <<include>>
+Pay .> Save : <<include>>
+Mock --> Process
+
+note right of Pay
+  Luồng: Khách hàng xác nhận thanh toán
+  -> Hệ thống xác thực đơn và idempotencyKey
+  -> Gọi Mock Payment Service (thành công/thất bại)
+  -> Ghi nhận kết quả và thông báo cho khách hàng.
+  Thanh toán thất bại: ghi FAILED, không đánh dấu
+  đơn đã thanh toán, cho phép thử lại.
+end note
+@enduml

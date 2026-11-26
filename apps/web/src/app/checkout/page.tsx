@@ -420,12 +420,12 @@ export default function CheckoutPage() {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', color: '#555' }}>
                 <span>Tạm tính:</span>
-                <span>${subtotal.toFixed(2)}</span>
+                <span>{subtotal.toLocaleString('vi-VN')} đ</span>
               </div>
               {promoDiscount > 0 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', color: '#2e7d32' }}>
                   <span>Giảm giá ({appliedPromo}):</span>
-                  <span>-${promoDiscount.toFixed(2)}</span>
+                  <span>-{promoDiscount.toLocaleString('vi-VN')} đ</span>
                 </div>
               )}
               <div
@@ -438,7 +438,7 @@ export default function CheckoutPage() {
                 }}
               >
                 <span>Tổng cộng:</span>
-                <span style={{ color: '#2e7d32' }}>${finalTotal.toFixed(2)}</span>
+                <span style={{ color: '#2e7d32' }}>{finalTotal.toLocaleString('vi-VN')} đ</span>
               </div>
             </div>
           </div>
@@ -655,7 +655,7 @@ export default function CheckoutPage() {
             transition: 'background-color 0.2s',
           }}
         >
-          {submitting ? 'Đang xử lý...' : `Đặt hàng ngay • $${finalTotal.toFixed(2)}`}
+          {submitting ? 'Đang xử lý...' : `Đặt hàng ngay • ${finalTotal.toLocaleString('vi-VN')} đ`}
         </button>
       </form>
     </main>

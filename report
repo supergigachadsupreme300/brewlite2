@@ -65,7 +65,7 @@
 \fancyfoot[L]{\scriptsize \ttfamily Bài tập lớn môn Phát triển phần mềm mã nguồn mở - Niên khóa 2023-2024}
 \fancyfoot[R]{\scriptsize \ttfamily Trang {\thepage}/\pageref{LastPage}}
 \renewcommand{\headrulewidth}{0.3pt}
-\renewcommand{\footrulewidth}{0.3pt}
+\renewcommand{\footrulewidth}{0pt}
 
 
 %%%
@@ -343,6 +343,7 @@ Nhóm phát triển & Phân tích, thiết kế, xây dựng và kiểm thử h�
 
 \subsection{Task 1.2 -- Yêu cầu chức năng và phi chức năng}
 
+
 \subsubsection{Yêu cầu chức năng (Functional Requirements)}
 
 Các yêu cầu chức năng được định danh theo mã FR để thuận tiện cho việc thiết kế, lập trình, kiểm thử và truy vết.
@@ -441,10 +442,10 @@ Các sơ đồ theo phân hệ được lưu trong \texttt{docs/diagrams/<phan-h
 Các use-case trọng tâm được đặc tả trong \texttt{docs/requirements/<phan-he>/} và sơ đồ trong \texttt{docs/diagrams/<phan-he>/}:
 
 \begin{itemize}
-    \item \textbf{Order (UC-01):} Khách hàng xem lại giỏ tại \texttt{/checkout}, tùy chỉnh số lượng/xóa món, nhập Tên, SĐT 10 số, chọn Mang đi/Dine-in (bắt buộc Số bàn), chọn phương thức thanh toán không tiền mặt (MoMo, VietQR, Thẻ). Backend chạy \texttt{prisma.\$transaction}: kiểm tra tồn kho ($stock \ge quantity$), tính tổng tiền từ giá gốc trong DB, tạo \texttt{Order} trạng thái \texttt{PENDING} và \texttt{OrderItem}, trừ kho nguyên tử. Mã ưu đãi ví dụ \texttt{BREWLITE} khấu trừ 20.000đ. Vòng đời đơn: \texttt{PENDING} $\to$ \texttt{PAID} $\to$ \texttt{PREPARING} $\to$ \texttt{READY} $\to$ \texttt{COMPLETED}; ngoại lệ \texttt{PAYMENT\_FAILED} (cho phép thử lại sang \texttt{PAID} hoặc \texttt{CANCELLED}); \texttt{COMPLETED} và \texttt{CANCELLED} là trạng thái kết thúc. Kiểm thử: bộ 33 ca tự động đạt 100\% PASS.
+    \item \textbf{Order (UC-01):} Khách hàng xem lại giỏ tại \texttt{/checkout}, tùy chỉnh số lượng/xóa món, nhập Tên, SĐT 10 số, chọn Mang đi/Dine-in (bắt buộc Số bàn), chọn phương thức thanh toán không tiền mặt (MoMo, VietQR, Thẻ). Backend chạy \texttt{prisma.\$transaction}: kiểm tra tồn kho ($stock \ge quantity$), tính tổng tiền từ giá gốc trong DB, tạo \texttt{Order} trạng thái \texttt{PENDING} và \texttt{OrderItem}, trừ kho nguyên tử. Mã ưu đãi ví dụ \texttt{BREWLITE} khấu trừ 20.000đ. Vòng đời đơn: \texttt{PENDING} $\to$ \texttt{PAID} $\to$ \texttt{PREPARING} $\to$ \texttt{READY} $\to$ \texttt{COMPLETED}; ngoại lệ \texttt{PAYMENT\\_FAILED} (cho phép thử lại sang \texttt{PAID} hoặc \texttt{CANCELLED}); \texttt{COMPLETED} và \texttt{CANCELLED} là trạng thái kết thúc. Kiểm thử: bộ 33 ca tự động đạt 100\% PASS.
     \item \textbf{Login/Auth (UC-AUTH-01):} Đăng ký (bcrypt salt rounds 10--12, UNIQUE email), đăng nhập cấp JWT (sub, email, iat, exp=1 giờ, ký bằng JWT\_SECRET), \texttt{GET /auth/me}, bảo vệ route bằng JwtAuthGuard, khôi phục phiên khi F5, xử lý token hết hạn (401), đăng xuất (xóa token client). Idempotency: gửi lại đăng ký cùng email trả 409, không tạo bản ghi thứ hai.
     \item \textbf{Cart (UC-CART-01):} Thêm/cộng dồn cùng productId+tùy chọn, cập nhật số lượng 1..stock, xóa dòng/toàn bộ, tính thành tiền và tổng tiền, lưu/khôi phục \texttt{localStorage}, chuyển danh sách productId/quantity sang Checkout; Cart không tự tạo Order, không trừ kho, không gọi Payment.
-    \item \textbf{Order History (UC-OH-01..05):} Xem danh sách (sắp xếp mới nhất trước), tìm kiếm theo mã (không phân biệt hoa thường, một phần), lọc theo trạng thái, xem chi tiết, thử tải lại; hỗ trợ API + mock data \texttt{brewlite\_mock\_orders} (API ưu tiên khi trùng mã); xử lý loading/empty/no-result/error.
+    \item \textbf{Order History (UC-OH-01..05):} Xem danh sách (sắp xếp mới nhất trước), tìm kiếm theo mã (không phân biệt hoa thường, một phần), lọc theo trạng thái, xem chi tiết, thử tải lại; hỗ trợ API + mock data \texttt{brewlite\\_mock\\_orders} (API ưu tiên khi trùng mã); xử lý loading/empty/no-result/error.
     \item \textbf{Payment (UC-PAY-01):} Chọn \texttt{WALLET}/\texttt{CARD}, kiểm tra đơn và số tiền từ DB, gọi Mock Payment Service, ghi nhận \texttt{SUCCESS}/\texttt{FAILED}, \texttt{idempotencyKey} (UNIQUE) chống xử lý trùng, không lưu thông tin thẻ/CVV.
     \item \textbf{Product/Product Detail (UC-PROD/UC-PD):} \texttt{GET /products} (lọc isAvailable), \texttt{GET /products/:id} trả 200/404, kiểm tra tồn kho, cung cấp dữ liệu cho Cart/Order.
 \end{itemize}
@@ -484,6 +485,14 @@ Mock Payment Service & Tiếp nhận yêu cầu thanh toán mô phỏng và tr�
 \end{table}
 
 \subsection{Task 1.3 -- Đặc tả use-case trọng tâm: Đặt và thanh toán đơn hàng}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{use-case-overall}
+\caption{Use Case Diagram -- BrewLite}
+\label{fig:usecase}
+\end{figure}
+
 
 \subsubsection{Thông tin use-case}
 
@@ -554,405 +563,50 @@ UC-01 liên quan trực tiếp đến FR-03, FR-04, FR-05, FR-06, FR-07 và FR-0
 
 Các biểu đồ trong Task 2 được cung cấp dưới dạng mã nguồn PlantUML. Mỗi biểu đồ được lưu thành một tệp .puml độc lập để nhóm có thể chỉnh sửa, quản lý phiên bản và kết xuất thành SVG/PNG khi cần đưa vào báo cáo.
 
+
 \subsection{Task 2.1 -- Activity Diagram}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
-\includesvg[width=\textwidth]{docs/diagrams/activity-end-to-end}
-\caption{Activity Diagram -- Luong dat hang va thanh toan BrewLite (SVG)}
+\includegraphics[width=\textwidth]{activity-end-to-end}
+\caption{Activity Diagram -- Luong dat hang va thanh toan BrewLite}
 \label{fig:activity}
 \end{figure}
 
 Activity Diagram mô tả luồng từ lúc khách hàng mở menu đến khi nhận kết quả thanh toán. Sơ đồ thể hiện các lane của Khách hàng, Next.js UI, NestJS API, PostgreSQL và Mock Payment Service. Các nhánh ngoại lệ gồm chưa đăng nhập, dữ liệu không hợp lệ, hết hàng và thanh toán thất bại.
 
-\begin{lstlisting}[language=PlantUML,caption={Mã PlantUML -- Activity Diagram}]
-@startuml
-title Activity Diagram - Luong dat hang va thanh toan BrewLite
-skinparam shadowing false
-skinparam activity {
-  BackgroundColor White
-  BorderColor #333333
-  ArrowColor #333333
-}
+% [PlantUML source removed - SVG imported separately in Overleaf]
 
-|Khach hang|
-start
-:Mo ung dung BrewLite;
 
-|Next.js UI|
-:Hien thi menu;
-
-|NestJS API|
-:Lay danh sach san pham;
-
-|PostgreSQL|
-:Tra ve san pham dang kinh doanh;
-
-|Next.js UI|
-:Hien thi menu cho khach hang;
-
-|Khach hang|
-:Chon san pham, size va topping;
-
-|Next.js UI|
-:Cap nhat gio hang;
-while (Muon them mon khac?) is (Co)
-  |Khach hang|
-  :Chon them san pham;
-  |Next.js UI|
-  :Cap nhat gio hang;
-endwhile (Khong)
-
-|Khach hang|
-:Xem gio hang va chon Dat hang;
-
-if (Da dang nhap?) then (Chua)
-  |Next.js UI|
-  :Hien thi yeu cau dang nhap;
-  |Khach hang|
-  :Nhap email va mat khau;
-  |Next.js UI|
-  :Gui yeu cau dang nhap;
-  |NestJS API|
-  :Xac thuc thong tin va cap JWT;
-  if (Dang nhap hop le?) then (Khong)
-    |Next.js UI|
-    :Thong bao loi dang nhap;
-    stop
-  else (Co)
-    |Next.js UI|
-    :Luu token va tiep tuc checkout;
-  endif
-else (Roi)
-  |Next.js UI|
-  :Tiep tuc checkout;
-endif
-
-|Khach hang|
-:Nhap thong tin nhan nuoc;
-:Chon mang di hoac nhap so ban;
-:Xac nhan dat hang;
-
-|Next.js UI|
-:Gui POST /orders kem JWT;
-
-|NestJS API|
-:Kiem tra JWT va validate du lieu;
-if (JWT va du lieu hop le?) then (Khong)
-  |Next.js UI|
-  :Hien thi loi 401/400;
-  stop
-else (Co)
-  :Tinh lai tong tien tu gia trong CSDL;
-  :Kiem tra san pham va so luong ton kho;
-endif
-
-|PostgreSQL|
-:Bat dau transaction;
-:Kiem tra va cap nhat ton kho;
-
-if (Du ton kho?) then (Khong)
-  :Rollback transaction;
-  |NestJS API|
-  :Tra loi het hang;
-  |Next.js UI|
-  :Thong bao san pham het hang;
-  stop
-else (Co)
-  :Tao Order trang thai PENDING;
-  :Luu cac OrderItem;
-  :Commit transaction;
-endif
-
-|NestJS API|
-:Tra ve orderId va tong tien;
-
-|Next.js UI|
-:Hien thi trang thanh toan;
-|Khach hang|
-:Chon Vi dien tu hoac The;
-:Xac nhan thanh toan;
-
-|Next.js UI|
-:Gui POST /payments kem Idempotency-Key;
-
-|NestJS API|
-:Kiem tra Idempotency-Key;
-:Gui yeu cau den Mock Payment Service;
-
-|Mock Payment Service|
-:Mo phong ket qua thanh toan;
-
-if (Thanh toan thanh cong?) then (Co)
-  |NestJS API|
-  :Cap nhat Payment = SUCCEEDED;
-  :Cap nhat Order = PAID;
-  |PostgreSQL|
-  :Luu ket qua thanh toan va trang thai don;
-  |Next.js UI|
-  :Hien thi ma don va xac nhan thanh cong;
-else (Khong)
-  |NestJS API|
-  :Cap nhat Payment = FAILED;
-  :Cap nhat Order = PAYMENT_FAILED;
-  |PostgreSQL|
-  :Luu ket qua that bai;
-  |Next.js UI|
-  :Thong bao thanh toan that bai;
-  :Giu gio hang va cho phep thu lai;
-endif
-
-|Khach hang|
-:Theo doi trang thai don hang;
-stop
-@enduml
-
-\end{lstlisting}
-
+\clearpage
+\thispagestyle{empty}
 \subsection{Task 2.2 -- Sequence Diagram}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
-\includesvg[width=\textwidth]{docs/diagrams/sequence-checkout}
-\caption{Sequence Diagram -- Use case dat va thanh toan don hang (SVG)}
+\includegraphics[width=\textwidth,height=0.7\textheight,keepaspectratio]{sequence-checkout}
+\caption{Sequence Diagram -- Use case dat va thanh toan don hang}
 \label{fig:sequence}
 \end{figure}
 
 Sequence Diagram mô tả thứ tự trao đổi thông điệp trong use-case UC-01. Các lifeline gồm Customer, Next.js UI, NestJS API, PostgreSQL và Mock Payment Service. Sơ đồ thể hiện xác thực JWT, validate request, transaction tạo đơn/cập nhật tồn kho, hai nhánh thanh toán thành công/thất bại và xử lý Idempotency-Key khi request được gửi lại.
 
-\begin{lstlisting}[language=PlantUML,caption={Mã PlantUML -- Sequence Diagram}]
-@startuml
-title Sequence Diagram - Use case Dat va thanh toan don hang
-autonumber
-skinparam shadowing false
-skinparam sequence {
-  ArrowColor #333333
-  LifeLineBorderColor #555555
-  ParticipantBorderColor #333333
-}
+% [PlantUML source removed - SVG imported separately in Overleaf]
 
-actor Customer
-participant "Next.js UI" as UI
-participant "NestJS API" as API
-database "PostgreSQL" as DB
-participant "Mock Payment Service" as Pay
-
-Customer -> UI: Xac nhan dat hang
-UI -> API: POST /orders\nAuthorization: Bearer JWT
-activate API
-API -> API: Validate JWT va request body
-
-alt JWT khong hop le hoac du lieu sai
-  API --> UI: 401 Unauthorized / 400 Bad Request
-  UI --> Customer: Hien thi loi va yeu cau xu ly
-else JWT va du lieu hop le
-  API -> API: Tinh tong tien tu gia trong database
-  API -> DB: BEGIN TRANSACTION
-  activate DB
-  API -> DB: Kiem tra san pham va ton kho
-  alt Khong du ton kho
-    DB --> API: Ton kho khong du
-    API -> DB: ROLLBACK
-    DB --> API: Rollback completed
-    API --> UI: 400 Bad Request - Out of stock
-    UI --> Customer: Thong bao san pham het hang
-  else Du ton kho
-    API -> DB: Tru ton kho co dieu kien\n(stock >= quantity)
-    API -> DB: INSERT Order(status=PENDING)
-    API -> DB: INSERT OrderItem
-    API -> DB: COMMIT
-    DB --> API: orderId, totalAmount
-    deactivate DB
-    API --> UI: 201 Created\n(orderId, PENDING, totalAmount)
-    UI --> Customer: Hien thi thong tin don va buoc thanh toan
-
-    Customer -> UI: Chon phuong thuc va xac nhan
-    UI -> API: POST /payments\norderId, method, Idempotency-Key
-    API -> API: Validate JWT, order va payment request
-    API -> DB: Tim Payment theo Idempotency-Key
-    activate DB
-    alt Idempotency-Key da duoc xu ly
-      DB --> API: Tra ve ket qua da luu
-      API --> UI: Tra ve ket qua cu, khong tao giao dich moi
-    else Idempotency-Key moi
-      API -> DB: Tao Payment(status=PENDING, key)
-      DB --> API: Payment record
-      API -> Pay: Process payment(orderId, amount, method, key)
-      activate Pay
-      alt Thanh toan thanh cong
-        Pay --> API: SUCCESS, transactionRef
-        deactivate Pay
-        API -> DB: Payment = SUCCEEDED\nOrder = PAID
-        DB --> API: Commit ket qua
-        API --> UI: 200 OK (PAID, transactionRef)
-        UI --> Customer: Hien thi ma don va xac nhan thanh cong
-      else Thanh toan that bai
-        Pay --> API: FAILED
-        deactivate Pay
-        API -> DB: Payment = FAILED\nOrder = PAYMENT_FAILED
-        DB --> API: Commit ket qua that bai
-        API --> UI: 200/4xx theo quy uoc API\n(PAYMENT_FAILED)
-        UI --> Customer: Thong bao that bai va cho phep thu lai
-      end
-    end
-    deactivate DB
-  end
-end
-deactivate API
-@enduml
-
-\end{lstlisting}
 
 \subsection{Task 2.3 -- Class Diagram}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
-\includesvg[width=\textwidth]{docs/diagrams/class-domain}
-\caption{Class Diagram -- BrewLite Domain Model (SVG)}
+\includegraphics[width=\textwidth]{class-domain}
+\caption{Class Diagram -- BrewLite Domain Model}
 \label{fig:class}
 \end{figure}
 
 Class Diagram trình bày mô hình domain tối thiểu gồm User, Product, Order, OrderItem, Payment, Promotion và LoyaltyTransaction. Sơ đồ thể hiện thuộc tính chính, quan hệ, multiplicity và các enum trạng thái.
 
-\begin{lstlisting}[language=PlantUML,caption={Mã PlantUML -- Class Diagram}]
-@startuml
-title Class Diagram - BrewLite Domain Model
-skinparam shadowing false
-skinparam classAttributeIconSize 0
-hide empty methods
+% [PlantUML source removed - SVG imported separately in Overleaf]
 
-class User {
-  +id: UUID
-  +name: String
-  +email: String
-  +passwordHash: String
-  +role: UserRole
-  +loyaltyPoints: Integer
-  +createdAt: DateTime
-}
-
-class Product {
-  +id: UUID
-  +name: String
-  +description: String
-  +price: Decimal
-  +imageUrl: String
-  +stock: Integer
-  +isAvailable: Boolean
-}
-
-class Order {
-  +id: UUID
-  +orderCode: String
-  +status: OrderStatus
-  +totalAmount: Decimal
-  +pickupType: PickupType
-  +tableNumber: String
-  +recipientName: String
-  +recipientPhone: String
-  +note: String
-  +createdAt: DateTime
-}
-
-class OrderItem {
-  +id: UUID
-  +productNameSnapshot: String
-  +size: String
-  +quantity: Integer
-  +unitPrice: Decimal
-  +lineTotal: Decimal
-}
-
-class Payment {
-  +id: UUID
-  +amount: Decimal
-  +method: PaymentMethod
-  +status: PaymentStatus
-  +idempotencyKey: String
-  +transactionRef: String
-  +createdAt: DateTime
-}
-
-class Promotion {
-  +id: UUID
-  +code: String
-  +discountType: PromotionType
-  +discountValue: Decimal
-  +startAt: DateTime
-  +endAt: DateTime
-  +isActive: Boolean
-}
-
-class LoyaltyTransaction {
-  +id: UUID
-  +type: LoyaltyTransactionType
-  +points: Integer
-  +description: String
-  +createdAt: DateTime
-}
-
-enum UserRole {
-  USER
-  ADMIN
-}
-
-enum OrderStatus {
-  PENDING
-  PAID
-  PREPARING
-  READY
-  COMPLETED
-  PAYMENT_FAILED
-  CANCELLED
-}
-
-enum PaymentStatus {
-  PENDING
-  SUCCEEDED
-  FAILED
-}
-
-enum PaymentMethod {
-  WALLET
-  CARD
-}
-
-enum PickupType {
-  TAKEAWAY
-  DINE_IN
-}
-
-enum PromotionType {
-  PERCENTAGE
-  FIXED_AMOUNT
-}
-
-enum LoyaltyTransactionType {
-  EARN
-  REDEEM
-  ADJUST
-}
-
-User "1" -- "0..*" Order : places
-Order "1" *-- "1..*" OrderItem : contains
-Product "1" -- "0..*" OrderItem : referenced by
-Order "1" -- "0..*" Payment : has attempts
-Order "0..*" -- "0..1" Promotion : applies
-User "1" -- "0..*" LoyaltyTransaction : owns
-Order "1" -- "0..*" LoyaltyTransaction : generates
-
-note right of Order
-  COMPLETED va CANCELLED la trang thai ket thuc.
-  PAYMENT_FAILED co the tao mot lan thanh toan moi.
-end note
-
-note bottom of Payment
-  idempotencyKey phai duoc unique
-  trong pham vi cac yeu cau thanh toan.
-end note
-@enduml
-
-\end{lstlisting}
 
 \subsection{Nhận xét về tính nhất quán của các biểu đồ}
 
@@ -1116,9 +770,8 @@ Mỗi yêu cầu thanh toán sử dụng Idempotency-Key. Backend lưu khóa nà
 
 Ví dụ với Ubuntu Server:
 
-\begin{lstlisting}[language=bash,caption={Kết nối SSH đến EC2 Ubuntu}]
-ssh -i "brewlite-ec2.pem" ubuntu@<EC2-PUBLIC-IP-OR-DNS>
-\end{lstlisting}
+% [PlantUML source removed - SVG imported separately in Overleaf]
+
 
 Nếu sử dụng Amazon Linux, tên người dùng mặc định thường là \texttt{ec2-user}. Tên người dùng phải phù hợp với AMI được chọn.
 
@@ -1217,15 +870,13 @@ Private key là phần bí mật của Key Pair; AWS lưu public key trên insta
 
 Từ máy Windows có OpenSSH Client, quản trị viên mở PowerShell tại thư mục chứa file key và thực hiện:
 
-\begin{lstlisting}[language=bash,caption={SSH từ Windows PowerShell đến Ubuntu EC2}]
-ssh -i ".\brewlite-ec2.pem" ubuntu@<EC2-PUBLIC-IP-OR-DNS>
-\end{lstlisting}
+% [PlantUML source removed - SVG imported separately in Overleaf]
+
 
 Với Amazon Linux, có thể sử dụng người dùng mặc định \texttt{ec2-user}:
 
-\begin{lstlisting}[language=bash,caption={SSH đến Amazon Linux EC2}]
-ssh -i ".\brewlite-ec2.pem" ec2-user@<EC2-PUBLIC-IP-OR-DNS>
-\end{lstlisting}
+% [PlantUML source removed - SVG imported separately in Overleaf]
+
 
 Nếu SSH báo lỗi quyền truy cập private key, cần kiểm tra quyền đọc file key trên máy quản trị. Nếu báo \texttt{Permission denied (publickey)}, cần kiểm tra đúng file private key, đúng username theo AMI, đúng địa chỉ máy chủ và inbound rule của Security Group.
 
@@ -1300,7 +951,7 @@ EBS data volume được mount vào EC2 tại thư mục, ví dụ \texttt{/data
 \begin{itemize}
     \item Dùng EBS data volume riêng cho PostgreSQL thay vì chỉ lưu dữ liệu trong container writable layer.
     \item Kiểm tra cấu hình \texttt{DeleteOnTermination}; nếu cần giữ dữ liệu khi thay thế/terminate EC2, phải đặt chế độ bảo toàn volume và xác nhận lại trong EC2 Console.
-    \item Thực hiện PostgreSQL logical backup định kỳ, ví dụ dùng \texttt{pg_dump}, và lưu bản backup ở vị trí tách biệt như Amazon S3.
+    \item Thực hiện PostgreSQL logical backup định kỳ, ví dụ dùng \texttt{pg\_dump}, và lưu bản backup ở vị trí tách biệt như Amazon S3.
     \item Tạo EBS snapshot theo lịch phù hợp và kiểm tra quy trình khôi phục volume.
     \item Không coi snapshot là phương án duy nhất; cần thử restore để xác nhận dữ liệu có thể sử dụng.
 \end{itemize}
@@ -1393,7 +1044,7 @@ Hiện thực phiên bản đầu tiên:
 \begin{itemize}
     \item API \texttt{GET /products} và \texttt{GET /products/:id} (NestJS, \texttt{ProductsController}, \texttt{ProductsService}) với dữ liệu seed 6 sản phẩm.
     \item Màn hình chi tiết sản phẩm mobile-first bằng Next.js (\texttt{apps/web/src/app/products/[id]/page.tsx}) với trạng thái loading, empty (out of stock) và error.
-    \item Dữ liệu mẫu \texttt{PRODUCTS\_SEED} trong \texttt{apps/api/src/products/products.seed.ts}.
+    \item Dữ liệu mẫu \texttt{PRODUCTS\\_SEED} trong \texttt{apps/api/src/products/products.seed.ts}.
     \item Kiểm thử: \texttt{apps/api/src/products/products.service.spec.ts}, \texttt{products.controller.spec.ts}, \texttt{app.service.spec.ts}, integration test \texttt{tests/integration/product-detail.spec.ts}.
 \end{itemize}
 
@@ -1405,7 +1056,7 @@ Pipeline CI tại \texttt{.github/workflows/ci.yml} chạy tự động trên pu
 
 \subsection{Task 5.1 -- Hoàn thiện MVP}
 
-Các chức năng end-to-end đã hiện thực: product detail, cart (thêm/xóa/cập nhật, tổng tiền), đăng ký/đăng nhập JWT, tạo đơn từ giỏ hàng, thanh toán mô phỏng (MOMO/BANK_TRANSFER/CARD) với idempotency, xác nhận/trạng thái/lịch sử đơn, validate frontend/backend. Frontend có các trang: menu, chi tiết sản phẩm, giỏ hàng, đăng nhập, đặt đơn, thanh toán, lịch sử đơn.
+Các chức năng end-to-end đã hiện thực: product detail, cart (thêm/xóa/cập nhật, tổng tiền), đăng ký/đăng nhập JWT, tạo đơn từ giỏ hàng, thanh toán mô phỏng (MOMO/BANK\_TRANSFER/CARD) với idempotency, xác nhận/trạng thái/lịch sử đơn, validate frontend/backend. Frontend có các trang: menu, chi tiết sản phẩm, giỏ hàng, đăng nhập, đặt đơn, thanh toán, lịch sử đơn.
 
 \subsection{Task 5.2 -- Tích hợp và kiểm thử}
 
@@ -1433,7 +1084,7 @@ Dựa trên mã nguồn hiện có trong repository, các thành phần đã đ�
     \item Cart: service và controller quản lý giỏ hàng; frontend /cart với thêm/xóa/cập nhật số lượng và tổng tiền.
     \item Auth: đăng ký, đăng nhập, cấp JWT, lưu token phía client; trang /login.
     \item Orders: tạo đơn từ giỏ hàng, cập nhật trạng thái, lịch sử và chi tiết đơn; trang /orders và /orders/[id].
-    \item Payments: thanh toán mô phỏng (MOMO/BANK_TRANSFER/CARD) với idempotency; trang /payments.
+    \item Payments: thanh toán mô phỏng (MOMO/BANK\_TRANSFER/CARD) với idempotency; trang /payments.
     \item Frontend (Next.js): các trang menu, chi tiết sản phẩm, giỏ hàng, đăng nhập, đặt đơn, thanh toán, lịch sử đơn; xử lý loading, empty, error.
     \item Kiểm thử: unit test, integration test (Jest + Supertest) và E2E test tests/e2e/order-flow.spec.ts (menu to order to payment to confirmation, bao gồm sizing/toppings).
     \item Container hóa: Dockerfile cho web/api và docker-compose.yml chạy web (3000), api (3001), db (PostgreSQL 16) với healthcheck và seed docker/postgres/init.sql.

@@ -284,7 +284,7 @@ export default function OrderDetailsPage() {
                   cursor: 'pointer',
                 }}
               >
-                Thanh toán đơn hàng (${order.total.toFixed(2)}) →
+                Thanh toán đơn hàng ({order.total.toLocaleString('vi-VN')} đ) →
               </button>
               <button
                 type="button"
@@ -418,7 +418,7 @@ export default function OrderDetailsPage() {
                      )
                   </span>
                 </div>
-                <div style={{ fontWeight: 600 }}>${item.lineTotal.toFixed(2)}</div>
+                <div style={{ fontWeight: 600 }}>{item.lineTotal.toLocaleString('vi-VN')} đ</div>
               </div>
             ))}
 
@@ -434,7 +434,7 @@ export default function OrderDetailsPage() {
               }}
             >
               <span>Tổng cộng:</span>
-              <span style={{ color: '#2e7d32' }}>${order.total.toFixed(2)}</span>
+              <span style={{ color: '#2e7d32' }}>{order.total.toLocaleString('vi-VN')} đ</span>
             </div>
           </section>
         </div>
