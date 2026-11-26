@@ -92,8 +92,8 @@ export class AuthService {
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       throw new BadRequestException('Email không hợp lệ');
     }
-    if (!password || password.length < 6) {
-      throw new BadRequestException('Mật khẩu phải có ít nhất 6 ký tự');
+    if (!password || password.length < 8) {
+      throw new BadRequestException('Mật khẩu phải có ít nhất 8 ký tự');
     }
     const normalizedEmail = email.trim().toLowerCase();
     if (this.users.some((u) => u.email === normalizedEmail)) {
@@ -204,7 +204,7 @@ export class AuthService {
       JSON.stringify({
         ...payload,
         iat: Math.floor(Date.now() / 1000),
-        exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
+        exp: Math.floor(Date.now() / 1000) + 60 * 60,
       }),
     );
     const signature = this.hmac(`${header}.${body}`);

@@ -157,7 +157,7 @@ export default function LoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            minLength={6}
+            minLength={8}
             style={{
               width: '100%',
               padding: '0.5rem',
