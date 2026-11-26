@@ -42,6 +42,10 @@ export interface Order {
   status: OrderStatus;
   items: OrderItem[];
   total: number;
+  promoCode?: string;
+  discount?: number;
+  pointsEarned?: number;
+  pointsRedeemed?: number;
   note?: string;
   createdAt: string;
   updatedAt: string;

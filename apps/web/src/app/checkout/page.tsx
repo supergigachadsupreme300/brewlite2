@@ -26,7 +26,7 @@ export default function CheckoutPage() {
   useEffect(() => {
     const token =
       typeof window !== 'undefined'
-        ? localStorage.getItem('token') || localStorage.getItem('brewlite_jwt')
+        ? localStorage.getItem('token')
         : null;
     if (!token) {
       router.replace('/login');
@@ -34,6 +34,22 @@ export default function CheckoutPage() {
   }, [router]);
 
   const [cart, setCart] = useState<CartItem[]>([]);
+
+  useEffect(() => {
+    const token =
+      typeof window !== 'undefined'
+        ? localStorage.getItem('token')
+        : null;
+    if (!token) return;
+    fetch(`${API_BASE_URL}/auth/loyalty`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data && typeof data.points === 'number') setLoyaltyPoints(data.points);
+      })
+      .catch(() => {});
+  }, []);
   const [customerName, setCustomerName] = useState<string>('');
   const [customerPhone, setCustomerPhone] = useState<string>('');
   const [pickupType, setPickupType] = useState<'TAKEAWAY' | 'DINE_IN'>('TAKEAWAY');
@@ -45,6 +61,9 @@ export default function CheckoutPage() {
   const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
   const [promoDiscount, setPromoDiscount] = useState<number>(0);
   const [promoMessage, setPromoMessage] = useState<string | null>(null);
+
+  const [loyaltyPoints, setLoyaltyPoints] = useState<number>(0);
+  const [redeemPoints, setRedeemPoints] = useState<number>(0);
 
   const [touchedPhone, setTouchedPhone] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
@@ -148,6 +167,8 @@ export default function CheckoutPage() {
       pickupType,
       tableNumber: pickupType === 'DINE_IN' ? tableNumber.trim() : undefined,
       paymentMethod,
+      promoCode: appliedPromo || undefined,
+      redeemPoints: redeemPoints > 0 ? redeemPoints : undefined,
       note: note.trim()
         ? `${note.trim()}${appliedPromo ? ` [Mã ưu đãi: ${appliedPromo}]` : ''}`
         : appliedPromo
@@ -638,6 +659,39 @@ export default function CheckoutPage() {
             />
           </div>
         </section>
+
+        {loyaltyPoints > 0 && (
+          <section
+            style={{
+              border: '1px solid #e0e0e0',
+              borderRadius: '0.75rem',
+              padding: '1rem',
+              marginBottom: '1rem',
+              backgroundColor: '#fafafa',
+            }}
+          >
+            <h2 style={{ fontSize: '1.05rem', margin: '0 0 0.5rem 0', fontWeight: 600 }}>
+              Điểm thưởng: {loyaltyPoints} điểm
+            </h2>
+            <label style={{ fontSize: '0.85rem', fontWeight: 600, display: 'block', marginBottom: '0.25rem' }}>
+              Dùng điểm (1 điểm = 1.000đ)
+            </label>
+            <input
+              type="number"
+              min={0}
+              max={loyaltyPoints}
+              value={redeemPoints}
+              onChange={(e) => setRedeemPoints(Math.max(0, parseInt(e.target.value) || 0))}
+              style={{
+                width: '100%',
+                padding: '0.5rem',
+                borderRadius: '0.4rem',
+                border: '1px solid #ccc',
+                boxSizing: 'border-box',
+              }}
+            />
+          </section>
+        )}
 
         <button
           type="submit"

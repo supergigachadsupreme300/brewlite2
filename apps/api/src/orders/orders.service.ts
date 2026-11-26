@@ -3,12 +3,15 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
+import { AuthService } from '../auth/auth.service';
 import { ProductsService } from '../products/products.service';
 import {
   Order,
   OrderItem,
   OrderStatus,
+  PaymentMethod,
   PickupType,
 } from './order.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -17,7 +20,81 @@ import { CreateOrderDto } from './dto/create-order.dto';
 export class OrdersService {
   private readonly orders: Order[] = [];
 
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(
+    private readonly productsService: ProductsService,
+    @Optional() private readonly authService?: AuthService,
+  ) {
+    if (process.env.NODE_ENV !== 'test') {
+      this.seedOrders();
+    }
+  }
+
+  private readonly promoCodes: Record<string, { type: 'fixed' | 'percent'; value: number; maxDiscount?: number }> = {
+    BREWLITE: { type: 'fixed', value: 20000 },
+    SALE20: { type: 'percent', value: 20, maxDiscount: 30000 },
+    WELCOME: { type: 'fixed', value: 15000 },
+  };
+
+  validatePromo(code: string): { type: 'fixed' | 'percent'; value: number; maxDiscount?: number } | null {
+    return this.promoCodes[code] ?? null;
+  }
+
+  private seedOrders(): void {
+    const customerId = 'user-customer-seed';
+    const customerName = 'BrewLite Customer';
+    const customerPhone = '0901234567';
+
+    const makeItem = (productId: string, quantity: number, size: 'S' | 'M' | 'L' = 'M') => {
+      const product = this.productsService.findOne(productId);
+      return {
+        id: `seed-item-${productId}-${Math.random().toString(36).substring(2, 7)}`,
+        orderId: '',
+        productId: product.id,
+        productName: product.name,
+        quantity,
+        size,
+        unitPrice: product.price,
+        lineTotal: Number((product.price * quantity).toFixed(2)),
+      };
+    };
+
+    const seedData: { status: OrderStatus; items: { productId: string; quantity: number; size?: 'S' | 'M' | 'L' }[]; pickupType?: PickupType; paymentMethod?: PaymentMethod }[] = [
+      { status: OrderStatus.PENDING, items: [{ productId: '1', quantity: 2, size: 'M' }], pickupType: PickupType.TAKEAWAY, paymentMethod: PaymentMethod.MOMO },
+      { status: OrderStatus.PAID, items: [{ productId: '2', quantity: 1, size: 'L' }], pickupType: PickupType.TAKEAWAY, paymentMethod: PaymentMethod.CARD },
+      { status: OrderStatus.PREPARING, items: [{ productId: '3', quantity: 1, size: 'M' }, { productId: '6', quantity: 2, size: 'M' }], pickupType: PickupType.DINE_IN, paymentMethod: PaymentMethod.BANK_TRANSFER },
+      { status: OrderStatus.READY, items: [{ productId: '4', quantity: 1, size: 'L' }], pickupType: PickupType.TAKEAWAY, paymentMethod: PaymentMethod.MOMO },
+      { status: OrderStatus.COMPLETED, items: [{ productId: '1', quantity: 1, size: 'S' }], pickupType: PickupType.DINE_IN, paymentMethod: PaymentMethod.CARD },
+      { status: OrderStatus.PAYMENT_FAILED, items: [{ productId: '2', quantity: 2, size: 'M' }], pickupType: PickupType.TAKEAWAY, paymentMethod: PaymentMethod.CARD },
+      { status: OrderStatus.CANCELLED, items: [{ productId: '4', quantity: 1, size: 'M' }], pickupType: PickupType.TAKEAWAY, paymentMethod: PaymentMethod.MOMO },
+    ];
+
+    seedData.forEach((s, idx) => {
+      const items = s.items.map((it) => makeItem(it.productId, it.quantity, it.size));
+      const orderId = `SEED-ORD-${idx + 1}`;
+      items.forEach((item) => (item.orderId = orderId));
+      const total = items.reduce((sum, it) => sum + it.lineTotal, 0);
+      const now = new Date(Date.now() - (seedData.length - idx) * 3600000).toISOString();
+
+      const order: Order = {
+        id: orderId,
+        userId: customerId,
+        customerName,
+        customerPhone,
+        pickupType: s.pickupType ?? PickupType.TAKEAWAY,
+        tableNumber: s.pickupType === PickupType.DINE_IN ? 'Bàn 05' : undefined,
+        paymentMethod: s.paymentMethod ?? PaymentMethod.MOMO,
+        status: s.status,
+        items,
+        total: Number(total.toFixed(2)),
+        note: `Đơn seed trạng thái ${s.status}`,
+        createdAt: now,
+        updatedAt: now,
+      };
+      this.orders.push(order);
+    });
+
+    console.log(`[Orders] Seeded ${seedData.length} orders for ${customerId}`);
+  }
 
   createOrder(dto: CreateOrderDto): Order {
     // 1. Kiểm tra giỏ hàng không rỗng (BR-06)
@@ -92,7 +169,41 @@ export class OrdersService {
       product.stock -= itemDto.quantity;
     }
 
-    // 6. Tạo đơn hàng mới ở trạng thái khởi tạo PENDING
+    // 6. Áp dụng mã giảm giá (promo code)
+    let discount = 0;
+    let appliedPromo: string | undefined;
+    if (dto.promoCode) {
+      const code = dto.promoCode.trim().toUpperCase();
+      const promo = this.validatePromo(code);
+      if (promo) {
+        if (promo.type === 'fixed') {
+          discount = promo.value;
+        } else if (promo.type === 'percent') {
+          discount = Number(((total * promo.value) / 100).toFixed(2));
+          if (promo.maxDiscount && discount > promo.maxDiscount) {
+            discount = promo.maxDiscount;
+          }
+        }
+        appliedPromo = code;
+      }
+    }
+
+    // 7. Đổi điểm thưởng (redeem loyalty points)
+    let pointsRedeemed = 0;
+    if (dto.redeemPoints && dto.redeemPoints > 0 && dto.userId) {
+      // 1 point = 1000 VND
+      const maxRedeem = Math.floor(total / 1000);
+      const redeem = Math.min(dto.redeemPoints, maxRedeem);
+      pointsRedeemed = redeem;
+      discount += redeem * 1000;
+      if (this.authService && dto.userId) {
+        this.authService.redeemLoyaltyPoints(dto.userId, redeem);
+      }
+    }
+
+    const finalTotal = Math.max(0, Number((total - discount).toFixed(2)));
+
+    // 8. Tạo đơn hàng mới ở trạng thái khởi tạo PENDING
     const orderId = `ORD-${Date.now().toString(36).toUpperCase()}-${Math.floor(
       1000 + Math.random() * 9000
     )}`;
@@ -112,7 +223,10 @@ export class OrdersService {
       paymentMethod: dto.paymentMethod,
       status: OrderStatus.PENDING,
       items: orderItems,
-      total,
+      total: finalTotal,
+      promoCode: appliedPromo,
+      discount: discount > 0 ? discount : undefined,
+      pointsRedeemed: pointsRedeemed > 0 ? pointsRedeemed : undefined,
       note: dto.note?.trim() || undefined,
       createdAt: now,
       updatedAt: now,
@@ -153,6 +267,7 @@ export class OrdersService {
     if (newStatus === OrderStatus.CANCELLED) {
       if (
         order.status === OrderStatus.PENDING ||
+        order.status === OrderStatus.PAID ||
         order.status === OrderStatus.PREPARING ||
         order.status === OrderStatus.PAYMENT_FAILED
       ) {
@@ -185,7 +300,7 @@ export class OrdersService {
         OrderStatus.PAYMENT_FAILED,
         OrderStatus.CANCELLED,
       ],
-      [OrderStatus.PAID]: [OrderStatus.PREPARING],
+      [OrderStatus.PAID]: [OrderStatus.PREPARING, OrderStatus.CANCELLED],
       [OrderStatus.PREPARING]: [OrderStatus.READY, OrderStatus.CANCELLED],
       [OrderStatus.READY]: [OrderStatus.COMPLETED],
       [OrderStatus.PAYMENT_FAILED]: [OrderStatus.PAID, OrderStatus.CANCELLED],

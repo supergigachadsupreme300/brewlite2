@@ -31,6 +31,10 @@ type Order = {
     | 'CANCELLED';
   items: OrderItem[];
   total: number;
+  promoCode?: string;
+  discount?: number;
+  pointsEarned?: number;
+  pointsRedeemed?: number;
   note?: string;
   createdAt: string;
   updatedAt: string;
@@ -306,6 +310,28 @@ export default function OrderDetailsPage() {
             </div>
           )}
 
+          {order.status === 'PAID' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <button
+                type="button"
+                disabled={cancelling}
+                onClick={handleCancelOrder}
+                style={{
+                  width: '100%',
+                  padding: '0.5rem',
+                  backgroundColor: '#ffffff',
+                  color: '#666',
+                  border: '1px solid #ccc',
+                  borderRadius: '0.4rem',
+                  fontSize: '0.85rem',
+                  cursor: cancelling ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {cancelling ? 'Đang hủy...' : 'Hủy đơn hàng (đã thanh toán)'}
+              </button>
+            </div>
+          )}
+
           {order.status === 'PAYMENT_FAILED' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <button
@@ -422,6 +448,22 @@ export default function OrderDetailsPage() {
               </div>
             ))}
 
+            {order.promoCode && (
+              <div style={{ fontSize: '0.85rem', color: '#2e7d32', marginTop: '0.25rem' }}>
+                Mã giảm giá: {order.promoCode}
+                {order.discount ? ` (-${order.discount.toLocaleString('vi-VN')} đ)` : ''}
+              </div>
+            )}
+            {order.pointsRedeemed ? (
+              <div style={{ fontSize: '0.85rem', color: '#1565c0' }}>
+                Đã dùng {order.pointsRedeemed} điểm thưởng
+              </div>
+            ) : null}
+            {order.pointsEarned ? (
+              <div style={{ fontSize: '0.85rem', color: '#2e7d32' }}>
+                Tích lũy {order.pointsEarned} điểm thưởng
+              </div>
+            ) : null}
             <div
               style={{
                 display: 'flex',

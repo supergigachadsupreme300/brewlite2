@@ -1,15 +1,22 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Product } from '../types/product';
 
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+
 interface ProductDetailModalProps {
-  product: Product | null;
+  productId: string | null;
   onClose: () => void;
 }
 
-export function ProductDetailModal({ product, onClose }: ProductDetailModalProps) {
+export function ProductDetailModal({ productId, onClose }: ProductDetailModalProps) {
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
   const [size, setSize] = useState<'S' | 'M' | 'L'>('M');
   const [ice, setIce] = useState('100%');
   const [sugar, setSugar] = useState('100%');
@@ -24,7 +31,72 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
     { key: 'caramel', label: 'Siro caramel', add: 5000 },
   ];
 
-  if (!product) return null;
+  useEffect(() => {
+    if (!productId) {
+      setProduct(null);
+      return;
+    }
+    const controller = new AbortController();
+    setLoading(true);
+    setError(null);
+    fetch(`${API_BASE_URL}/products/${productId}`, { signal: controller.signal })
+      .then((res) => {
+        if (res.status === 404) throw new Error('Sản phẩm không tồn tại');
+        if (!res.ok) throw new Error(`Yêu cầu thất bại (${res.status})`);
+        return res.json();
+      })
+      .then((data: Product) => setProduct(data))
+      .catch((err) => {
+        if ((err as Error).name !== 'AbortError') {
+          setError((err as Error).message || 'Không thể tải chi tiết sản phẩm.');
+        }
+      })
+      .finally(() => setLoading(false));
+    return () => controller.abort();
+  }, [productId]);
+
+  if (!productId) return null;
+  if (loading) {
+    return (
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 100,
+          backgroundColor: 'rgba(0,0,0,0.55)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        onClick={onClose}
+      >
+        <div style={{ backgroundColor: '#fff', padding: '2rem', borderRadius: '0.75rem' }}>
+          <p role="status">Đang tải chi tiết sản phẩm...</p>
+        </div>
+      </div>
+    );
+  }
+  if (error || !product) {
+    return (
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 100,
+          backgroundColor: 'rgba(0,0,0,0.55)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        onClick={onClose}
+      >
+        <div style={{ backgroundColor: '#fff', padding: '2rem', borderRadius: '0.75rem', textAlign: 'center' }}>
+          <p role="alert" style={{ color: '#b00020' }}>{error || 'Không tìm thấy sản phẩm.'}</p>
+          <button onClick={onClose} style={{ marginTop: '1rem', padding: '0.5rem 1rem', cursor: 'pointer' }}>Đóng</button>
+        </div>
+      </div>
+    );
+  }
 
   const isOutOfStock = product.stock <= 0;
   const sizeSurcharge = size === 'L' ? 8000 : size === 'M' ? 4000 : 0;

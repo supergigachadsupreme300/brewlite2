@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -15,6 +16,7 @@ import { QueryProductDto } from './dto/query-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './product';
 import { ProductsService } from './products.service';
+import { AdminGuard } from '../auth/admin.guard';
 
 @Controller('products')
 export class ProductsController {
@@ -32,12 +34,14 @@ export class ProductsController {
   }
 
   @Post()
+  @UseGuards(AdminGuard)
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   create(@Body() createProductDto: CreateProductDto): Product {
     return this.productsService.create(createProductDto);
   }
 
   @Patch(':id')
+  @UseGuards(AdminGuard)
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   update(
     @Param('id') id: string,
@@ -47,6 +51,7 @@ export class ProductsController {
   }
 
   @Delete(':id')
+  @UseGuards(AdminGuard)
   remove(@Param('id') id: string): { success: boolean; message: string } {
     return this.productsService.remove(id);
   }

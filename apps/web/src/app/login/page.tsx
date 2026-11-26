@@ -46,7 +46,6 @@ export default function LoginPage() {
       }
       if (data.accessToken) {
         window.localStorage.setItem('token', data.accessToken);
-        window.localStorage.setItem('brewlite_jwt', data.accessToken);
       }
       setSuccess(mode === 'login' ? 'Đăng nhập thành công!' : 'Đăng ký thành công!');
       setTimeout(() => router.push('/'), 800);

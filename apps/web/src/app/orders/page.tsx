@@ -107,7 +107,7 @@ export default function OrderHistoryPage() {
   useEffect(() => {
     const token =
       typeof window !== 'undefined'
-        ? localStorage.getItem('token') || localStorage.getItem('brewlite_jwt')
+        ? localStorage.getItem('token')
         : null;
     if (!token) {
       router.replace('/login');

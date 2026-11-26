@@ -61,4 +61,13 @@ export class CreateOrderDto {
   @IsOptional()
   @IsString()
   userId?: string;
+
+  @IsOptional()
+  @IsString()
+  promoCode?: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  redeemPoints?: number;
 }

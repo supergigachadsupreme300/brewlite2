@@ -42,10 +42,7 @@ const API_BASE_URL = (
 ).replace(/\/$/, '');
 
 function getAccessToken(): string | null {
-  return (
-    window.localStorage.getItem('token') ||
-    window.localStorage.getItem('brewlite_jwt')
-  );
+  return window.localStorage.getItem('token');
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

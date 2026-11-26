@@ -5,10 +5,23 @@ import {
 } from '@nestjs/common';
 import { createHmac, randomBytes, scryptSync, timingSafeEqual } from 'crypto';
 
+export type UserRole = 'ADMIN' | 'CUSTOMER';
+
+export interface LoyaltyTransaction {
+  id: string;
+  userId: string;
+  points: number;
+  type: 'EARN' | 'REDEEM';
+  reason: string;
+  createdAt: string;
+}
+
 export interface AuthUser {
   id: string;
   name: string;
   email: string;
+  role: UserRole;
+  loyaltyPoints: number;
 }
 
 interface StoredUser extends AuthUser {
@@ -19,8 +32,56 @@ interface StoredUser extends AuthUser {
 @Injectable()
 export class AuthService {
   private readonly users: StoredUser[] = [];
+  private readonly loyaltyTransactions: LoyaltyTransaction[] = [];
   private readonly secret: string =
     process.env.JWT_SECRET ?? 'brewlite-dev-secret';
+
+  constructor() {
+    this.seedAdmin();
+  }
+
+  private seedAdmin(): void {
+    const adminEmail = (process.env.ADMIN_EMAIL ?? 'admin@brewlite.com').toLowerCase();
+    const adminPassword = process.env.ADMIN_PASSWORD ?? 'admin123';
+    const adminName = process.env.ADMIN_NAME ?? 'BrewLite Admin';
+
+    if (this.users.some((u) => u.email === adminEmail)) return;
+
+    const salt = randomBytes(16).toString('hex');
+    const hash = scryptSync(adminPassword, salt, 64).toString('hex');
+
+    this.users.push({
+      id: `user-admin-${randomBytes(4).toString('hex')}`,
+      name: adminName,
+      email: adminEmail,
+      role: 'ADMIN',
+      loyaltyPoints: 0,
+      passwordHash: hash,
+      passwordSalt: salt,
+    });
+
+    console.log(`[Auth] Seeded admin account: ${adminEmail} (password: ${adminPassword})`);
+
+    // Seed a customer account for testing order history
+    const customerEmail = (process.env.CUSTOMER_EMAIL ?? 'customer@brewlite.com').toLowerCase();
+    const customerPassword = process.env.CUSTOMER_PASSWORD ?? 'customer123';
+    const customerName = process.env.CUSTOMER_NAME ?? 'BrewLite Customer';
+
+    if (!this.users.some((u) => u.email === customerEmail)) {
+      const salt = randomBytes(16).toString('hex');
+      const hash = scryptSync(customerPassword, salt, 64).toString('hex');
+      this.users.push({
+        id: 'user-customer-seed',
+        name: customerName,
+        email: customerEmail,
+        role: 'CUSTOMER',
+        loyaltyPoints: 0,
+        passwordHash: hash,
+        passwordSalt: salt,
+      });
+      console.log(`[Auth] Seeded customer account: ${customerEmail} (password: ${customerPassword})`);
+    }
+  }
 
   register(name: string, email: string, password: string): {
     user: AuthUser;
@@ -43,10 +104,15 @@ export class AuthService {
     const salt = randomBytes(16).toString('hex');
     const hash = scryptSync(password, salt, 64).toString('hex');
 
+    const adminEmail = (process.env.ADMIN_EMAIL ?? 'admin@brewlite.com').toLowerCase();
+    const role: UserRole = normalizedEmail === adminEmail ? 'ADMIN' : 'CUSTOMER';
+
     const user: StoredUser = {
       id: `user-${Date.now()}-${randomBytes(4).toString('hex')}`,
       name: name.trim(),
       email: normalizedEmail,
+      role,
+      loyaltyPoints: 0,
       passwordHash: hash,
       passwordSalt: salt,
     };
@@ -93,6 +159,44 @@ export class AuthService {
       throw new UnauthorizedException('Người dùng không tồn tại');
     }
     return this.toPublic(user);
+  }
+
+  addLoyaltyPoints(userId: string, points: number, reason: string): void {
+    const user = this.users.find((u) => u.id === userId);
+    if (!user) return;
+    user.loyaltyPoints += points;
+    this.loyaltyTransactions.push({
+      id: `lt-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      userId,
+      points,
+      type: points >= 0 ? 'EARN' : 'REDEEM',
+      reason,
+      createdAt: new Date().toISOString(),
+    });
+  }
+
+  getLoyaltyPoints(userId: string): number {
+    const user = this.users.find((u) => u.id === userId);
+    return user ? user.loyaltyPoints : 0;
+  }
+
+  redeemLoyaltyPoints(userId: string, points: number): boolean {
+    const user = this.users.find((u) => u.id === userId);
+    if (!user || user.loyaltyPoints < points) return false;
+    user.loyaltyPoints -= points;
+    this.loyaltyTransactions.push({
+      id: `lt-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      userId,
+      points: -points,
+      type: 'REDEEM',
+      reason: 'Redeem at checkout',
+      createdAt: new Date().toISOString(),
+    });
+    return true;
+  }
+
+  getLoyaltyHistory(userId: string) {
+    return this.loyaltyTransactions.filter((t) => t.userId === userId);
   }
 
   private signToken(payload: Record<string, unknown>): string {
@@ -167,6 +271,6 @@ export class AuthService {
   }
 
   private toPublic(user: StoredUser): AuthUser {
-    return { id: user.id, name: user.name, email: user.email };
+    return { id: user.id, name: user.name, email: user.email, role: user.role, loyaltyPoints: user.loyaltyPoints };
   }
 }

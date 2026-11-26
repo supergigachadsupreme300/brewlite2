@@ -1,6 +1,7 @@
-import { ConflictException, ForbiddenException, Injectable } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, Optional } from '@nestjs/common';
 import { OrderStatus } from '../orders/order.entity';
 import { OrdersService } from '../orders/orders.service';
+import { AuthService } from '../auth/auth.service';
 import { MockPaymentGateway } from './mock-payment.gateway';
 import {
   CreatePaymentInput,
@@ -16,6 +17,7 @@ export class PaymentsService {
   constructor(
     private readonly mockPaymentGateway: MockPaymentGateway,
     private readonly ordersService: OrdersService,
+    @Optional() private readonly authService?: AuthService,
   ) {}
 
   createPayment(input: CreatePaymentInput, userId?: string): PaymentResult {
@@ -55,6 +57,12 @@ export class PaymentsService {
     const status = this.mockPaymentGateway.charge(input.mockOutcome);
     if (status === PaymentStatus.SUCCESS) {
       this.ordersService.updateStatus(order.id, OrderStatus.PAID);
+      // Award loyalty points: 1 point per 1000 VND
+      if (this.authService && order.userId) {
+        const points = Math.max(1, Math.floor(order.total / 1000));
+        this.authService.addLoyaltyPoints(order.userId, points, `Order ${order.id} payment`);
+        order.pointsEarned = points;
+      }
     } else if (order.status === OrderStatus.PENDING) {
       this.ordersService.updateStatus(order.id, OrderStatus.PAYMENT_FAILED);
     }

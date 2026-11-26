@@ -274,7 +274,7 @@ export default function MenuPage() {
 
       {/* Modal chi tiết sản phẩm */}
       <ProductDetailModal
-        product={selectedProduct}
+        productId={selectedProduct?.id ?? null}
         onClose={() => setSelectedProduct(null)}
       />
 

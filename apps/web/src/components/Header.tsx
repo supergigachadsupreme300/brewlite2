@@ -13,13 +13,12 @@ export function Header({ searchKeyword, onSearchChange, cartCount = 0 }: HeaderP
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const token = window.localStorage.getItem('token') || window.localStorage.getItem('brewlite_jwt');
+    const token = window.localStorage.getItem('token');
     setIsLoggedIn(!!token);
   }, []);
 
   const handleLogout = () => {
     window.localStorage.removeItem('token');
-    window.localStorage.removeItem('brewlite_jwt');
     setIsLoggedIn(false);
     window.location.href = '/';
   };
