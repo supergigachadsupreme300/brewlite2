@@ -3,7 +3,8 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { createHmac, randomBytes, scryptSync, timingSafeEqual } from 'crypto';
+import { createHmac, randomBytes, timingSafeEqual } from 'crypto';
+import * as bcrypt from 'bcryptjs';
 
 export type UserRole = 'ADMIN' | 'CUSTOMER';
 
@@ -47,8 +48,7 @@ export class AuthService {
 
     if (this.users.some((u) => u.email === adminEmail)) return;
 
-    const salt = randomBytes(16).toString('hex');
-    const hash = scryptSync(adminPassword, salt, 64).toString('hex');
+    const hash = bcrypt.hashSync(adminPassword, 10);
 
     this.users.push({
       id: `user-admin-${randomBytes(4).toString('hex')}`,
@@ -57,7 +57,7 @@ export class AuthService {
       role: 'ADMIN',
       loyaltyPoints: 0,
       passwordHash: hash,
-      passwordSalt: salt,
+      passwordSalt: '',
     });
 
     console.log(`[Auth] Seeded admin account: ${adminEmail} (password: ${adminPassword})`);
@@ -68,8 +68,7 @@ export class AuthService {
     const customerName = process.env.CUSTOMER_NAME ?? 'BrewLite Customer';
 
     if (!this.users.some((u) => u.email === customerEmail)) {
-      const salt = randomBytes(16).toString('hex');
-      const hash = scryptSync(customerPassword, salt, 64).toString('hex');
+      const hash = bcrypt.hashSync(customerPassword, 10);
       this.users.push({
         id: 'user-customer-seed',
         name: customerName,
@@ -77,7 +76,7 @@ export class AuthService {
         role: 'CUSTOMER',
         loyaltyPoints: 0,
         passwordHash: hash,
-        passwordSalt: salt,
+        passwordSalt: '',
       });
       console.log(`[Auth] Seeded customer account: ${customerEmail} (password: ${customerPassword})`);
     }
@@ -101,11 +100,10 @@ export class AuthService {
       throw new BadRequestException('Email đã được đăng ký');
     }
 
-    const salt = randomBytes(16).toString('hex');
-    const hash = scryptSync(password, salt, 64).toString('hex');
-
     const adminEmail = (process.env.ADMIN_EMAIL ?? 'admin@brewlite.com').toLowerCase();
     const role: UserRole = normalizedEmail === adminEmail ? 'ADMIN' : 'CUSTOMER';
+
+    const hash = bcrypt.hashSync(password, 10);
 
     const user: StoredUser = {
       id: `user-${Date.now()}-${randomBytes(4).toString('hex')}`,
@@ -114,7 +112,7 @@ export class AuthService {
       role,
       loyaltyPoints: 0,
       passwordHash: hash,
-      passwordSalt: salt,
+      passwordSalt: '',
     };
     this.users.push(user);
 
@@ -138,9 +136,8 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Email hoặc mật khẩu không đúng');
     }
-    const hash = scryptSync(password, user.passwordSalt, 64);
-    const stored = Buffer.from(user.passwordHash, 'hex');
-    if (hash.length !== stored.length || !timingSafeEqual(hash, stored)) {
+    const ok = bcrypt.compareSync(password, user.passwordHash);
+    if (!ok) {
       throw new UnauthorizedException('Email hoặc mật khẩu không đúng');
     }
 
