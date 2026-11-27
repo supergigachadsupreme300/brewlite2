@@ -83,7 +83,7 @@ endif
 :Hiển thị màn hình thanh toán;
 
 |Khách hàng|
-:Chọn phương thức WALLET hoặc CARD;
+:Chọn phương thức MOMO, BANK_TRANSFER hoặc CARD;
 :Nhấn xác nhận thanh toán;
 
 |Next.js UI|
@@ -100,7 +100,7 @@ endif
 
 |NestJS API|
 :Validate orderId, method, idempotencyKey;
-if (Dữ liệu hợp lệ và method\nthuộc WALLET/CARD?) then (không)
+if (Dữ liệu hợp lệ và method\nthuộc MOMO/BANK_TRANSFER/CARD\nvà khớp với phương thức trên Order?) then (không)
   |Next.js UI|
   :Hiển thị lỗi validation;
   stop

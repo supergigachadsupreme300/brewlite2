@@ -17,7 +17,8 @@ skinparam NoteBorderColor #B8860B
 hide empty methods
 
 enum PaymentMethod <<enumeration>> {
-  WALLET
+  MOMO
+  BANK_TRANSFER
   CARD
 }
 

@@ -31,10 +31,9 @@ enum OrderStatus <<enumeration>> {
 }
 
 enum PaymentMethod <<enumeration>> {
-  WALLET
-  CARD
   MOMO
   BANK_TRANSFER
+  CARD
 }
 
 enum PaymentStatus <<enumeration>> {

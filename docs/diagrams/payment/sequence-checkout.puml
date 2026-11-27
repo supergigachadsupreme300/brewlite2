@@ -25,7 +25,7 @@ end note
 
 == Thanh toán – luồng chính, thay thế và ngoại lệ (UC-PAY-01) ==
 
-C -> UI : Chọn WALLET hoặc CARD,\nnhấn xác nhận thanh toán
+C -> UI : Dùng lại MOMO, BANK_TRANSFER hoặc CARD\nđã lưu trên đơn, nhấn xác nhận thanh toán
 activate UI
 UI -> UI : Sinh idempotencyKey (UUID)\nvô hiệu hóa nút để tránh bấm nhiều lần
 UI -> API : POST /payments\n{orderId, method, idempotencyKey}\nAuthorization: Bearer <JWT>
@@ -35,7 +35,7 @@ API -> API : JwtAuthGuard: xác thực JWT\nValidationPipe: validate orderId, me
 alt JWT không hợp lệ hoặc hết hạn (E1)
   API --> UI : 401 Unauthorized
   UI --> C : Yêu cầu đăng nhập lại
-else Thiếu trường hoặc method không thuộc WALLET/CARD (E3)
+else Thiếu trường hoặc method không hợp lệ/\nmethod không khớp phương thức trên Order (E3)
   API --> UI : 400 Bad Request
   UI --> C : Hiển thị lỗi validation
 else Dữ liệu hợp lệ

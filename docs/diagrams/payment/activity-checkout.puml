@@ -21,7 +21,8 @@ note right
   (kể cả bước kiểm tra tồn kho / hết hàng
   thuộc module Order, xảy ra trước điểm này).
 end note
-:Chọn phương thức WALLET hoặc CARD;
+:Chọn phương thức đã lưu trên đơn:
+MOMO, BANK_TRANSFER hoặc CARD;
 :Nhấn xác nhận thanh toán;
 
 |Next.js UI|
@@ -43,7 +44,7 @@ endif
 
 |NestJS API|
 :Validate orderId, method, idempotencyKey;
-if (Đủ trường và method\nthuộc WALLET/CARD?) then (không – E3)
+if (Đủ trường và method\nthuộc MOMO/BANK_TRANSFER/CARD\nvà khớp với method trên Order?) then (không – E3)
   |Next.js UI|
   :Hiển thị lỗi validation;
   stop

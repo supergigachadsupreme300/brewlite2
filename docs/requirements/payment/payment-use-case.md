@@ -100,7 +100,7 @@
 
 ### E3 – Dữ liệu đầu vào không hợp lệ
 
-- Tại bước 4, thiếu `orderId`, `method`, `idempotencyKey` hoặc method không thuộc `WALLET`/`CARD`.
+- Tại bước 4, thiếu `orderId`, `method`, `idempotencyKey`; method không thuộc `MOMO`/`BANK_TRANSFER`/`CARD`; hoặc method không khớp phương thức đã lưu trên đơn.
 - Backend trả lỗi validation.
 - Frontend hiển thị thông báo phù hợp.
 
